@@ -1,0 +1,222 @@
+/* PropertyRow.css */
+
+.property-row {
+    display: grid;
+    /* grid-template-columns: 50px 120px 1fr 200px 220px; */
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    transition: background-color 0.2s ease;
+  }
+  
+  .property-row:hover {
+    background-color: #f9fafb;
+  }
+  
+  /* Serial Number */
+  .property-index {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .property-index span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  
+  /* Image Section */
+  .property-image {
+    width: 100%;
+    height: 70px;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  
+  .property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: #e5e7eb;
+    color: #6b7280;
+    font-size: 12px;
+  }
+  
+  /* Property Details */
+  .property-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  
+  .property-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111827;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .property-address {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .property-specs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  
+  .property-price {
+    font-weight: 600;
+    color: #047857;
+  }
+  
+  .property-divider {
+    color: #d1d5db;
+  }
+  
+  .property-type, .property-rooms {
+    color: #4b5563;
+  }
+  
+  /* Developer Info */
+  .property-developer {
+    padding-left: 16px;
+    border-left: 1px solid #e5e7eb;
+  }
+  
+  .developer-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+    margin: 0 0 2px 0;
+  }
+  
+  .developer-company {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+  }
+  
+  /* Actions */
+  .property-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .action-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .action-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .view-button {
+    background-color: #2563eb;
+    color: white;
+  }
+  
+  .view-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .edit-button {
+    background-color: #f59e0b;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #d97706;
+  }
+  
+  .delete-button {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #dc2626;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .property-row {
+      grid-template-columns: 40px 100px 1fr 180px 200px;
+      gap: 12px;
+    }
+    
+    .property-image {
+      height: 60px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .property-row {
+      grid-template-columns: 40px 80px 1fr 150px;
+      gap: 8px;
+    }
+    
+    .property-actions {
+      grid-column: 1 / -1;
+      justify-content: flex-start;
+      padding-top: 8px;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .property-row {
+      grid-template-columns: 40px 70px 1fr;
+      gap: 8px;
+      padding: 12px 8px;
+    }
+    
+    .property-developer {
+      grid-column: 2 / span 2;
+      border-left: none;
+      padding-left: 0;
+      padding-top: 8px;
+    }
+    
+    .property-actions {
+      grid-column: 1 / -1;
+    }
+  }
