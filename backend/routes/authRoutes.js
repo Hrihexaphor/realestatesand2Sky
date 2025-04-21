@@ -1,5 +1,5 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { findAdmiByEmail,createAdmin } from '../services/adminServices.js';    
 
 const router = express.Router();

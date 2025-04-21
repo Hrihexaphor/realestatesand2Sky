@@ -1,11 +1,11 @@
 import pool from '../config/db.js';
-export async function subcategoryExists(name, category_id) {
-  const result = await pool.query(
-    'SELECT * FROM property_subcategory WHERE name = $1 AND category_id = $2',
-    [name, category_id]
-  );
-  return result.rows.length > 0;
-}
+// export async function subcategoryExists(name, category_id) {
+//   const result = await pool.query(
+//     'SELECT * FROM property_subcategory WHERE name = $1 AND category_id = $2',
+//     [name, category_id]
+//   );
+//   return result.rows.length > 0;
+// }
 // Add Property Subcategory
 export async function addPropertySubcategory(name, category_id) {
   const result = await pool.query(
