@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import axios from 'axios';
 import { Map, Building, Home, MapPin } from 'lucide-react';
 import './propertyForm.css';
 
 const PropertyForm = ({editData,onClose}) => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [basic, setBasic] = useState({
     property_category: '',
     property_type: '',
@@ -28,6 +29,7 @@ const PropertyForm = ({editData,onClose}) => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const addressInputRef = useRef(null);
   // edit property 
     useEffect(() => {
       if (editData) {
@@ -131,10 +133,10 @@ const PropertyForm = ({editData,onClose}) => {
     const fetchData = async () => {
       try {
         const [amenityRes, developerRes, nearestRes, categoryRes] = await Promise.all([
-          axios.get('http://localhost:3001/api/amenities'),
-          axios.get('http://localhost:3001/api/developer'),
-          axios.get('http://localhost:3001/api/nearest'),
-          axios.get('http://localhost:3001/api/category')
+          axios.get(`${BASE_URL}/api/amenities`),
+          axios.get(`${BASE_URL}/api/developer`),
+          axios.get(`${BASE_URL}/api/nearest`),
+          axios.get(`${BASE_URL}/api/category`)
         ]);
         
         setAmenities(amenityRes.data);
@@ -158,7 +160,7 @@ const PropertyForm = ({editData,onClose}) => {
       }
       
       try {
-        const response = await axios.get(`http://localhost:3001/api/subcategory/${categoryId}`);
+        const response = await axios.get(`${BASE_URL}/api/subcategory/${categoryId}`);
         setSubcategories(response.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);
@@ -167,79 +169,110 @@ const PropertyForm = ({editData,onClose}) => {
     };
   // Initialize Google Maps
   const initMap = () => {
-    if (window.google && !mapLoaded) {
-      // Default coordinates (can be your city center)
-      const defaultLocation = { lat: 28.6139, lng: 77.2090 }; // Delhi, India as example
-      
-      const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
-        center: defaultLocation,
-        zoom: 12,
-        mapTypeControl: true,
-        streetViewControl: false
-      });
-      
-      const markerInstance = new window.google.maps.Marker({
-        position: defaultLocation,
-        map: mapInstance,
-        draggable: true
-      });
-      
-      // Set initial coordinates
-      setLocation({ 
-        latitude: defaultLocation.lat, 
-        longitude: defaultLocation.lng, 
-        address: '' 
-      });
-      
-      // Add click listener
-      mapInstance.addListener('click', (e) => {
-        const lat = e.latLng.lat();
-        const lng = e.latLng.lng();
-        
-        markerInstance.setPosition({ lat, lng });
-        setLocation({ ...location, latitude: lat, longitude: lng });
-        
-        // Get address from coordinates (reverse geocoding)
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-          if (status === 'OK' && results[0]) {
-            setLocation(prev => ({ ...prev, address: results[0].formatted_address }));
-          }
-        });
-      });
-      
-      // Add marker drag listener
-      markerInstance.addListener('dragend', () => {
-        const position = markerInstance.getPosition();
-        const lat = position.lat();
-        const lng = position.lng();
-        
-        setLocation({ ...location, latitude: lat, longitude: lng });
-        
-        // Get address from coordinates (reverse geocoding)
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-          if (status === 'OK' && results[0]) {
-            setLocation(prev => ({ ...prev, address: results[0].formatted_address }));
-          }
-        });
-      });
-      
-      setMap(mapInstance);
-      setMarker(markerInstance);
-      setMapLoaded(true);
-    } else if (!window.google) {
-      // Google Maps script isn't loaded
+    if (!window.google) {
+      // Google Maps script isn't loaded yet
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyD5wm8v-1UOn3-5Dtwr2tKyTwGpUTHaEeU&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
         setMapLoaded(true);
-        initMap();
+        initMap(); // Retry after script loads
       };
       document.head.appendChild(script);
+      return;
     }
+  
+    if (mapLoaded) return; // Prevent reinitialization
+  
+    const defaultLocation = { lat: 28.6139, lng: 77.2090 }; // Delhi, India
+  
+    const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
+      center: defaultLocation,
+      zoom: 12,
+      mapTypeControl: true,
+      streetViewControl: false,
+    });
+  
+    const markerInstance = new window.google.maps.Marker({
+      position: defaultLocation,
+      map: mapInstance,
+      draggable: true,
+    });
+  
+    setLocation({
+      latitude: defaultLocation.lat,
+      longitude: defaultLocation.lng,
+      address: '',
+    });
+  
+    // Map click to update marker and reverse geocode
+    mapInstance.addListener('click', (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+  
+      markerInstance.setPosition({ lat, lng });
+      setLocation((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+  
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          setLocation((prev) => ({
+            ...prev,
+            address: results[0].formatted_address,
+          }));
+        }
+      });
+    });
+  
+    // Marker drag to update location
+    markerInstance.addListener('dragend', () => {
+      const position = markerInstance.getPosition();
+      const lat = position.lat();
+      const lng = position.lng();
+  
+      setLocation((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+  
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          setLocation((prev) => ({
+            ...prev,
+            address: results[0].formatted_address,
+          }));
+        }
+      });
+    });
+  
+    // Setup autocomplete on address input
+    if (addressInputRef.current) {
+      const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current, {
+        types: ['geocode'],
+        componentRestrictions: { country: 'in' },
+      });
+  
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) return;
+  
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+  
+        mapInstance.setCenter({ lat, lng });
+        markerInstance.setPosition({ lat, lng });
+  
+        setLocation({
+          address: place.formatted_address,
+          latitude: lat,
+          longitude: lng,
+        });
+      });
+    }
+  
+    // Save map and marker instances
+    setMap(mapInstance);
+    setMarker(markerInstance);
+    setMapLoaded(true);
   };
 
   // Use browser's geolocation
@@ -396,14 +429,14 @@ const handleSubmit = async (e) => {
         
         // Update the property data without images
         await axios.put(
-          `http://localhost:3001/api/property/${editData.id}`,
+          `${BASE_URL}/api/property/${editData.id}`,
           propertyData,
           { headers: { 'Content-Type': 'application/json' } }
         );
       } else {
         // No new images, just send JSON data directly
         await axios.put(
-          `http://localhost:3001/api/property/${editData.id}`,
+          `${BASE_URL}/api/property/${editData.id}`,
           propertyData,
           { headers: { 'Content-Type': 'application/json' } }
         );
@@ -432,7 +465,7 @@ const handleSubmit = async (e) => {
       });
       
       await axios.post(
-        'http://localhost:3001/api/property',
+        `${BASE_URL}/api/property`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -992,13 +1025,14 @@ const handleSubmit = async (e) => {
             <div className="form-group full-width">
               <label>Address*</label>
               <div className="address-input">
-                <input 
-                  type="text"
-                  value={location.address}
-                  onChange={(e) => setLocation({ ...location, address: e.target.value })}
-                  placeholder="Enter complete address"
-                  required
-                />
+              <input 
+  type="text"
+  ref={addressInputRef}
+  value={location.address}
+  onChange={(e) => setLocation({ ...location, address: e.target.value })}
+  placeholder="Enter complete address"
+  required
+/>
                 <button 
                   type="button" 
                   className="search-btn"

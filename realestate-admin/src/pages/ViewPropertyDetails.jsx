@@ -10,12 +10,12 @@ export default function ViewPropertyDetails() {
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`http://localhost:3001/api/property/${id}`);
+        const res = await axios.get(`${BASE_URL}/api/property/${id}`);
         console.log(res.data)
         setProperty(res.data);
       } catch (err) {

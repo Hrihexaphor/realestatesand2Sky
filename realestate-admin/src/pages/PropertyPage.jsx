@@ -11,14 +11,14 @@ export default function PropertyPage() {
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState(null);
   const navigate = useNavigate();
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchProperties();
   }, []);
 
   const fetchProperties = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/property');
+      const res = await axios.get(`${BASE_URL}/api/property`);
       console.log(res.data)
       setProperties(res.data);
     } catch (err) {
@@ -29,7 +29,7 @@ export default function PropertyPage() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/property/${id}`);
+      await axios.delete(`${BASE_URL}/api/property/${id}`);
       toast.success('Property deleted');
       fetchProperties();
     } catch (err) {
