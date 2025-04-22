@@ -43,6 +43,9 @@ app.use('/api',propertyRoutes)
 app.use('/api',categoryRoutes)
 app.use('/api',subcategoryRoutes)
 app.use('/api',blogRoutes)
+app.use('/test',(req,res)=>{
+  res.json({message:"hello hritesh"})
+})
 app.listen(PORT, () => {  
     console.log(`Server running on port ${PORT}`);     
 }
