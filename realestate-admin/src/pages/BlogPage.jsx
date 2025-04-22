@@ -7,14 +7,14 @@ export default function BlogPage() {
   const [blogs, setBlogs] = useState([]);
   const [form, setForm] = useState({ title: '', description: '', image: null });
   const [editingId, setEditingId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchBlogs();
   }, []);
 
   const fetchBlogs = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/blogs');
+      const res = await axios.get(`${BASE_URL}/api/blogs`);
       setBlogs(res.data.blogs || []);
     } catch (err) {
       toast.error('Failed to fetch blogs');
@@ -39,10 +39,10 @@ export default function BlogPage() {
 
     try {
       if (editingId) {
-        await axios.put(`http://localhost:3001/api/blogs/${editingId}`, formData);
+        await axios.put(`${BASE_URL}/api/blogs/${editingId}`, formData);
         toast.success('Blog updated');
       } else {
-        await axios.post('http://localhost:3001/api/addblog', formData);
+        await axios.post(`${BASE_URL}/api/addblog`, formData);
         toast.success('Blog added');
       }
       setForm({ title: '', description: '', image: null });
@@ -60,7 +60,7 @@ export default function BlogPage() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/blogs/${id}`);
+      await axios.delete(`${BASE_URL}/api/blogs/${id}`);
       toast.success('Blog deleted');
       fetchBlogs();
     } catch (err) {

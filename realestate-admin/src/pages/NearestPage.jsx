@@ -6,10 +6,10 @@ const NearestToPage = () => {
   const [nearestList, setNearestList] = useState([]);
   const [form, setForm] = useState({ name: "" });
   const [editId, setEditId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchNearest = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/nearest");
+      const res = await axios.get(`${BASE_URL}/api/nearest`);
       setNearestList(res.data);
     } catch (err) {
       toast.error("Failed to fetch nearest locations");
@@ -24,10 +24,10 @@ const NearestToPage = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(`http://localhost:3001/api/nearest/${editId}`, form);
+        await axios.put(`${BASE_URL}/api/nearest/${editId}`, form);
         toast.success("Nearest location updated");
       } else {
-        await axios.post("http://localhost:3001/api/nearest", form);
+        await axios.post(`${BASE_URL}/api/nearest`, form);
         toast.success("Nearest location added");
       }
       setForm({ name: "" });
@@ -46,7 +46,7 @@ const NearestToPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this?")) return;
     try {
-      await axios.delete(`http://localhost:3001/api/nearest/${id}`);
+      await axios.delete(`${BASE_URL}/api/nearest/${id}`);
       toast.success("Deleted successfully");
       fetchNearest();
     } catch (err) {

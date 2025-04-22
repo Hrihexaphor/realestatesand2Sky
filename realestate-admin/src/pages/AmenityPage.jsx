@@ -5,9 +5,9 @@ import { toast } from 'react-toastify';
 const AmenityPage = () => {
   const [amenities, setAmenities] = useState([]);
   const [form, setForm] = useState({ name: '', icon: '' });
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchAmenities = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/amenities`);
+    const res = await axios.get(`${BASE_URL}/api/amenities`);
     setAmenities(res.data);
   };
 
@@ -17,7 +17,7 @@ const AmenityPage = () => {
 
   const handleAdd = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/amenities`, form);
+      await axios.post(`${BASE_URL}/api/amenities`, form);
       toast.success('Amenity added');
       fetchAmenities();
     } catch (err) {
@@ -26,7 +26,7 @@ const AmenityPage = () => {
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/amenities${id}`);
+    await axios.delete(`${BASE_URL}/api/amenities${id}`);
     fetchAmenities();
   };
 

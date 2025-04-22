@@ -14,14 +14,14 @@ const DeveloperPage = () => {
     state: '',
   });
   const [editingId, setEditingId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchDevelopers();
   }, []);
 
   const fetchDevelopers = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/developer');
+      const res = await axios.get(`${BASE_URL}/api/developer`);
       setDevelopers(res.data);
     } catch (err) {
       toast.error('Failed to fetch developers');
@@ -35,10 +35,10 @@ const DeveloperPage = () => {
   const handleSubmit = async () => {
     try {
       if (editingId) {
-        await axios.put(`http://localhost:3001/api/developer/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/developer/${editingId}`, form);
         toast.success('Developer updated');
       } else {
-        await axios.post('http://localhost:3001/api/developer', form);
+        await axios.post(`${BASE_URL}/api/developer`, form);
         toast.success('Developer added');
       }
       setForm({ name: '', company_name: '', contact_email: '', phone_number: '', address: '', city: '', state: '' });
@@ -56,7 +56,7 @@ const DeveloperPage = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/developer/${id}`);
+      await axios.delete(`${BASE_URL}/api/developer/${id}`);
       toast.success('Developer deleted');
       fetchDevelopers();
     } catch (err) {

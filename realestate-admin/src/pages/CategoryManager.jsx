@@ -11,7 +11,7 @@ const CategoryManager = () => {
   const [subcategoryName, setSubcategoryName] = useState('');
   const [subcategoryCategoryId, setSubcategoryCategoryId] = useState('');
   const [editingSubcategoryId, setEditingSubcategoryId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetchCategories();
     fetchSubcategories();
@@ -19,7 +19,7 @@ const CategoryManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/category');
+      const res = await axios.get(`${BASE_URL}/api/category`);
       setCategories(res.data);
     } catch (err) {
       toast.error('Failed to load categories');
@@ -28,7 +28,7 @@ const CategoryManager = () => {
 
   const fetchSubcategories = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/subcategory');
+      const res = await axios.get(`${BASE_URL}/api/subcategory`);
       setSubcategories(res.data);
     } catch (err) {
       toast.error('Failed to load subcategories');
@@ -40,11 +40,11 @@ const CategoryManager = () => {
     try {
       if (editingCategoryId) {
         // Update category
-        await axios.put(`http://localhost:3001/api/category/${editingCategoryId}`, { name: categoryName });
+        await axios.put(`${BASE_URL}/api/category/${editingCategoryId}`, { name: categoryName });
         toast.success('Category updated');
       } else {
         // Add category
-        await axios.post('http://localhost:3001/api/category', { name: categoryName });
+        await axios.post(`${BASE_URL}/api/category`, { name: categoryName });
         toast.success('Category added');
       }
       setCategoryName('');
@@ -63,7 +63,7 @@ const CategoryManager = () => {
   const handleCategoryDelete = async (id) => {
     if (window.confirm('Delete this category?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/category/${id}`);
+        await axios.delete(`${BASE_URL}/api/category/${id}`);
         toast.success('Category deleted');
         fetchCategories();
       } catch (err) {
@@ -77,14 +77,14 @@ const CategoryManager = () => {
     try {
       if (editingSubcategoryId) {
         // Update subcategory
-        await axios.put(`http://localhost:3001/api/subcategory/${editingSubcategoryId}`, {
+        await axios.put(`${BASE_URL}/api/subcategory/${editingSubcategoryId}`, {
           name: subcategoryName,
           category_id: subcategoryCategoryId
         });
         toast.success('Subcategory updated');
       } else {
         // Add subcategory
-        await axios.post('http://localhost:3001/api/subcategory', {
+        await axios.post(`${BASE_URL}/api/subcategory`, {
           name: subcategoryName,
           category_id: subcategoryCategoryId
         });
@@ -108,7 +108,7 @@ const CategoryManager = () => {
   const handleSubcategoryDelete = async (id) => {
     if (window.confirm('Delete this subcategory?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/subcategory/${id}`);
+        await axios.delete(`${BASE_URL}/api/subcategory/${id}`);
         toast.success('Subcategory deleted');
         fetchSubcategories();
       } catch (err) {

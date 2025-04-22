@@ -10,13 +10,13 @@ const LoginPage = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await axios.post('https://realestatesand2sky.onrender.com/api/admin/login', form, {
+      const res = await axios.post(`${BASE_URL}/api/admin/login`, form, {
         withCredentials: true,
       });
       console.log('Login successful:', res.data);
