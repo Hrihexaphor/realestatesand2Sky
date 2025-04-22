@@ -7,7 +7,7 @@ const AmenityPage = () => {
   const [form, setForm] = useState({ name: '', icon: '' });
 
   const fetchAmenities = async () => {
-    const res = await axios.get('http://localhost:3001/api/amenities');
+    const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/amenities`);
     setAmenities(res.data);
   };
 
@@ -17,7 +17,7 @@ const AmenityPage = () => {
 
   const handleAdd = async () => {
     try {
-      await axios.post('http://localhost:3001/api/amenities', form);
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/amenities`, form);
       toast.success('Amenity added');
       fetchAmenities();
     } catch (err) {
@@ -26,7 +26,7 @@ const AmenityPage = () => {
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:3001/api/amenities${id}`);
+    await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/amenities${id}`);
     fetchAmenities();
   };
 

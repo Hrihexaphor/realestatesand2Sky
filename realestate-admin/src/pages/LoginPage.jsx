@@ -16,7 +16,7 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:3001/api/admin/login', form, {
+      const res = await axios.post('https://realestatesand2sky.onrender.com/api/admin/login', form, {
         withCredentials: true,
       });
       console.log('Login successful:', res.data);

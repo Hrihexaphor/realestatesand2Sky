@@ -58,28 +58,52 @@ const PropertyForm = ({editData,onClose}) => {
           ['city', 'locality', 'description'].forEach(field => {
             if (editData[field]) detailsFields[field] = editData[field];
           });
-          
+          const categoryName = editData.category_name;
           // Specific fields based on property type
-          if (editData.property_type === 'Apartment') {
+          if (categoryName === 'Apartment' || categoryName === 'Flat') {
             ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'super_area', 
             'carpet_area', 'furnished_status', 'age'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
-          } else if (editData.property_type === 'Villa') {
+          } else if (categoryName === 'Villa' || categoryName === 'House') {
             ['bedrooms', 'bathrooms', 'built_up_area', 'plot_area', 'total_floors',
             'furnished_status', 'age', 'garden_area'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
-          } else if (editData.property_type === 'Plot') {
+          } else if (categoryName === 'Plot' || categoryName === 'Land') {
             ['plot_area', 'plot_length', 'plot_breadth', 'plot_type', 'facing', 
             'project_rera_id'].forEach(field => {
+              if (editData[field] !== undefined) detailsFields[field] = editData[field];
+            });
+          } else if (categoryName === 'Hostel') {
+            ['total_rooms', 'room_sharing', 'furnished_status'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           }
           
           setDetails(detailsFields);
         }
-      
+      // edit images
+      if (editData && editData.images && Array.isArray(editData.images)) {
+        // Convert image URLs to a format your component can display
+        const existingImages = editData.images.map(img => ({
+          url: img.image_url,
+          id: img.id,
+          is_primary: img.is_primary
+        }));
+        setImages(existingImages);
+      }
+      // edit document
+      if (editData && editData.documents && Array.isArray(editData.documents)) {
+        // Convert document data to the format expected by your component
+        const existingDocs = editData.documents.map(doc => ({
+          file: { name: doc.type.replace(/_/g, ' ') + ' file' }, // Get filename from URL or use type as name
+          type: doc.type,
+          url: doc.file_url,
+          id: doc.id
+        }));
+        setDocuments(existingDocs);
+      }
       // Rest of the existing useEffect code...
       setLocation({
         latitude: editData.latitude || '',
