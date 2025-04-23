@@ -1,7 +1,12 @@
 import multer from 'multer';
-import blogStorage from '../utils/cloudinary.js'; // adjust path if needed
+import cloudinaryConfig from '../utils/cloudinary.js'; // Import the default export
 
-const uploadBlogImage = multer({ storage: blogStorage });
+// Get blogStorage from the imported object
+const uploadBlogImage = multer({
+  storage: cloudinaryConfig.blogStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
 
 export default uploadBlogImage;
-
