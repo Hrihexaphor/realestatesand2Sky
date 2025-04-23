@@ -78,16 +78,15 @@ router.post('/property', upload.fields([
     // Process images
     if (req.files?.images?.length > 0) {
       const imageLinks = req.files.images.map((file, index) => ({
-        image_url: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`,
+        image_url: file.path, // Cloudinary URL
         is_primary: index === 0
       }));
       await insertImages(property.id, imageLinks);
     }
-
-    // Process documents
+    
     if (req.files?.documents?.length > 0) {
       let documents_metadata = [];
-
+    
       try {
         documents_metadata = Array.isArray(req.body.documentMeta)
           ? req.body.documentMeta
@@ -96,15 +95,15 @@ router.post('/property', upload.fields([
         console.warn('Invalid documentMeta:', err);
         documents_metadata = [];
       }
-
+    
       const documents = req.files.documents.map(file => {
         const meta = documents_metadata.find(m => m.filename === file.originalname);
         return {
-          file_url: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`,
+          file_url: file.path, // Cloudinary URL
           type: meta?.type || null
         };
       });
-
+    
       await insertPropertyDocuments(property.id, documents);
     }
 

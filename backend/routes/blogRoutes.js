@@ -7,7 +7,7 @@ const router = express.Router()
 router.post('/addblog', uploadBlogImage.single('blogImage'), async (req, res) => {
   try {
     const { title, description } = req.body;
-    const image_url = req.file ? `${req.protocol}://${req.get('host')}/uploads/blogs/${req.file.filename}` : null;
+    const image_url = req.file ? req.file.path : null; // Cloudinary gives a secure URL in `path`
 
     const blog = await addBlog({ title, description, image_url });
     res.status(201).json({ blog });
