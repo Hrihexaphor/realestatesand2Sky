@@ -24,11 +24,14 @@ router.post('/addblog', (req, res, next) => {
   });
 }, async (req, res) => {
   try {
-    // Log successful upload
-    console.log('File upload successful:', req.file);
+    // Log successful upload and inspect the file object
+    console.log('File upload successful, full file object:', req.file);
     
     const { title, description } = req.body;
-    const image_url = req.file ? req.file.path : null; // Cloudinary URL
+    // Use secure_url instead of path for Cloudinary
+    const image_url = req.file ? req.file.secure_url : null;
+    
+    console.log('Image URL to be saved:', image_url);
 
     // Add additional validation if needed
     if (!title || !description) {
@@ -46,13 +49,17 @@ router.post('/addblog', (req, res, next) => {
   }
 });
 router.get('/blogs', async (req, res) => {
-    try {
-      const blogs = await getAllBlogs();
-      res.status(200).json({ blogs });
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+  try {
+    const blogs = await getAllBlogs();
+    
+    // Log the image URLs to check their format
+    console.log('Blog image URLs:', blogs.map(blog => blog.image_url));
+    
+    res.status(200).json({ blogs });
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
   
   export default router;
