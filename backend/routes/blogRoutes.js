@@ -1,6 +1,7 @@
 import express from 'express';
 import uploadBlogImage from '../middleware/blogUpload.js';
 import { addBlog,getAllBlogs } from '../services/blogServices.js';
+import multer from 'multer';
 const router = express.Router()
 
 // / Route to add a new blog post
