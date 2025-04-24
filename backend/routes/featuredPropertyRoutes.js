@@ -1,5 +1,5 @@
 import express from 'express';
-import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured } from '../services/featuredProperty.js';
+import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,getFeaturedPropertiesWithDetails } from '../services/featuredProperty.js';
 const router = express.Router();
 
 router.post('/addtofeatured', async (req, res) => {
@@ -47,4 +47,13 @@ router.get('/featuredids', async (req, res) => {
     }
 });
 
+// get all featured property with details
+router.get('/featuredproperties',async(req,res)=>{
+    try {
+        const properties = await getFeaturedPropertiesWithDetails();
+        res.status(200).json(properties);
+      } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch featured property details', details: err.message });
+      }
+})
 export default router;
