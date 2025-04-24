@@ -654,7 +654,7 @@ export const getNewProperties = async () => {
       LEFT JOIN developer d ON p.developer_id = d.id
       LEFT JOIN property_category pc ON p.category_id = pc.id
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-      WHERE p.transation_type = $1
+      WHERE p.transaction_type = $1
       ORDER BY p.id DESC
     `, ['New Property']);
   
