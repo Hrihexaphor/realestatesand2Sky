@@ -63,7 +63,7 @@ export async function insertPropertyDetails(property_id, details) {
      'locality', 'bedrooms', 'balconies', 'bathrooms', 'total_floors', 
      'facing', 'furnished_status', 'covered_parking', 'plot_area', 
      'built_up_area', 'carpet_area', 'plot_length', 'description', 
-     'about_location', 'plot_breadth', 'project_name'
+     'about_location', 'plot_breadth', 'project_name','floor'
    ];
    
    // Filter out undefined fields
@@ -505,174 +505,194 @@ export const searchProperty = async (filters) => {
   //  get properyt by id function
 
   export const getpropertyById = async (propertyId) => {
-    // 1. Fetch basic info, developer, category, and subcategory names
-    const { rows: basicRows } = await pool.query(
-      `SELECT 
-        p.*, 
-        d.name AS developer_name,
-        c.name AS category_name,
-        s.name AS property_subcategory_name
-       FROM property p
-       LEFT JOIN developer d ON p.developer_id = d.id
-       LEFT JOIN property_category c ON p.category_id = c.id
-       LEFT JOIN property_subcategory s ON p.subcategory_id = s.id
-       WHERE p.id = $1`,
-      [propertyId]
-    );
-    if (basicRows.length === 0) return null;
+    try {
+      // 1. Basic + developer + category + subcategory
+      const { rows: basicRows } = await pool.query(
+        `SELECT 
+          p.*, 
+          d.name AS developer_name,
+          d.company_name AS developer_company_name,
+          c.name AS property_category_name,
+          s.name AS property_subcategory_name
+        FROM property p
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category c ON p.category_id = c.id
+        LEFT JOIN property_subcategory s ON p.subcategory_id = s.id
+        WHERE p.id = $1`,
+        [propertyId]
+      );
+      if (basicRows.length === 0) return null;
+      const basic = basicRows[0];
   
-    const basic = basicRows[0];
+      // 2. Details
+      const { rows: detailsRows } = await pool.query(
+        `SELECT * FROM property_details WHERE property_id = $1`,
+        [propertyId]
+      );
   
-    // 2. Property details
-    const { rows: detailsRows } = await pool.query(
-      `SELECT * FROM property_details WHERE property_id = $1`,
-      [propertyId]
-    );
+      // 3. Location
+      const { rows: locationRows } = await pool.query(
+        `SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`,
+        [propertyId]
+      );
   
-    // 3. Location
-    const { rows: locationRows } = await pool.query(
-      `SELECT * FROM property_location WHERE property_id = $1`,
-      [propertyId]
-    );
+      // 4. Images
+      const { rows: imageRows } = await pool.query(
+        `SELECT * FROM property_images WHERE property_id = $1`,
+        [propertyId]
+      );
   
-    // 4. Images
-    const { rows: imageRows } = await pool.query(
-      `SELECT * FROM property_images WHERE property_id = $1`,
-      [propertyId]
-    );
+      // 5. Documents
+      const { rows: documentRows } = await pool.query(
+        `SELECT id, type, file_url FROM property_documents WHERE property_id = $1`,
+        [propertyId]
+      );
   
-    // 5. Documents
-    const { rows: documentRows } = await pool.query(
-      `SELECT * FROM property_documents WHERE property_id = $1`,
-      [propertyId]
-    );
+      // 6. Amenities
+      const { rows: amenitiesRows } = await pool.query(
+        `SELECT a.id, a.name, a.icon
+         FROM property_amenity pa
+         JOIN amenity a ON pa.amenity_id = a.id
+         WHERE pa.property_id = $1`,
+        [propertyId]
+      );
   
-    // 6. Amenities
-    const { rows: amenitiesRows } = await pool.query(
-      `SELECT a.id, a.name, a.icon
-       FROM property_amenity pa
-       JOIN amenity a ON pa.amenity_id = a.id
-       WHERE pa.property_id = $1`,
-      [propertyId]
-    );
+      // 7. Nearest To
+      const { rows: nearestRows } = await pool.query(
+        `SELECT nt.id, nt.name, pnt.distance_km
+         FROM property_nearest_to pnt
+         JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
+         WHERE pnt.property_id = $1`,
+        [propertyId]
+      );
   
-    // 7. Nearest places
-    const { rows: nearestRows } = await pool.query(
-      `SELECT pn.nearest_to_id, n.name, pn.distance_km 
-       FROM property_nearest_to pn 
-       JOIN nearest_to n ON pn.nearest_to_id = n.id 
-       WHERE pn.property_id = $1`,
-      [propertyId]
-    );
-  
-    return {
-      basic,
-      details: detailsRows[0] || null,
-      location: locationRows[0] || null,
-      images: imageRows,
-      documents: documentRows,
-      amenities: amenitiesRows,
-      nearest_to: nearestRows
-    };
+      return {
+        basic,
+        details: detailsRows[0] || null,
+        location: locationRows[0] || null,
+        images: imageRows,
+        documents: documentRows,
+        amenities: amenitiesRows,
+        nearest_to: nearestRows
+      };
+    } catch (error) {
+      console.error('Error fetching property by ID:', error);
+      throw new Error(`Failed to fetch property by ID: ${error.message}`);
+    }
   };
+  
   
 // ready to move property services
 
 export const getReadyToMoveProperties = async ()=>{
-  const {rows : propertyRows} = await pool.query(
-    `SELECT * FROM property WHERE possession_status = $1`,
-    ['Ready to Move']
-  );
-   const readyProperties = []
-   for (const property of propertyRows) {
+  try{
+  const { rows: propertyRows } = await pool.query(`
+    SELECT 
+      p.*, 
+      d.name AS developer_name, d.company_name AS developer_company_name,
+      pc.name AS property_category_name,
+      psc.name AS property_subcategory_name
+    FROM property p
+    LEFT JOIN developer d ON p.developer_id = d.id
+    LEFT JOIN property_category pc ON p.category_id = pc.id
+    LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+    WHERE p.possession_status = $1
+    ORDER BY p.id DESC
+  `, ['Ready to Move']);
+
+  const readyProperties = [];
+
+  for (const property of propertyRows) {
     const id = property.id;
 
-    const detailsRes = await pool.query(`SELECT * FROM property_details WHERE property_id = $1`, [id]);
-    const imagesRes = await pool.query(`SELECT * FROM property_images WHERE property_id = $1`, [id]);
-    const locationRes = await pool.query(`SELECT * FROM property_location WHERE property_id = $1`, [id]);
-    const nearestRes = await pool.query(
-      `SELECT pn.nearest_to_id, n.name, pn.distance_km
-       FROM property_nearest_to pn
-       JOIN nearest_to n ON pn.nearest_to_id = n.id
-       WHERE pn.property_id = $1`,
-      [id]
-    );
-
-    const amenitiesRes = await pool.query(
-      `SELECT a.id, a.name, a.icon
-       FROM property_amenity pa
-       JOIN amenity a ON pa.amenity_id = a.id
-       WHERE pa.property_id = $1`,
-      [id]
-    );
+    const [{ rows: detailsRows }, { rows: imagesRows }, { rows: locationRows },
+           { rows: nearestRows }, { rows: amenitiesRows }, { rows: documentRows }] = await Promise.all([
+      pool.query(`SELECT * FROM property_details WHERE property_id = $1`, [id]),
+      pool.query(`SELECT * FROM property_images WHERE property_id = $1`, [id]),
+      pool.query(`SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`, [id]),
+      pool.query(`SELECT nt.id, nt.name, pnt.distance_km
+                  FROM property_nearest_to pnt
+                  JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
+                  WHERE pnt.property_id = $1`, [id]),
+      pool.query(`SELECT a.id, a.name, a.icon
+                  FROM property_amenity pa
+                  JOIN amenity a ON pa.amenity_id = a.id
+                  WHERE pa.property_id = $1`, [id]),
+      pool.query(`SELECT id, type, file_url FROM property_documents WHERE property_id = $1`, [id])
+    ]);
 
     readyProperties.push({
-      basic:property,
-      details:detailsRes.rows[0],
-      images:imagesRes.rows,
-      location:locationRes.rows[0],
-      nearest_to:nearestRes.rows,
-      amenities:amenitiesRes.rows,
-    })
+      basic: property,
+      details: detailsRows[0] || null,
+      location: locationRows[0] || null,
+      images: imagesRows,
+      documents: documentRows,
+      amenities: amenitiesRows,
+      nearest_to: nearestRows
+    });
+  }
   
-    }
-    return readyProperties;    
+  return readyProperties;
+}catch(error){
+  console.error('Error fetching ready to move property:', error);
+  throw new Error(`Failed to fetch ready to move property  ${error.message}`);
+}
 }
 
 // new propperties display services
 // services/propertyService.js
 
 export const getNewProperties = async () => {
-  const { rows: propertyRows } = await pool.query(
-    `SELECT * FROM property WHERE transation_type = $1`,
-    ['New Property']
-  );
-
-  const newProperties = [];
-
-  for (const property of propertyRows) {
-    const id = property.id;
-
-    const detailsRes = await pool.query(
-      `SELECT * FROM property_details WHERE property_id = $1`,
-      [id]
-    );
-
-    const imagesRes = await pool.query(
-      `SELECT * FROM property_images WHERE property_id = $1`,
-      [id]
-    );
-
-    const locationRes = await pool.query(
-      `SELECT * FROM property_location WHERE property_id = $1`,
-      [id]
-    );
-
-    const nearestRes = await pool.query(
-      `SELECT pn.nearest_to_id, n.name, pn.distance_km
-       FROM property_nearest_to pn
-       JOIN nearest_to n ON pn.nearest_to_id = n.id
-       WHERE pn.property_id = $1`,
-      [id]
-    );
-
-    const amenitiesRes = await pool.query(
-      `SELECT a.id, a.name, a.icon
-       FROM property_amenity pa
-       JOIN amenity a ON pa.amenity_id = a.id
-       WHERE pa.property_id = $1`,
-      [id]
-    );
-
-    newProperties.push({
-      basic: property,
-      details: detailsRes.rows[0],
-      images: imagesRes.rows,
-      location: locationRes.rows[0],
-      nearest_to: nearestRes.rows,
-      amenities: amenitiesRes.rows,
-    });
+  try{
+    const { rows: propertyRows } = await pool.query(`
+      SELECT 
+        p.*, 
+        d.name AS developer_name, d.company_name AS developer_company_name,
+        pc.name AS property_category_name,
+        psc.name AS property_subcategory_name
+      FROM property p
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      WHERE p.transation_type = $1
+      ORDER BY p.id DESC
+    `, ['New Property']);
+  
+    const newProperties = [];
+  
+    for (const property of propertyRows) {
+      const id = property.id;
+  
+      const [{ rows: detailsRows }, { rows: imagesRows }, { rows: locationRows },
+             { rows: nearestRows }, { rows: amenitiesRows }, { rows: documentRows }] = await Promise.all([
+        pool.query(`SELECT * FROM property_details WHERE property_id = $1`, [id]),
+        pool.query(`SELECT * FROM property_images WHERE property_id = $1`, [id]),
+        pool.query(`SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`, [id]),
+        pool.query(`SELECT nt.id, nt.name, pnt.distance_km
+                    FROM property_nearest_to pnt
+                    JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
+                    WHERE pnt.property_id = $1`, [id]),
+        pool.query(`SELECT a.id, a.name, a.icon
+                    FROM property_amenity pa
+                    JOIN amenity a ON pa.amenity_id = a.id
+                    WHERE pa.property_id = $1`, [id]),
+        pool.query(`SELECT id, type, file_url FROM property_documents WHERE property_id = $1`, [id])
+      ]);
+  
+      newProperties.push({
+        basic: property,
+        details: detailsRows[0] || null,
+        location: locationRows[0] || null,
+        images: imagesRows,
+        documents: documentRows,
+        amenities: amenitiesRows,
+        nearest_to: nearestRows
+      });
+    }
+  
+    return newProperties;
+  }catch(error){
+    console.error("failed to fetch the new property",error)
+    throw new Error(`failed to fetch the new property${error.message}`)
   }
-
-  return newProperties;
 };

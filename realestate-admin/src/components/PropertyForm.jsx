@@ -60,10 +60,10 @@ const PropertyForm = ({editData,onClose}) => {
           ['city', 'locality', 'description'].forEach(field => {
             if (editData[field]) detailsFields[field] = editData[field];
           });
-          const categoryName = editData.category_name;
+          const categoryName = editData.property_category_name;
           // Specific fields based on property type
           if (categoryName === 'Apartment' || categoryName === 'Flat') {
-            ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'super_area', 
+            ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area', 
             'carpet_area', 'furnished_status', 'age'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
@@ -124,7 +124,12 @@ const PropertyForm = ({editData,onClose}) => {
       }
       
       if (editData.nearest_to && Array.isArray(editData.nearest_to)) {
-        setNearestTo(editData.nearest_to);
+        setNearestTo(
+          editData.nearest_to.map(n => ({
+            nearest_to_id: n.id,
+            distance_km: n.distance_km
+          }))
+        );
       }
     }
   }, [editData, map, marker]);
@@ -511,7 +516,7 @@ const handleSubmit = async (e) => {
           </div>
         </div>
         <div className="form-row">
-          <div className="form-group">
+          {/* <div className="form-group">
             <label>Built-up Area (sqft)</label>
             <input 
               type="number"
@@ -520,7 +525,7 @@ const handleSubmit = async (e) => {
               onChange={handleDetailsChange}
               min="0"
             />
-          </div>
+          </div> */}
           <div className="form-group">
             <label>Plot Area (sqft)</label>
             <input 
@@ -892,8 +897,8 @@ const handleSubmit = async (e) => {
                 value={basic.transaction_type}
                 onChange={handleBasicChange}
               >
-                <option value="Sale">Sale</option>
-                <option value="Rent">Rent</option>
+                <option value="Sale">Resale</option>
+                <option value="New Property">New Property</option>
               </select>
             </div>
           </div>
@@ -925,7 +930,7 @@ const handleSubmit = async (e) => {
                 <option value="">Select Status</option>
                 <option value="Ready to Move">Ready to Move</option>
                 <option value="Under Construction">Under Construction</option>
-                <option value="New Launch">New Launch</option>
+                
               </select>
             </div>
             <div className="form-group">
@@ -1161,6 +1166,7 @@ const handleSubmit = async (e) => {
                 multiple
                 onChange={handleImageChange}
                 className="file-input"
+           
               />
               <p className="file-help">Select multiple images (JPG, PNG)</p>
             </div>
