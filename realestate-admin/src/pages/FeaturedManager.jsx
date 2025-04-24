@@ -6,11 +6,12 @@ const FeaturedManager = () => {
   const [properties, setProperties] = useState([]);
   const [featuredIds, setFeaturedIds] = useState([]);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   useEffect(() => {
     fetchProperties();
     fetchFeaturedIds();
   }, []);
-
+  
   const fetchProperties = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/property`);
@@ -19,36 +20,36 @@ const FeaturedManager = () => {
       toast.error('Error fetching properties');
     }
   };
-
+  
   const fetchFeaturedIds = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/featuredids');
-      setFeaturedIds(res.data);
+      const res = await axios.get(`${BASE_URL}/api/featuredids`);
+      setFeaturedIds(res.data); // This will be an array of IDs thanks to our backend fix
     } catch (err) {
       toast.error('Error fetching featured IDs');
     }
   };
-
+  
   const handleAdd = async (id) => {
     try {
-      await axios.post('http://localhost:3001/api/addtofeatured', { property_id: id });
+      await axios.post(`${BASE_URL}/api/addtofeatured`, { property_id: id });
       toast.success('Added to featured');
       fetchFeaturedIds();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add');
     }
   };
-
+  
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/featured/:property_id/${id}`);
+      await axios.delete(`${BASE_URL}/api/featured/${id}`);
       toast.success('Removed from featured');
       fetchFeaturedIds();
     } catch (err) {
       toast.error('Failed to remove');
     }
   };
-
+  
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Manage Featured Properties</h2>

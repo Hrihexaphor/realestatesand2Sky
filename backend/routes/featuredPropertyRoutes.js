@@ -1,40 +1,50 @@
 import express from 'express';
-import { addToFeatured,removeFromFeatured,getAllFeaturedIds,checkIfFeatured } from '../services/featuredProperty.js';
+import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured } from '../services/featuredProperty.js';
 const router = express.Router();
 
-router.post('/addtofeatured', async (req,res)=>{
-    const {property_id} = req.body;
-    try{
-        const isfeatured = await checkIfFeatured(property_id);
-        if(isfeatured){
-           return res.status(400).json({message:"this property already in featured"})
-        }
-        await addToFeatured(property_id);
-        res.status(200).json({message:"Property added to featured successfully"})
+router.post('/addtofeatured', async (req, res) => {
+    const { property_id } = req.body;
+    
+    if (!property_id) {
+        return res.status(400).json({ message: "Property ID is required" });
     }
-    catch(err){
-        res.status(500).json({err:"failed to add to featured",details:err.message});
+    
+    try {
+        const isfeatured = await checkIfFeatured(property_id);
+        if (isfeatured) {
+           return res.status(400).json({ message: "This property is already featured" });
+        }
+        
+        const result = await addToFeatured(property_id);
+        res.status(200).json({ message: "Property added to featured successfully", data: result });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to add to featured", details: err.message });
     }
 });
 
-// remove from featured
-
-router.delete('/featured/:property_id',async (req,res)=>{
-    const {property_id} = req.params;
-    try{
-        await removeFromFeatured(property_id);
-        res.status(200).json({message:"Removed from featured"});
-    } catch (err){
-        res.status(500).json({err:"Failed to remove featured",details:err.message})
+router.delete('/featured/:property_id', async (req, res) => {
+    const { property_id } = req.params;
+    
+    try {
+        const result = await removeFromFeatured(property_id);
+        if (!result) {
+            return res.status(404).json({ message: "Featured property not found" });
+        }
+        
+        res.status(200).json({ message: "Removed from featured", data: result });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to remove featured property", details: err.message });
     }
-})
+});
 
 router.get('/featuredids', async (req, res) => {
     try {
-      const ids = await getAllFeaturedIds();
-      res.status(200).json(ids);
+        const ids = await getAllFeaturedIds();
+        res.status(200).json(ids);
     } catch (err) {
-      res.status(500).json({ error: 'Failed to fetch featured IDs', details: err.message });
+        res.status(500).json({ error: 'Failed to fetch featured IDs', details: err.message });
     }
-  });
-  export default router;
+});
+
+export default router;
