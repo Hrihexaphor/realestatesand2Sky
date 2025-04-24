@@ -10,6 +10,7 @@ import NearestPage from './pages/NearestPage';
 import BlogPage from './pages/BlogPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import CategoryManager from './pages/CategoryManager';
+import FeaturedManager from './pages/FeaturedManager';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
         <Route path="developer" element={<ProtectedRoute><DeveloperPage /></ProtectedRoute>} />
         <Route path="nearest" element={<ProtectedRoute><NearestPage /></ProtectedRoute>} />
         <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
+        <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
+
         <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/login" />} />

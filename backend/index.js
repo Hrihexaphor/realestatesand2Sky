@@ -13,6 +13,8 @@ import propertyRoutes from './routes/propertyRoutes.js'
 import blogRoutes from './routes/blogRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import subcategoryRoutes from './routes/subcategoryRoutes.js'
+import userActivityRoutes from './routes/userActivityRoutes.js'
+import featuredPropertyRoutes from './routes/featuredPropertyRoutes.js'
 const app = express();
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -43,6 +45,8 @@ app.use('/api',propertyRoutes)
 app.use('/api',categoryRoutes)
 app.use('/api',subcategoryRoutes)
 app.use('/api',blogRoutes)
+app.use('/api',userActivityRoutes)
+app.use('/api',featuredPropertyRoutes)
 app.use('/test',(req,res)=>{
   res.json({message:"hello hritesh"})
 })

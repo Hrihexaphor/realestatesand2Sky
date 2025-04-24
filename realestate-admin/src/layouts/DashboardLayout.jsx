@@ -22,7 +22,10 @@ const DashboardLayout = () => {
             <span className="nav-icon">📍</span> Nearest To
           </NavLink>
           <NavLink to="/dashboard/category" className="nav-item">
-            <span className="nav-icon">🏬</span> property Category
+            <span className="nav-icon">🏬</span> Property Category
+          </NavLink>
+          <NavLink to="/dashboard/featured" className="nav-item">
+            <span className="nav-icon">🏩</span> Featured Property
           </NavLink>
           <NavLink to="/dashboard/blogs" className="nav-item">
             <span className="nav-icon">📝</span> Blog
