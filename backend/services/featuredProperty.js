@@ -22,7 +22,7 @@ export async function checkIfFeatured(property_id) {
 
 export async function getFeaturedPropertiesWithDetails(){
     try{
-        const result = await db.query(`
+        const result = await pool.query(`
             SELECT 
               p.*, 
               pd.*, 
