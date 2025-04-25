@@ -74,22 +74,13 @@ export default function PropertyPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {properties?.length > 0 ? (
-          properties.map((property) => (
-            <ErrorBoundary key={property.id}>
-              <PropertyCard
-                property={property}
-                onEdit={() => handleEdit(property)}
-                onDelete={() => handleDelete(property.id)}
-                onView={() => handleView(property.id)}
-              />
-            </ErrorBoundary>
-          ))
-        ) : (
-          <p className="col-span-full text-center text-gray-500">No properties found.</p>
-        )}
-      </div>
+<PropertyCard
+  properties={properties}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+  onView={handleView}
+/>
+
     </div>
   );
 }

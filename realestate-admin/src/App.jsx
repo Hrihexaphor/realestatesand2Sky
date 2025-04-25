@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CategoryManager from './pages/CategoryManager';
 import FeaturedManager from './pages/FeaturedManager';
 
+
 function App() {
   return (
     <Routes>
@@ -25,6 +26,7 @@ function App() {
         <Route path="nearest" element={<ProtectedRoute><NearestPage /></ProtectedRoute>} />
         <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
         <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
+        
 
         <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
       </Route>

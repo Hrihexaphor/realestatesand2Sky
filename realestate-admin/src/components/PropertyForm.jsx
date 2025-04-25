@@ -29,6 +29,7 @@ const PropertyForm = ({editData,onClose}) => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const addressInputRef = useRef(null);
   // edit property 
     useEffect(() => {
@@ -409,43 +410,44 @@ const handleSubmit = async (e) => {
   }
   
   try {
+    setIsSubmitting(true); 
     // Create the property data object with category_id included
+    const correctedBasic = {
+      category_id: basic.property_category,  // Map property_category to category_id
+      property_type: basic.property_type,
+      transaction_type: basic.transaction_type,
+      title: basic.title,
+      possession_status: basic.possession_status,
+      expected_price: basic.expected_price,
+      price_per_sqft: basic.price_per_sqft,
+      developer_id: basic.developer_id
+    };
     const propertyData = {
-      basic: {
-        ...basic,
-        category_id: basic.property_category, // Use the selected category ID
-        // property_type already contains the subcategory ID
-      },
+      basic: correctedBasic,
       details,
       location,
       nearest_to: nearestTo,
       amenities: selectedAmenities
     };
-    
     if (editData) {
       // For update (PUT) requests - send direct JSON data
       console.log('Sending update data:', propertyData);
       
       // If we have new images, use FormData
-      if (images.length > 0) {
-        // This would require a different endpoint or approach for handling images
-        // For now, let's focus on updating the property data first
-        alert('Image updates not supported yet. Please update property details first, then images separately.');
-        
-        // Update the property data without images
-        await axios.put(
-          `${BASE_URL}/api/property/${editData.id}`,
-          propertyData,
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-      } else {
-        // No new images, just send JSON data directly
-        await axios.put(
-          `${BASE_URL}/api/property/${editData.id}`,
-          propertyData,
-          { headers: { 'Content-Type': 'application/json' } }
-        );
+      if (images.some(img => img instanceof File)) {
+        alert('Image updates not supported yet. Please update property details without adding new images.');
+        return;
       }
+      
+      // Send the update request with the fixed data structure
+      await axios.put(
+        `${BASE_URL}/api/property/${editData.id}`,
+        propertyData,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      
+      alert('Property updated successfully!');
+      if (onClose) onClose();
     } else {
       // For new property creation (POST) - use FormData
       const formData = new FormData();
@@ -482,6 +484,8 @@ const handleSubmit = async (e) => {
     console.error(err);
     alert('Error ' + (editData ? 'updating' : 'adding') + ' property: ' +
           (err.response?.data?.message || err.message));
+  }finally {
+    setIsSubmitting(false); // Reset loading state regardless of outcome
   }
 };
   // Render specific fields based on property type
@@ -626,8 +630,8 @@ const handleSubmit = async (e) => {
                 <label>Super Built-up Area (sqft)</label>
                 <input
                   type="number"
-                  name="super_area"
-                  value={details.super_area || ''}
+                  name="built_up_area"
+                  value={details.built_up_area || ''}
                   onChange={handleDetailsChange}
                   min="0"
                 />
@@ -791,6 +795,29 @@ const handleSubmit = async (e) => {
                   <option value="South-East">South-East</option>
                   <option value="South-West">South-West</option>
                 </select>
+              </div>
+             
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Plot RERAID</label>
+                <input
+                  type="text"
+                  name="project_rera_id"
+                  value={details.project_rera_id || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                {/* <label>Plot Length (ft)</label>
+                <input
+                  type="number"
+                  name="plot_length"
+                  value={details.plot_length || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                /> */}
               </div>
             </div>
           </>
@@ -1152,46 +1179,65 @@ const handleSubmit = async (e) => {
         </div>
 
          {/* Images */}
-         <div className="form-section">
-          <div className="section-header">
-            <h3>Images</h3>
-            <p>Upload high-quality images of the property</p>
-          </div>
-          
-          <div className="form-row">
-            <div className="form-group full-width">
-              <input 
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="file-input"
-           
-              />
-              <p className="file-help">Select multiple images (JPG, PNG)</p>
-            </div>
-          </div>
-          
-          {images.length > 0 && (
-            <div className="image-preview-container">
-              {images.map((img, idx) => (
-                <div key={idx} className="image-preview">
-                  <img 
-                    src={img instanceof File ? URL.createObjectURL(img) : img.url || img} 
-                    alt={`Preview ${idx}`} 
-                  />
-                  <button 
-                    type="button" 
-                    className="remove-image-btn"
-                    onClick={() => removeImage(idx)}
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="form-section image-section">
+  <div className="section-header">
+    <h3>Images</h3>
+    <p>Upload high-quality images of the property</p>
+  </div>
+  
+  <div className="form-row">
+    <div className="form-group full-width">
+      <input 
+        id="property-images"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleImageChange}
+        className="file-input"
+      />
+      <label htmlFor="property-images" className="file-upload-container">
+        <svg 
+          className="file-upload-icon" 
+          width="48" 
+          height="48" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+          <rect x="16" y="5" width="6" height="6" rx="1"></rect>
+          <circle cx="10" cy="14" r="2"></circle>
+          <line x1="20" y1="11" x2="20" y2="11"></line>
+        </svg>
+        <div className="file-upload-text">Drop images here or click to upload</div>
+        <p className="file-help">Select multiple images (JPG, PNG)</p>
+      </label>
+    </div>
+  </div>
+  
+  {images.length > 0 && (
+    <div className="image-preview-container">
+      {images.map((img, idx) => (
+        <div key={idx} className="image-preview">
+          <img 
+            src={img instanceof File ? URL.createObjectURL(img) : img.url || img} 
+            alt={`Preview ${idx}`} 
+          />
+          <button 
+            type="button" 
+            className="remove-image-btn"
+            onClick={() => removeImage(idx)}
+          >
+            ×
+          </button>
         </div>
+      ))}
+    </div>
+  )}
+</div>
  {/* document add section */}
  <div className="form-section">
   <div className="section-header">
@@ -1237,9 +1283,18 @@ const handleSubmit = async (e) => {
 </div>
 
         <div className="form-actions">
-        <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-  <button type="submit" className="submit-btn">
-    {editData ? 'Update Property' : 'Add Property'}
+        <button type="button" className="cancel-btn" onClick={onClose} disabled={isSubmitting}>
+    Cancel
+  </button>
+  <button type="submit" className="submit-btn" disabled={isSubmitting}>
+    {isSubmitting ? (
+      <>
+        <span className="spinner"></span>
+        {editData ? 'Updating...' : 'Adding...'}
+      </>
+    ) : (
+      editData ? 'Update Property' : 'Add Property'
+    )}
   </button>
         </div>
       </form>

@@ -1,145 +1,147 @@
-import React from 'react';
-import { FaEdit, FaTrash, FaEye, FaBed, FaBath, FaRulerCombined, FaStar, FaRegStar } from 'react-icons/fa';
-import { BiCategoryAlt } from 'react-icons/bi';
-import { MdLocationOn } from 'react-icons/md';
-import { TbCurrencyRupee } from 'react-icons/tb';
+import React, { useRef } from 'react';
+import { FaEdit, FaTrash, FaEye, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-export default function PropertyCard({ 
-  property, 
-  onEdit, 
-  onDelete, 
-  onView, 
-  onFeature, 
-  isFeatured = false,
-  className = "" 
-}) {
-  const primaryImage = property.images?.find((img) => img.is_primary) || property.images?.[0];
+export default function PropertyTable({ properties, onEdit, onDelete, onView }) {
+  const tableRef = useRef(null);
   
-  // Format price to Indian format
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(price).replace('₹', '₹ ');
+  // Function to handle manual horizontal scrolling
+  const scrollHorizontal = (direction) => {
+    if (tableRef.current) {
+      const scrollAmount = 300; // Adjust the scroll amount as needed
+      tableRef.current.scrollLeft += direction * scrollAmount;
+    }
   };
 
   return (
-    <div className={`relative border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-white flex flex-col overflow-hidden ${className}`}>
-      {/* Featured badge */}
-      {isFeatured && (
-        <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-          Featured
-        </div>
-      )}
-      
-      {/* Property image container */}
-      <div className="relative h-52 overflow-hidden">
-        {primaryImage ? (
-          <img
-            src={primaryImage.image_url || primaryImage.url}
-            alt={property.title}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
-          />
-        ) : (
-          <div className="h-full w-full bg-gray-200 flex items-center justify-center text-gray-500">
-            No Image Available
-          </div>
-        )}
-        
-        {/* Property type badge */}
-        <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded">
-          {property.property_category_name}
-        </div>
-        
-        {/* Feature toggle button */}
-        {onFeature && (
-          <button 
-            onClick={() => onFeature(property.id)} 
-            className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-yellow-50 transition-colors"
-            title={isFeatured ? "Remove from featured" : "Add to featured"}
-          >
-            {isFeatured ? 
-              <FaStar className="text-yellow-400 text-lg" /> : 
-              <FaRegStar className="text-gray-400 hover:text-yellow-400 text-lg" />
-            }
-          </button>
-        )}
+    <div className="w-full flex flex-col h-full">
+      {/* Table title */}
+      <div className="flex justify-between mb-2">
+        <h2 className="text-lg font-semibold text-gray-800">Property Listings</h2>
       </div>
-      
-      {/* Property details */}
-      <div className="p-4 flex-grow flex flex-col">
-        <h3 className="text-lg font-semibold mb-1 text-gray-800 line-clamp-2">{property.title}</h3>
-        
-        <div className="flex items-start mb-2 text-gray-600">
-          <MdLocationOn className="min-w-4 h-4 mt-1 mr-1" />
-          <p className="text-sm line-clamp-1">{property.address || property.locality + ', ' + property.city}</p>
-        </div>
-        
-        <div className="flex items-center mb-3">
-          <TbCurrencyRupee className="text-lg text-green-700" />
-          <span className="text-lg font-bold text-green-700">{formatPrice(property.expected_price || 0)}</span>
-        </div>
-        
-        {/* Property specs */}
-        <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-          <div className="flex flex-col items-center bg-gray-50 p-2 rounded">
-            <FaBed className="text-blue-600 mb-1" />
-            <span className="text-sm font-medium">{property.bedrooms || 'N/A'}</span>
-            <span className="text-xs text-gray-500">Beds</span>
-          </div>
-          <div className="flex flex-col items-center bg-gray-50 p-2 rounded">
-            <FaBath className="text-blue-600 mb-1" />
-            <span className="text-sm font-medium">{property.bathrooms || 'N/A'}</span>
-            <span className="text-xs text-gray-500">Baths</span>
-          </div>
-          <div className="flex flex-col items-center bg-gray-50 p-2 rounded">
-            <FaRulerCombined className="text-blue-600 mb-1" />
-            <span className="text-sm font-medium">{property.carpet_area || property.built_up_area || 'N/A'}</span>
-            <span className="text-xs text-gray-500">sq.ft</span>
-          </div>
-        </div>
-        
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {property.furnished_status && (
-            <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
-              {property.furnished_status}
-            </span>
-          )}
-          {property.possession_status && (
-            <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-              {property.possession_status}
-            </span>
-          )}
-          {property.transaction_type && (
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-              {property.transaction_type}
-            </span>
-          )}
-        </div>
+
+      {/* Table container with ref for scrolling */}
+      <div 
+        ref={tableRef}
+        className="w-full overflow-x-auto rounded-lg shadow-lg border border-gray-200 flex-grow"
+        style={{ 
+          scrollbarWidth: 'thin', 
+          scrollbarColor: '#3b82f6 #e5e7eb',
+          maxHeight: 'calc(100vh - 140px)' // Adjust to leave space for footer controls
+        }}
+      >
+        <table className="min-w-full divide-y divide-gray-200 bg-white">
+          <thead className="bg-gradient-to-r from-blue-600 to-blue-500 sticky top-0 z-20">
+            <tr>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-center text-white uppercase sticky left-0 z-30 bg-blue-600">Actions</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">S.No</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Title</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Category</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Subcategory</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">City</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Location</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Developer</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Bedrooms</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Bathrooms</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Carpet Area</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Built-up Area</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Price (₹)</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Furnishing</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Transaction</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Possession</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {properties?.length > 0 ? (
+              properties.map((property, index) => (
+                <tr 
+                  key={property.id} 
+                  className={`hover:bg-blue-50 transition-colors duration-150 ease-in-out ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  }`}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium sticky left-0 z-10" style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb' }}>
+                    <div className="flex justify-center space-x-3">
+                      <button 
+                        onClick={() => onView(property.id)} 
+                        className="p-1.5 text-green-600 bg-green-100 rounded-full hover:bg-green-200 transition-colors duration-150"
+                        title="View details"
+                      >
+                        <FaEye className="text-green-600" />
+                      </button>
+                      <button 
+                        onClick={() => onEdit(property)} 
+                        className="p-1.5 text-blue-600 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors duration-150"
+                        title="Edit property"
+                      >
+                        <FaEdit className="text-blue-600" />
+                      </button>
+                      <button 
+                        onClick={() => onDelete(property.id)} 
+                        className="p-1.5 text-red-600 bg-red-100 rounded-full hover:bg-red-200 transition-colors duration-150"
+                        title="Delete property"
+                      >
+                        <FaTrash className="text-red-600" />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{property.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.property_category_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.property_subcategory_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.city}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.locality}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.developer_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.bedrooms || '—'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.bathrooms || '—'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.carpet_area || '—'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.built_up_area || '—'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">{property.expected_price}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.furnished_status}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.transaction_type}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{property.possession_status}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="16" className="px-6 py-12 text-center text-gray-500 bg-gray-50">
+                  <div className="flex flex-col items-center justify-center">
+                    <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <p className="text-lg font-medium">No properties found</p>
+                    <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filters</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-      
-      {/* Action buttons */}
-      <div className="bg-gray-50 px-4 py-3 border-t flex justify-between items-center">
-        <button
-          onClick={() => onView && onView(property.id)}
-          className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors font-medium text-sm"
-        >
-          <FaEye /> View
-        </button>
-        <button
-          onClick={() => onEdit && onEdit(property.id)}
-          className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors font-medium text-sm"
-        >
-          <FaEdit /> Edit
-        </button>
-        <button
-          onClick={() => onDelete && onDelete(property.id)}
-          className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors font-medium text-sm"
-        >
-          <FaTrash /> Delete
-        </button>
+
+      {/* Fixed scroll controls at the bottom */}
+      <div className="sticky bottom-0 w-full bg-white border-t border-gray-200 p-2 mt-2 flex justify-between items-center shadow-md z-10">
+        <span className="text-sm text-gray-500">
+          {properties?.length} {properties?.length === 1 ? 'property' : 'properties'} found
+        </span>
+        <div className="flex items-center space-x-4">
+          <div className="text-sm text-gray-500">Scroll to view more</div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => scrollHorizontal(-1)}
+              className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors duration-150"
+              aria-label="Scroll left"
+            >
+              <FaChevronLeft className="text-blue-600" />
+            </button>
+            <button
+              onClick={() => scrollHorizontal(1)}
+              className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors duration-150"
+              aria-label="Scroll right"
+            >
+              <FaChevronRight className="text-blue-600" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
