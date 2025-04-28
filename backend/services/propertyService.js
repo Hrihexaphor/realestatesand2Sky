@@ -218,48 +218,52 @@ export async function insertAmenities(property_id, amenities) {
 */
 export async function getAllProperties() {
   try {
+    // Using your original query structure but with optimizations
     const result = await pool.query(`
       SELECT 
-  p.*, 
-  pd.*, 
-  pl.latitude, pl.longitude, pl.address,
-  d.id AS developer_id, d.name AS developer_name, d.company_name AS developer_company_name,
-  pc.name AS property_category_name,
-  psc.name AS property_subcategory_name,
+        p.*,  -- Keep original table selection to match your schema
+        pl.latitude, pl.longitude, pl.address,
+        d.id AS developer_id, d.name AS developer_name, d.company_name AS developer_company_name,
+        pc.name AS property_category_name,
+        psc.name AS property_subcategory_name,
 
-  (
-    SELECT json_agg(pi.*) 
-    FROM property_images pi 
-    WHERE pi.property_id = p.id
-  ) AS images,
+        (
+          SELECT COALESCE(json_agg(pi.*) FILTER (WHERE pi.id IS NOT NULL), '[]'::json)
+          FROM property_images pi 
+          WHERE pi.property_id = p.id
+        ) AS images,
 
-  (
-    SELECT json_agg(json_build_object('id', a.id, 'name', a.name, 'icon', a.icon)) 
-    FROM property_amenity pa 
-    JOIN amenity a ON pa.amenity_id = a.id 
-    WHERE pa.property_id = p.id
-  ) AS amenities,
+        (
+          SELECT COALESCE(json_agg(json_build_object('id', a.id, 'name', a.name, 'icon', a.icon)) 
+            FILTER (WHERE a.id IS NOT NULL), '[]'::json)
+          FROM property_amenity pa 
+          JOIN amenity a ON pa.amenity_id = a.id 
+          WHERE pa.property_id = p.id
+        ) AS amenities,
 
-  (
-    SELECT json_agg(json_build_object('id', nt.id, 'name', nt.name, 'distance_km', pnt.distance_km)) 
-    FROM property_nearest_to pnt 
-    JOIN nearest_to nt ON pnt.nearest_to_id = nt.id 
-    WHERE pnt.property_id = p.id
-  ) AS nearest_to,
+        (
+          SELECT COALESCE(json_agg(json_build_object('id', nt.id, 'name', nt.name, 'distance_km', pnt.distance_km))
+            FILTER (WHERE nt.id IS NOT NULL), '[]'::json)
+          FROM property_nearest_to pnt 
+          JOIN nearest_to nt ON pnt.nearest_to_id = nt.id 
+          WHERE pnt.property_id = p.id
+        ) AS nearest_to,
 
-  (
-    SELECT json_agg(json_build_object('id', pd.id, 'type', pd.type, 'file_url', pd.file_url)) 
-    FROM property_documents pd 
-    WHERE pd.property_id = p.id
-  ) AS documents
+        (
+          SELECT COALESCE(json_agg(json_build_object('id', pd.id, 'type', pd.type, 'file_url', pd.file_url))
+            FILTER (WHERE pd.id IS NOT NULL), '[]'::json)
+          FROM property_documents pd 
+          WHERE pd.property_id = p.id
+        ) AS documents
 
-FROM property p
-LEFT JOIN property_details pd ON p.id = pd.property_id
-LEFT JOIN property_location pl ON p.id = pl.property_id
-LEFT JOIN developer d ON p.developer_id = d.id
-LEFT JOIN property_category pc ON p.category_id = pc.id
-LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-ORDER BY p.id DESC
+      FROM property p
+      LEFT JOIN property_details pd ON p.id = pd.property_id
+      LEFT JOIN property_location pl ON p.id = pl.property_id
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      ORDER BY p.id DESC
+      LIMIT 20
     `);
 
     return result.rows;
@@ -268,8 +272,6 @@ ORDER BY p.id DESC
     throw new Error(`Failed to get properties: ${error.message}`);
   }
 }
-
-
 
 /**
 * Update a property by ID

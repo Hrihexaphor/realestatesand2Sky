@@ -1,10 +1,10 @@
 import express from 'express';
-
+import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
 import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments } from '../services/propertyService.js';
 import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties,getNewProperties } from '../services/propertyService.js';
 const router = express.Router();
-
+const propertyCache = new NodeCache({ stdTTL: 300 });
 
 router.post('/property', upload.fields([
   { name: 'images', maxCount: 10 },
@@ -116,7 +116,19 @@ router.post('/property', upload.fields([
 // Get all properties
 router.get('/property', async (req, res) => {
   try {
+    // Check if we have cached data
+    const cachedProperties = propertyCache.get('allProperties');
+    if (cachedProperties) {
+      return res.status(200).json(cachedProperties);
+    }
+
+    // If no cache, get from database
     const properties = await getAllProperties();
+    
+    // Store in cache for future requests
+    propertyCache.set('allProperties', properties);
+    
+    // Send response
     res.status(200).json(properties);
   } catch (err) {
     console.error('Error fetching properties:', err);
