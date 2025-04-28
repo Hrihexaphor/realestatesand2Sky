@@ -21,18 +21,17 @@ router.post('/signup', async (req, res) => {
   });
 
 //   admin login routes
-
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Basic input validation - no DB query needed
+  // 1. Basic input validation
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
-    // 2. Find admin by email - ensure this query is indexed
-    const admin = await findAdmiByEmail(email).select('id name email role password_hash');
+    // 2. Find admin by email - no .select() method needed for raw pg queries
+    const admin = await findAdmiByEmail(email);
     
     if (!admin) {
       // Use constant time response to prevent timing attacks
@@ -77,7 +76,6 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.clearCookie('connect.sid');
