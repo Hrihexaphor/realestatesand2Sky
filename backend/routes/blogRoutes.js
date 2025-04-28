@@ -1,28 +1,19 @@
 import express from 'express';
 import uploadBlogImage from '../middleware/blogUpload.js';
-import { addBlog,getAllBlogs } from '../services/blogServices.js';
+import { addBlog, getAllBlogs, updateBlog, deleteBlog } from '../services/blogServices.js';
 import multer from 'multer';
-const router = express.Router()
 
-// / Route to add a new blog post
+const router = express.Router();
+
+// Route to add a new blog post
 router.post('/addblog', (req, res) => {
-  console.log('Received blog upload request');
-
   uploadBlogImage.single('blogImage')(req, res, async function(err) {
-    if (err instanceof multer.MulterError) {
-      console.error('Multer upload error:', err);
-      return res.status(400).json({ error: `Upload error: ${err.message}`  });
-    } else if (err) {
-      console.error('Unknown upload error:', err);
-      return res.status(500).json({ error: `Something went wrong: ${err.message}` });
+    if (err instanceof multer.MulterError || err) {
+      return res.status(400).json({ error: err.message });
     }
-
     try {
-      console.log('File upload successful, full file object:', req.file);
       const { title, description } = req.body;
       const image_url = req.file ? req.file.path : null;
-
-      console.log('Image URL to be saved:', image_url);
 
       if (!title || !description) {
         return res.status(400).json({ error: 'Title and description are required' });
@@ -30,28 +21,56 @@ router.post('/addblog', (req, res) => {
 
       const blog = await addBlog({ title, description, image_url });
       res.status(201).json({ blog });
-
     } catch (error) {
-      console.error('Error creating blog:', error);
-      res.status(500).json({
-        error: 'Internal Server Error',
-        message: error.message,
-      });
+      res.status(500).json({ error: error.message });
     }
   });
 });
+
+// Route to view all blog posts
 router.get('/blogs', async (req, res) => {
   try {
     const blogs = await getAllBlogs();
-    
-    // Log the image URLs to check their format
-    console.log('Blog image URLs:', blogs.map(blog => blog.image_url));
-    
     res.status(200).json({ blogs });
   } catch (error) {
-    console.error('Error fetching blogs:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: error.message });
   }
 });
-  
-  export default router;
+
+// Route to update a blog post
+router.put('/blogs/:id', (req, res) => {
+  uploadBlogImage.single('blogImage')(req, res, async function(err) {
+    if (err instanceof multer.MulterError || err) {
+      return res.status(400).json({ error: err.message });
+    }
+    try {
+      const { title, description } = req.body;
+      const image_url = req.file ? req.file.path : null;
+      const blogId = req.params.id;
+
+      const updatedBlog = await updateBlog(blogId, { title, description, image_url });
+      if (!updatedBlog) {
+        return res.status(404).json({ error: 'Blog not found' });
+      }
+      res.status(200).json({ blog: updatedBlog });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+// Route to delete a blog post
+router.delete('/blogs/:id', async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const deletedBlog = await deleteBlog(blogId);
+    if (!deletedBlog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+    res.status(200).json({ message: 'Blog deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+export default router;
