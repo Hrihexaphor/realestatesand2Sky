@@ -34,3 +34,36 @@ export async function createGuestSession(fingerprint, ipAddress, userAgent, devi
     );
     return result.rows[0]; // Returns the created property inquiry
   }
+
+
+  // get all lead with details
+  export async function getAllLeads() {
+    const result = await pool.query(`
+      SELECT 
+        v.id AS visitor_id,
+        v.fingerprint_id,
+        v.ip_address,
+        v.user_agent,
+        v.device_info,
+        v.created_at AS visit_time,
+  
+        c.email,
+        c.phone,
+        c.submitted_at,
+  
+        i.property_id,
+        i.name AS inquiry_name,
+        i.email AS inquiry_email,
+        i.phone AS inquiry_phone,
+        i.message,
+        i.inquiry_time
+  
+      FROM visitors v
+      LEFT JOIN visitor_contacts c ON v.id = c.visitor_id
+      LEFT JOIN property_inquiries i ON v.id = i.visitor_id
+      ORDER BY v.created_at DESC
+    `);
+  
+    return result.rows;
+  }
+  

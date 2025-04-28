@@ -1,7 +1,8 @@
 import pool from '../config/db.js';
-export async function findAdmiByEmail(email){
-    const result = await pool .query(
-        `SELECT * FROM admin WHERE email = $1`,
+export async function findAdmiByEmail(email) {
+    // Only select the fields you actually need instead of SELECT *
+    const result = await pool.query(
+        `SELECT id, name, email, role, password_hash FROM admin WHERE email = $1 LIMIT 1`,
         [email]
     );
     return result.rows[0];

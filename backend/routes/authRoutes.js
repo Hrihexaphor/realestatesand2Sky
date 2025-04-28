@@ -25,23 +25,24 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Basic input validation
+  // 1. Basic input validation - no DB query needed
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
-    // 2. Find admin by email
-    const admin = await findAdmiByEmail(email);
+    // 2. Find admin by email - ensure this query is indexed
+    const admin = await findAdmiByEmail(email).select('id name email role password_hash');
+    
     if (!admin) {
-      console.log(`Login failed: No admin found for email ${email}`);
+      // Use constant time response to prevent timing attacks
+      await bcrypt.compare('dummy-password', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // 3. Compare passwords
     const isMatch = await bcrypt.compare(password, admin.password_hash);
     if (!isMatch) {
-      console.log(`Login failed: Incorrect password for ${email}`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -53,8 +54,12 @@ router.post('/login', async (req, res) => {
       role: admin.role
     };
 
-    console.log(`Login success: ${email}`);
-    res.json({
+    // Avoid blocking on logging
+    setImmediate(() => {
+      console.log(`Login success: ${email}`);
+    });
+
+    return res.json({
       message: 'Login successful',
       admin: {
         id: admin.id,
@@ -65,8 +70,11 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    // Avoid blocking on logging
+    setImmediate(() => {
+      console.error('Login error:', err);
+    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

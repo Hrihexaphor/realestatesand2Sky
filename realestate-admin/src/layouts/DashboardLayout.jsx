@@ -62,6 +62,15 @@ const DashboardLayout = () => {
             <span className="mr-2">🏩</span> Featured Property
           </NavLink>
           <NavLink 
+            to="/dashboard/leads" 
+            className={({ isActive }) => 
+              `p-2 rounded flex items-center transition-all duration-200 hover:bg-gray-800 hover:text-amber-400 
+              ${isActive ? 'bg-gray-800/50 text-amber-400 font-medium' : ''}`
+            }
+          >
+            <span className="mr-2">👨‍✈️</span> Leads 
+          </NavLink>
+          <NavLink 
             to="/dashboard/blogs" 
             className={({ isActive }) => 
               `p-2 rounded flex items-center transition-all duration-200 hover:bg-gray-800 hover:text-amber-400 

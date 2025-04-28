@@ -4,6 +4,7 @@ import {
   logActivity,
   updateContactInfo,
   createPropertyInquiry,
+  getAllLeads
 } from '../services/userActivityService.js';
 
 const router = express.Router();
@@ -67,4 +68,14 @@ router.post('/property-inquiry', async (req, res) => {
   }
 });
 
+// get all leads
+router.get('/leads', async (req, res) => {
+  try {
+    const leads = await getAllLeads();
+    res.status(200).json(leads);
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    res.status(500).json({ error: 'Failed to fetch leads' });
+  }
+});
 export default router;
