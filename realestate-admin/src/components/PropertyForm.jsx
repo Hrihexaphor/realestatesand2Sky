@@ -31,6 +31,10 @@ const PropertyForm = ({editData,onClose}) => {
   const [documents, setDocuments] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const addressInputRef = useRef(null);
+  const overlookingOptions = [
+    'Pool', 'Park', 'Road', 'Garden', 'Sea', 'River', 'Club', 'Temple'
+  ];
+  const [overlooking, setOverlooking] = useState([]);
   // edit property 
     useEffect(() => {
       if (editData) {
@@ -65,12 +69,12 @@ const PropertyForm = ({editData,onClose}) => {
           // Specific fields based on property type
           if (categoryName === 'Apartment' || categoryName === 'Flat') {
             ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area', 
-            'carpet_area', 'furnished_status', 'age'].forEach(field => {
+            'carpet_area', 'furnished_status', 'covered_parking'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Villa' || categoryName === 'House') {
             ['bedrooms', 'bathrooms', 'built_up_area', 'plot_area', 'total_floors',
-            'furnished_status', 'age', 'garden_area'].forEach(field => {
+            'furnished_status', 'covered_parking'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Plot' || categoryName === 'Land') {
@@ -606,6 +610,36 @@ const handleSubmit = async (e) => {
             </div>
             <div className="form-row">
               <div className="form-group">
+              <label>Balconies</label>
+                <input
+                  type="number"
+                  name="balconies"
+                  value={details.balconies || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>Facing</label>
+                <select
+                  name="facing"
+                  value={details.facing || ''}
+                  onChange={handleDetailsChange}
+                >
+                  <option value="">Select</option>
+                  <option value="North">North</option>
+                  <option value="South">South</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                  <option value="North-East">North-East</option>
+                  <option value="North-West">North-West</option>
+                  <option value="South-East">South-East</option>
+                  <option value="South-West">South-West</option>
+                </select>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
                 <label>Floor Number</label>
                 <input
                   type="number"
@@ -625,9 +659,63 @@ const handleSubmit = async (e) => {
                 />
               </div>
             </div>
+           
             <div className="form-row">
               <div className="form-group">
-                <label>Super Built-up Area (sqft)</label>
+                <label>Furnished Status</label>
+                <select
+                  name="furnished_status"
+                  value={details.furnished_status || ''}
+                  onChange={handleDetailsChange}
+                >
+                  <option value="">Select</option>
+                  <option value="Unfurnished">Unfurnished</option>
+                  <option value="Semi-Furnished">Semi-Furnished</option>
+                  <option value="Fully-Furnished">Fully-Furnished</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Covered Parking</label>
+                <input
+                  type="number"
+                  name="covered_parking"
+                  value={details.covered_parking || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Overlooking</label>
+                <div className="grid grid-cols-2 gap-2">
+                   {overlookingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-2">
+                   <input
+                  type="checkbox"
+                    value={option}
+                   checked={overlooking.includes(option)}
+                     onChange={(e) => {
+                  if (e.target.checked) {
+                   setOverlooking([...overlooking, option]);
+                    } else {
+                    setOverlooking(overlooking.filter(item => item !== option));
+                   }
+                  }}
+                 />
+                 {option}
+               </label>
+               ))}
+              </div>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Super Area</label>
+                  <input type="number" name="plot_area" value={details.plot_area || ''} onChange={handleDetailsChange} min="0"/>
+              </div>
+              <div className="form-group">
+                <label> Built-up Area (sqft)</label>
                 <input
                   type="number"
                   name="built_up_area"
@@ -649,19 +737,87 @@ const handleSubmit = async (e) => {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>Furnished Status</label>
-                <select
-                  name="furnished_status"
-                  value={details.furnished_status || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="Unfurnished">Unfurnished</option>
-                  <option value="Semi-Furnished">Semi-Furnished</option>
-                  <option value="Fully-Furnished">Fully-Furnished</option>
+                <label>Transaction Type</label>
+                <select name='transaction_types' value={details.transaction_types || ''} onChange={handleDetailsChange}>
+                  <option value="Resale">Resale</option>
+                  <option value="New property">New Property</option>
                 </select>
               </div>
+              <div className="form-group">
+              <label>Possession Status</label>
+              <select 
+                name="possession_status" 
+                value={basic.possession_status}
+                onChange={handleBasicChange}
+              >
+                <option value="">Select Status</option>
+                <option value="Ready to Move">Ready to Move</option>
+                <option value="Under Construction">Under Construction</option>
+                
+              </select>
             </div>
+            <div className="form-group">
+  <label htmlFor="available-from" className="block mb-2 font-medium">Available From</label>
+  <input 
+    type="date" 
+    id="available-from"
+    name="available_from" 
+    value={basic.available_from || ''} 
+    onChange={handleBasicChange} // Changed to handleBasicChange if that's what other basic fields use
+    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+              <label>Expected Price*</label>
+              <input 
+                type="number" 
+                name="expected_price" 
+                value={basic.expected_price}
+                onChange={handleBasicChange}
+                required
+                min="0"
+                placeholder="Enter price in ₹"
+              />
+            </div>
+            <div className="form-group">
+              <label>Price per Sqft</label>
+              <input 
+                type="number" 
+                name="price_per_sqft" 
+                value={basic.price_per_sqft}
+                onChange={handleBasicChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Booking Amount</label>
+              <input 
+                type="number" 
+                name="booking_amount" 
+                value={basic.booking_amount}
+                onChange={handleBasicChange}
+                required
+                min="0"
+                placeholder="Enter booking amount"
+              />
+            </div>
+            <div className="form-group">
+              <label>Maintenance Charges</label>
+              <input 
+                type="number" 
+                name="maintenance_charge" 
+                value={basic.maintenance_charge}
+                onChange={handleBasicChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
           </>
         );
   
@@ -736,6 +892,21 @@ const handleSubmit = async (e) => {
                   <option value="Semi-Furnished">Semi-Furnished</option>
                   <option value="Fully-Furnished">Fully-Furnished</option>
                 </select>
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+                <label>Covered Parking</label>
+                <input
+                  type="number"
+                  name="covered_parking"
+                  value={details.covered_parking || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+
               </div>
             </div>
           </>
@@ -883,26 +1054,19 @@ const handleSubmit = async (e) => {
 </div>
       
       <form className="property-form" onSubmit={handleSubmit}>
-        {/* Basic Info */}
-        <div className="form-section">
-          <div className="section-header">
-            <h3>Basic Information</h3>
-          </div>
-          
-          <div className="form-row">
+          <div className="form-section">
+            <div className="form-row">
             <div className="form-group">
-              <label>Property Title*</label>
-              <input 
-                name="title" 
-                value={basic.title}
+              <label>Select Purpose</label>
+              <select 
+                name="transaction_type" 
+                value={basic.transaction_type}
                 onChange={handleBasicChange}
-                required
-                placeholder="Enter a descriptive title"
-              />
+              >
+                <option value="Sale">sale</option>
+                <option value="Rent">Rent</option>
+              </select>
             </div>
-          </div>
-
-          <div className="form-row">
             <div className="form-group">
             <label>Property Category*</label>
               <select 
@@ -917,99 +1081,108 @@ const handleSubmit = async (e) => {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>Transaction Type</label>
-              <select 
-                name="transaction_type" 
-                value={basic.transaction_type}
-                onChange={handleBasicChange}
-              >
-                <option value="Sale">Resale</option>
-                <option value="New Property">New Property</option>
-              </select>
-            </div>
-          </div>
-          <div className="form-row">
-  <div className="form-group">
-    <label>Property Type*</label>
-    <select 
-      name="property_type" 
-      value={basic.property_type}
-      onChange={handleBasicChange}
-      required
-      disabled={!basic.property_category} // Disable if no category selected
-    >
-      <option value="">Select Type</option>
-      {subcategories.map(subcategory => (
-        <option key={subcategory.id} value={subcategory.id}>{subcategory.name}</option>
-      ))}
-    </select>
-  </div>
-</div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Possession Status</label>
-              <select 
-                name="possession_status" 
-                value={basic.possession_status}
-                onChange={handleBasicChange}
-              >
-                <option value="">Select Status</option>
-                <option value="Ready to Move">Ready to Move</option>
-                <option value="Under Construction">Under Construction</option>
-                
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Developer</label>
-              <select 
-                name="developer_id" 
-                value={basic.developer_id}
-                onChange={handleBasicChange}
-              >
-                <option value="">Select Developer</option>
-                {developers.map(d => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Expected Price*</label>
-              <input 
-                type="number" 
-                name="expected_price" 
-                value={basic.expected_price}
-                onChange={handleBasicChange}
-                required
-                min="0"
-                placeholder="Enter price in ₹"
-              />
-            </div>
-            <div className="form-group">
-              <label>Price per Sqft</label>
-              <input 
-                type="number" 
-                name="price_per_sqft" 
-                value={basic.price_per_sqft}
-                onChange={handleBasicChange}
-                min="0"
-                placeholder="Enter price per sqft"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Property Details - dynamically rendered based on property type */}
-        {basic.property_type && (
-          <div className="form-section">
-            <div className="section-header">
-              <h3>Property Details</h3>
             </div>
             <div className="form-row">
+            <div className="form-group">
+  <label className="block mb-2 font-medium">Property Type*</label>
+  <div className="space-y-2">
+    {subcategories.map(subcategory => (
+      <div key={subcategory.id} className="flex items-center">
+        <input
+          type="radio"
+          id={`type-${subcategory.id}`}
+          name="property_type"
+          value={subcategory.id}
+          checked={basic.property_type === subcategory.id.toString()} // Ensure string comparison
+          onChange={(e) => {
+            // Direct event handler to ensure proper update
+            const updatedValue = {
+              ...basic,
+              property_type: e.target.value
+            };
+            setBasic(updatedValue); // Assuming you have a setBasic function
+          }}
+          disabled={!basic.property_category}
+          className="mr-2 h-4 w-4"
+          required
+        />
+        <label 
+          htmlFor={`type-${subcategory.id}`} 
+          className="cursor-pointer"
+        >
+          {subcategory.name}
+        </label>
+      </div>
+    ))}
+  </div>
+</div>
+             
+            </div>
+          </div>
+        {/* Enter Society details */}
+        <div className="form-section">
+          <div className="section-header">
+            <h3>Society Details</h3>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label>Project Area*</label>
+              <input 
+                name="project_area" 
+                value={details.project_area}
+                onChange={handleBasicChange}
+                required
+                placeholder="Enter propject area"
+              />
+            </div>
+            <div className="form-group">
+              <label>No of Tower in society</label>
+              <input 
+                name="no_of_tower" 
+                value={details.no_of_tower}
+                onChange={handleBasicChange}
+                required
+                placeholder="no of towers"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
               <div className="form-group">
+              <label>No of flat in society</label>
+              <input 
+                name="no_of_flat" 
+                value={details.no_of_flat}
+                onChange={handleBasicChange}
+                required
+                placeholder="no of flat in society"
+              />
+              </div>
+              <div className="form-group">
+              <label>Project RERE Id</label>
+              <input 
+                name="project_rera_id" 
+                value={details.project_rera_id}
+                onChange={handleBasicChange}
+                required
+                placeholder="project rera id"
+              />
+              </div>
+          </div>
+          
+          
+
+         
+        </div>
+
+        {/* Enter Location Details*/}
+        <div className="form-section">
+                <div className="section-header">
+                  <h3>Enter Location details</h3>
+                </div>
+                <div className="form-row">
+                <div className="form-group">
                 <label>City*</label>
                 <input 
                   name="city" 
@@ -1028,27 +1201,35 @@ const handleSubmit = async (e) => {
                   placeholder="Enter locality or area"
                 />
               </div>
-            </div>
-            
-            {renderPropertyCategoryFields()}
-            
-            <div className="form-row">
-              <div className="form-group full-width">
-                <label>Property Description</label>
-                <textarea
-                  name="description"
-                  value={details.description || ''}
-                  onChange={handleDetailsChange}
-                  rows="4"
-                  placeholder="Describe the property in detail..."
-                ></textarea>
               </div>
+              <div className="form-row">
+              <div className="form-group">
+                <label>Project Name</label>
+                <input 
+                  name="project_name" 
+                  value={details.project_name || ''}
+                  onChange={handleDetailsChange}
+                  placeholder="Enter locality or area"
+                />
+              </div>
+              <div className="form-group">
+              <label>Developer</label>
+              <select 
+                name="developer_id" 
+                value={basic.developer_id}
+                onChange={handleBasicChange}
+              >
+                <option value="">Select Developer</option>
+                {developers.map(d => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
             </div>
-          </div>
-        )}
-
-        {/* Location Picker */}
-        <div className="form-section">
+              </div>
+                
+        </div>
+                {/* Location Picker */}
+                <div className="form-section">
           <div className="section-header">
             <h3>Location</h3>
           </div>
@@ -1058,13 +1239,13 @@ const handleSubmit = async (e) => {
               <label>Address*</label>
               <div className="address-input">
               <input 
-  type="text"
-  ref={addressInputRef}
-  value={location.address}
-  onChange={(e) => setLocation({ ...location, address: e.target.value })}
-  placeholder="Enter complete address"
-  required
-/>
+              type="text"
+               ref={addressInputRef}
+               value={location.address}
+               onChange={(e) => setLocation({ ...location, address: e.target.value })}
+                placeholder="Enter complete address"
+               required
+              />
                 <button 
                   type="button" 
                   className="search-btn"
@@ -1106,6 +1287,23 @@ const handleSubmit = async (e) => {
             </div>
           </div>
         </div>
+        {basic.property_type && (
+          <div className="form-section">
+            <div className="section-header">
+              <h3>Property Details</h3>
+            </div>
+            <div className="form-row">
+             
+              
+            </div>
+            
+            {renderPropertyCategoryFields()}
+            
+           
+          </div>
+        )}
+
+
 
         {/* Amenities */}
         <div className="form-section">
@@ -1281,6 +1479,35 @@ const handleSubmit = async (e) => {
     )}
   </div>
 </div>
+    <div className="form-section">
+      <div className="section-header">
+        <h3>Peoperty Description</h3>
+      </div>
+    <div className="form-row">
+              <div className="form-group full-width">
+                
+                <textarea
+                  name="description"
+                  value={details.description || ''}
+                  onChange={handleDetailsChange}
+                  rows="4"
+                  placeholder="Describe the property in detail..."
+                ></textarea>
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group full-width">
+                <label>About Location</label>
+                <textarea
+                  name="about_location"
+                  value={details.about_location || ''}
+                  onChange={handleDetailsChange}
+                  rows="4"
+                  placeholder="Describe the property location in detail..."
+                ></textarea>
+              </div>
+            </div>
+    </div>
 
         <div className="form-actions">
         <button type="button" className="cancel-btn" onClick={onClose} disabled={isSubmitting}>
