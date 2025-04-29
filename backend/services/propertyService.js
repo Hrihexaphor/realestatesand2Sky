@@ -63,7 +63,9 @@ export async function insertPropertyDetails(property_id, details) {
      'locality', 'bedrooms', 'balconies', 'bathrooms', 'total_floors', 
      'facing', 'furnished_status', 'covered_parking', 'plot_area', 
      'built_up_area', 'carpet_area', 'plot_length', 'description', 
-     'about_location', 'plot_breadth', 'project_name','floor','project_area','no_of_flat','overlooking','booking_amount','maintenance_charge','transaction_types','available_from'
+     'about_location', 'plot_breadth', 'project_name','floor',
+     'no_of_flat','overlooking','booking_amount',
+     'maintenance_charge','transaction_types','available_from'
    ];
    
    // Filter out undefined fields

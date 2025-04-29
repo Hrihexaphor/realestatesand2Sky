@@ -7,7 +7,7 @@ const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
 
 router.post('/property', upload.fields([
-  { name: 'images', maxCount: 10 },
+  { name: 'images', maxCount: 8 },
   { name: 'documents', maxCount: 10 }
 ]), async (req, res) => {
   try {

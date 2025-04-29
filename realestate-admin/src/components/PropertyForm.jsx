@@ -69,7 +69,9 @@ const PropertyForm = ({editData,onClose}) => {
           // Specific fields based on property type
           if (categoryName === 'Apartment' || categoryName === 'Flat') {
             ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area', 
-            'carpet_area', 'furnished_status', 'covered_parking'].forEach(field => {
+     'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
+     'booking_amount','maintenance_charge','transaction_types','available_from', 
+            'carpet_area', 'furnished_status', 'covered_parking',].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Villa' || categoryName === 'House') {
@@ -762,8 +764,8 @@ const handleSubmit = async (e) => {
     type="date" 
     id="available-from"
     name="available_from" 
-    value={basic.available_from || ''} 
-    onChange={handleBasicChange} // Changed to handleBasicChange if that's what other basic fields use
+    value={details.available_from || ''} 
+    onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
   />
 </div>
@@ -800,7 +802,7 @@ const handleSubmit = async (e) => {
                 type="number" 
                 name="booking_amount" 
                 value={basic.booking_amount}
-                onChange={handleBasicChange}
+                onChange={handleDetailsChange}
                 required
                 min="0"
                 placeholder="Enter booking amount"
@@ -812,7 +814,7 @@ const handleSubmit = async (e) => {
                 type="number" 
                 name="maintenance_charge" 
                 value={basic.maintenance_charge}
-                onChange={handleBasicChange}
+                onChange={handleDetailsChange}
                 min="0"
                 placeholder="Enter price per sqft"
               />
@@ -1055,6 +1057,18 @@ const handleSubmit = async (e) => {
       
       <form className="property-form" onSubmit={handleSubmit}>
           <div className="form-section">
+          <div className="form-row">
+            <div className="form-group">
+              <label>Property Title*</label>
+              <input 
+                name="title" 
+                value={basic.title}
+                onChange={handleBasicChange}
+                required
+                placeholder="Enter a descriptive title"
+              />
+            </div>
+          </div>
             <div className="form-row">
             <div className="form-group">
               <label>Select Purpose</label>
@@ -1131,7 +1145,7 @@ const handleSubmit = async (e) => {
               <input 
                 name="project_area" 
                 value={details.project_area}
-                onChange={handleBasicChange}
+                onChange={handleDetailsChange}
                 required
                 placeholder="Enter propject area"
               />
@@ -1141,7 +1155,7 @@ const handleSubmit = async (e) => {
               <input 
                 name="no_of_tower" 
                 value={details.no_of_tower}
-                onChange={handleBasicChange}
+                onChange={handleDetailsChange}
                 required
                 placeholder="no of towers"
               />
@@ -1154,7 +1168,7 @@ const handleSubmit = async (e) => {
               <input 
                 name="no_of_flat" 
                 value={details.no_of_flat}
-                onChange={handleBasicChange}
+                onChange={handleDetailsChange}
                 required
                 placeholder="no of flat in society"
               />
@@ -1164,7 +1178,7 @@ const handleSubmit = async (e) => {
               <input 
                 name="project_rera_id" 
                 value={details.project_rera_id}
-                onChange={handleBasicChange}
+                onChange={handleDetailsChange}
                 required
                 placeholder="project rera id"
               />
