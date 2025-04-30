@@ -65,7 +65,7 @@ export async function insertPropertyDetails(property_id, details) {
      'built_up_area', 'carpet_area', 'plot_length', 'description', 
      'about_location', 'plot_breadth', 'project_name','floor',
      'no_of_flat','overlooking','booking_amount','no_of_tower',
-     'maintenance_charge','transaction_types','available_from'
+     'maintenance_charge','transaction_types','available_from','youtube_link'
    ];
    
    // Filter out undefined fields

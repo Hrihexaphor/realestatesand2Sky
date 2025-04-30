@@ -1449,6 +1449,24 @@ const handleSubmit = async (e) => {
     )}
   </div>
 </div>
+<div className="form-section">
+    <div className="section-header">
+      <h3>Youtube Link</h3>
+      </div>
+      <div className="form-row">
+        <div className="form-group full-width">
+        <input 
+                type="text"
+              
+                name='youtube_link'
+                value={details.youtube_link || ''}
+                onChange={handleDetailsChange}
+                placeholder='paste the youtube url here'
+              />
+          </div>    
+      </div>
+    
+  </div>
     <div className="form-section">
       <div className="section-header">
         <h3>Peoperty Description</h3>
