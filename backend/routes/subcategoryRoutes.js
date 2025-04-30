@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPropertySubcategory,getSubcategoriesByCategoryId,updateSubcategory,deleteSubcategory,getAllSubcategories } from '../services/propertySubcategory.js';
+import { addPropertySubcategory,get,updateSubcategory,deleteSubcategory,getAllSubcategories } from '../services/propertySubcategory.js';
 const router = express.Router();
 
 router.post('/subcategory', async (req, res) => {

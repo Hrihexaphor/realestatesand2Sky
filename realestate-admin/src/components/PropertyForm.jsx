@@ -494,6 +494,117 @@ const handleSubmit = async (e) => {
     setIsSubmitting(false); // Reset loading state regardless of outcome
   }
 };
+
+const renderPropertySocietyDertails = ()=>{
+    const selectedCategory = categories.find(
+      cat => cat.id === parseInt(basic.property_category)
+    )
+    const categoryName = selectedCategory?.name || '';
+    switch(categoryName){
+      case 'Apartment/Flat':
+        
+          return(
+            <>
+              <div className="form-section">
+          <div className="section-header">
+            <h3>Society Details</h3>
+          </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label>Project Area*</label>
+              <input 
+                name="project_area" 
+                value={details.project_area}
+                onChange={handleDetailsChange}
+                required
+                placeholder="Enter propject area"
+              />
+            </div>
+            <div className="form-group">
+              <label>No of Tower in society</label>
+              <input 
+                name="no_of_tower" 
+                value={details.no_of_tower}
+                onChange={handleDetailsChange}
+                required
+                placeholder="no of towers"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+              <div className="form-group">
+              <label>No of flat in society</label>
+              <input 
+                name="no_of_flat" 
+                value={details.no_of_flat}
+                onChange={handleDetailsChange}
+                required
+                placeholder="no of flat in society"
+              />
+              </div>
+              <div className="form-group">
+              <label>Project RERE Id</label>
+              <input 
+                name="project_rera_id" 
+                value={details.project_rera_id}
+                onChange={handleDetailsChange}
+                required
+                placeholder="project rera id"
+              />
+              </div>
+          </div>  
+        </div>
+            </>
+          )
+    case 'Villa/House':
+    return(
+      <>
+         <div className="form-section">
+          <div className="section-header">
+            <h3>Society Details</h3>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Project Area*</label>
+              <input 
+                name="project_area" 
+                value={details.project_area}
+                onChange={handleDetailsChange}
+                required
+                placeholder="Enter propject area"
+              />
+            </div>
+            <div className="form-group">
+              <label>No of House/villa in society</label>
+              <input 
+                name="no_of_house" 
+                value={details.no_of_house}
+                onChange={handleDetailsChange}
+                required
+                placeholder="no of House/villa"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+          <div className="form-group">
+              <label>Project RERE Id</label>
+              <input 
+                name="project_rera_id" 
+                value={details.project_rera_id}
+                onChange={handleDetailsChange}
+                required
+                placeholder="project rera id"
+              />
+              </div>
+          </div>
+         </div>
+      </>
+    )
+    }
+    
+}
   // Render specific fields based on property type
   const renderPropertyCategoryFields = () => {
     const selectedCategory = categories.find(
@@ -584,42 +695,66 @@ const handleSubmit = async (e) => {
     );
   
     switch (categoryName) {
-      case 'Apartment':
-      case 'Flat':
+      case 'Apartment/Flat':
+      
         return (
           <>
             <div className="form-row">
               <div className="form-group">
-                <label>Bedrooms</label>
-                <input
-                  type="number"
-                  name="bedrooms"
-                  value={details.bedrooms || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
+              <label>Bedrooms</label>
+                  <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="bedrooms"
+                          value={num}
+                          checked={parseInt(details.bedrooms) === num}
+                          onChange={handleDetailsChange}
+                          style={{ accentColor: '#4a90e2' }}
+                        />
+                        <span style={{ marginLeft: '4px' }}>{num}</span>
+                      </label>
+                    ))}
+                  </div>
               </div>
               <div className="form-group">
                 <label>Bathrooms</label>
-                <input
-                  type="number"
-                  name="bathrooms"
-                  value={details.bathrooms || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
+                <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                    {[1, 2, 3,].map((num) => (
+                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="bathrooms"
+                          value={num}
+                          checked={parseInt(details.bathrooms) === num}
+                          onChange={handleDetailsChange}
+                          style={{ accentColor: '#4a90e2' }}
+                        />
+                        <span style={{ marginLeft: '4px' }}>{num}</span>
+                      </label>
+                    ))}
+                  </div>
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
               <label>Balconies</label>
-                <input
-                  type="number"
-                  name="balconies"
-                  value={details.balconies || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
+              <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                    {[0,1, 2, 3,].map((num) => (
+                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="balconies"
+                          value={num}
+                          checked={parseInt(details.balconies) === num}
+                          onChange={handleDetailsChange}
+                          style={{ accentColor: '#4a90e2' }}
+                        />
+                        <span style={{ marginLeft: '4px' }}>{num}</span>
+                      </label>
+                    ))}
+                  </div>
               </div>
               <div className="form-group">
                 <label>Facing</label>
@@ -642,13 +777,21 @@ const handleSubmit = async (e) => {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>Floor Number</label>
-                <input
-                  type="number"
-                  name="floor"
-                  value={details.floor || ''}
-                  onChange={handleDetailsChange}
-                />
+              <label>Floor Number</label>
+                <div className="floor-options ">
+                  {["Lower Basement", "Upper Basement", "Ground", "1", "2", "3+"].map((option) => (
+                    <label key={option} className={`radio-button ${details.floor === option ? "selected" : ""}`}>
+                      <input
+                        type="radio"
+                        name="floor"
+                        value={option}
+                        checked={details.floor === option}
+                        onChange={handleDetailsChange}
+                      />
+                      {option}
+                    </label>
+                  ))}
+                </div>
               </div>
               <div className="form-group">
                 <label>Total Floors</label>
@@ -661,7 +804,7 @@ const handleSubmit = async (e) => {
                 />
               </div>
             </div>
-           
+              
             <div className="form-row">
               <div className="form-group">
                 <label>Furnished Status</label>
@@ -714,7 +857,7 @@ const handleSubmit = async (e) => {
             <div className="form-row">
               <div className="form-group">
                 <label>Super Area</label>
-                  <input type="number" name="plot_area" value={details.plot_area || ''} onChange={handleDetailsChange} min="0"/>
+                  <input type="number" name="super_built_up_area" value={details.super_built_up_area || ''} onChange={handleDetailsChange} min="0"/>
               </div>
               <div className="form-group">
                 <label> Built-up Area (sqft)</label>
@@ -759,16 +902,16 @@ const handleSubmit = async (e) => {
               </select>
             </div>
             <div className="form-group">
-  <label htmlFor="available-from" className="block mb-2 font-medium">Available From</label>
-  <input 
-    type="date" 
-    id="available-from"
-    name="available_from" 
-    value={details.available_from || ''} 
-    onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
-    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</div>
+                <label htmlFor="available-from" className="block mb-2 font-medium">Available From</label>
+                <input 
+                  type="date" 
+                  id="available-from"
+                  name="available_from" 
+                  value={details.available_from || ''} 
+                  onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
             <div className="form-row">
             <div className="form-group">
@@ -823,57 +966,90 @@ const handleSubmit = async (e) => {
           </>
         );
   
-      case 'Villa':
-      case 'House':
+      case 'Villa/House':
+      
         return (
           <>
             <div className="form-row">
               <div className="form-group">
-                <label>Bedrooms</label>
-                <input
-                  type="number"
-                  name="bedrooms"
-                  value={details.bedrooms || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
+              <label>Bedrooms</label>
+                  <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="bedrooms"
+                          value={num}
+                          checked={parseInt(details.bedrooms) === num}
+                          onChange={handleDetailsChange}
+                          style={{ accentColor: '#4a90e2' }}
+                        />
+                        <span style={{ marginLeft: '4px' }}>{num}</span>
+                      </label>
+                    ))}
+                  </div>
               </div>
               <div className="form-group">
                 <label>Bathrooms</label>
-                <input
-                  type="number"
-                  name="bathrooms"
-                  value={details.bathrooms || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
+                <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                    {[1, 2, 3,].map((num) => (
+                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="bathrooms"
+                          value={num}
+                          checked={parseInt(details.bathrooms) === num}
+                          onChange={handleDetailsChange}
+                          style={{ accentColor: '#4a90e2' }}
+                        />
+                        <span style={{ marginLeft: '4px' }}>{num}</span>
+                      </label>
+                    ))}
+                  </div>
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>Built-up Area (sqft)</label>
-                <input
-                  type="number"
-                  name="built_up_area"
-                  value={details.built_up_area || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
+              <label>Balconies</label>
+              <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                    {[0,1, 2, 3,].map((num) => (
+                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="balconies"
+                          value={num}
+                          checked={parseInt(details.balconies) === num}
+                          onChange={handleDetailsChange}
+                          style={{ accentColor: '#4a90e2' }}
+                        />
+                        <span style={{ marginLeft: '4px' }}>{num}</span>
+                      </label>
+                    ))}
+                  </div>
               </div>
               <div className="form-group">
-                <label>Plot Area (sqft)</label>
-                <input
-                  type="number"
-                  name="plot_area"
-                  value={details.plot_area || ''}
+                <label>Facing</label>
+                <select
+                  name="facing"
+                  value={details.facing || ''}
                   onChange={handleDetailsChange}
-                  min="0"
-                />
+                >
+                  <option value="">Select</option>
+                  <option value="North">North</option>
+                  <option value="South">South</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                  <option value="North-East">North-East</option>
+                  <option value="North-West">North-West</option>
+                  <option value="South-East">South-East</option>
+                  <option value="South-West">South-West</option>
+                </select>
               </div>
             </div>
             <div className="form-row">
+             
               <div className="form-group">
-                <label>Number of Floors</label>
+                <label>Total Floors</label>
                 <input
                   type="number"
                   name="total_floors"
@@ -882,6 +1058,9 @@ const handleSubmit = async (e) => {
                   min="1"
                 />
               </div>
+            </div>
+              
+            <div className="form-row">
               <div className="form-group">
                 <label>Furnished Status</label>
                 <select
@@ -895,9 +1074,7 @@ const handleSubmit = async (e) => {
                   <option value="Fully-Furnished">Fully-Furnished</option>
                 </select>
               </div>
-            </div>
-            <div className="form-row">
-            <div className="form-group">
+              <div className="form-group">
                 <label>Covered Parking</label>
                 <input
                   type="number"
@@ -907,10 +1084,187 @@ const handleSubmit = async (e) => {
                   min="0"
                 />
               </div>
+            </div>
+            <div className="form-row">
               <div className="form-group">
-
+                <label>Overlooking</label>
+                <div className="grid grid-cols-2 gap-2">
+                   {overlookingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-2">
+                   <input
+                  type="checkbox"
+                    value={option}
+                   checked={overlooking.includes(option)}
+                     onChange={(e) => {
+                  if (e.target.checked) {
+                   setOverlooking([...overlooking, option]);
+                    } else {
+                    setOverlooking(overlooking.filter(item => item !== option));
+                   }
+                  }}
+                 />
+                 {option}
+               </label>
+               ))}
+              </div>
               </div>
             </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Plot Area</label>
+                  <input type="number" name="plot_area" value={details.plot_area || ''} onChange={handleDetailsChange} min="0"/>
+              </div>
+              <div className="form-group">
+                <label> super Built-up Area (sqft)</label>
+                <input
+                  type="number"
+                  name="super_built_up_area"
+                  value={details.super_built_up_area || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+                <label>Carpet Area (sqft)</label>
+                <input
+                  type="number"
+                  name="carpet_area"
+                  value={details.carpet_area || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>Plot Length (ft)</label>
+                <input
+                  type="number"
+                  name="plot_length"
+                  value={details.plot_length || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+                <label>Plot Width (ft)</label>
+                <input
+                  type="number"
+                  name="plot_breadth"
+                  value={details.plot_breadth || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>is this a corner Plot</label>
+                <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                  {["Yes", "No"].map((value) => (
+                    <label 
+                      key={value} 
+                      className="radio-label" 
+                      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                    >
+                      <input
+                        type="radio"
+                        name="corner_plot"
+                        value={value}
+                        checked={details.corner_plot === value}
+                        onChange={handleDetailsChange}
+                        style={{ accentColor: '#4a90e2' }}
+                      />
+                      <span style={{ marginLeft: '4px' }}>{value}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Transaction Type</label>
+                <select name='transaction_types' value={details.transaction_types || ''} onChange={handleDetailsChange}>
+                  <option value="Resale">Resale</option>
+                  <option value="New property">New Property</option>
+                </select>
+              </div>
+              <div className="form-group">
+              <label>Possession Status</label>
+              <select 
+                name="possession_status" 
+                value={basic.possession_status}
+                onChange={handleBasicChange}
+              >
+                <option value="">Select Status</option>
+                <option value="Ready to Move">Ready to Move</option>
+                <option value="Under Construction">Under Construction</option>
+                
+              </select>
+            </div>
+            <div className="form-group">
+                <label htmlFor="available-from" className="block mb-2 font-medium">Available From</label>
+                <input 
+                  type="date" 
+                  id="available-from"
+                  name="available_from" 
+                  value={details.available_from || ''} 
+                  onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+              <label>Expected Price*</label>
+              <input 
+                type="number" 
+                name="expected_price" 
+                value={basic.expected_price}
+                onChange={handleBasicChange}
+                required
+                min="0"
+                placeholder="Enter price in ₹"
+              />
+            </div>
+            <div className="form-group">
+              <label>Price per Sqft</label>
+              <input 
+                type="number" 
+                name="price_per_sqft" 
+                value={basic.price_per_sqft}
+                onChange={handleBasicChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Booking Amount</label>
+              <input 
+                type="number" 
+                name="booking_amount" 
+                value={basic.booking_amount}
+                onChange={handleDetailsChange}
+                required
+                min="0"
+                placeholder="Enter booking amount"
+              />
+            </div>
+            <div className="form-group">
+              <label>Maintenance Charges</label>
+              <input 
+                type="number" 
+                name="maintenance_charge" 
+                value={basic.maintenance_charge}
+                onChange={handleDetailsChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
           </>
         );
   
@@ -1090,61 +1444,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
         {/* Enter Society details */}
-        <div className="form-section">
-          <div className="section-header">
-            <h3>Society Details</h3>
-          </div>
-          
-          <div className="form-row">
-            <div className="form-group">
-              <label>Project Area*</label>
-              <input 
-                name="project_area" 
-                value={details.project_area}
-                onChange={handleDetailsChange}
-                required
-                placeholder="Enter propject area"
-              />
-            </div>
-            <div className="form-group">
-              <label>No of Tower in society</label>
-              <input 
-                name="no_of_tower" 
-                value={details.no_of_tower}
-                onChange={handleDetailsChange}
-                required
-                placeholder="no of towers"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-              <div className="form-group">
-              <label>No of flat in society</label>
-              <input 
-                name="no_of_flat" 
-                value={details.no_of_flat}
-                onChange={handleDetailsChange}
-                required
-                placeholder="no of flat in society"
-              />
-              </div>
-              <div className="form-group">
-              <label>Project RERE Id</label>
-              <input 
-                name="project_rera_id" 
-                value={details.project_rera_id}
-                onChange={handleDetailsChange}
-                required
-                placeholder="project rera id"
-              />
-              </div>
-          </div>
-          
-          
-
-         
-        </div>
+        {renderPropertySocietyDertails()}
 
         {/* Enter Location Details*/}
         <div className="form-section">
