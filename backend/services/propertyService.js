@@ -64,7 +64,7 @@ export async function insertPropertyDetails(property_id, details) {
      'facing', 'furnished_status', 'covered_parking', 'plot_area', 
      'built_up_area', 'carpet_area', 'plot_length', 'description', 
      'about_location', 'plot_breadth', 'project_name','floor',
-     'no_of_flat','overlooking','booking_amount',
+     'no_of_flat','overlooking','booking_amount','no_of_tower',
      'maintenance_charge','transaction_types','available_from'
    ];
    

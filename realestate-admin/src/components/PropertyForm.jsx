@@ -996,51 +996,7 @@ const handleSubmit = async (e) => {
           </>
         );
   
-      case 'Hostel':
-        return (
-          <>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Total Rooms</label>
-                <input
-                  type="number"
-                  name="total_rooms"
-                  value={details.total_rooms || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
-              </div>
-              <div className="form-group">
-                <label>Room Sharing Type</label>
-                <select
-                  name="room_sharing"
-                  value={details.room_sharing || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="Single">Single</option>
-                  <option value="Double">Double</option>
-                  <option value="Triple">Triple</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Furnished Status</label>
-                <select
-                  name="furnished_status"
-                  value={details.furnished_status || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="Unfurnished">Unfurnished</option>
-                  <option value="Semi-Furnished">Semi-Furnished</option>
-                  <option value="Fully-Furnished">Fully-Furnished</option>
-                </select>
-              </div>
-            </div>
-          </>
-        );
+    
   
       default:
         return allFields;

@@ -54,7 +54,7 @@ export default function PropertyTable({ properties, onEdit, onDelete, onView }) 
             {properties?.length > 0 ? (
               properties.map((property, index) => (
                 <tr 
-                  key={property.id} 
+                  key={property.id || `property-${index}`} 
                   className={`hover:bg-blue-50 transition-colors duration-150 ease-in-out ${
                     index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                   }`}
@@ -62,7 +62,7 @@ export default function PropertyTable({ properties, onEdit, onDelete, onView }) 
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium sticky left-0 z-10" style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb' }}>
                     <div className="flex justify-center space-x-3">
                       <button 
-                        onClick={() => onView(property.id)} 
+                        onClick={() => onView(property.property_id)} 
                         className="p-1.5 text-green-600 bg-green-100 rounded-full hover:bg-green-200 transition-colors duration-150"
                         title="View details"
                       >
@@ -76,7 +76,7 @@ export default function PropertyTable({ properties, onEdit, onDelete, onView }) 
                         <FaEdit className="text-blue-600" />
                       </button>
                       <button 
-                        onClick={() => onDelete(property.id)} 
+                        onClick={() => onDelete(property.property_id )} 
                         className="p-1.5 text-red-600 bg-red-100 rounded-full hover:bg-red-200 transition-colors duration-150"
                         title="Delete property"
                       >

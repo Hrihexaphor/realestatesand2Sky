@@ -160,14 +160,14 @@ router.put('/property/:id', async (req, res) => {
 // Delete property by ID
 router.delete('/property/:id', async (req, res) => {
   try {
-    const propertyId = req.params.id;
-    
-    if (!propertyId) {
-      return res.status(400).json({ error: 'Property ID is required' });
+    const propertyId = parseInt(req.params.id, 10); // parse it safely
+
+    if (isNaN(propertyId)) {
+      return res.status(400).json({ error: 'Invalid Property ID' });
     }
-    
+
     const success = await deletePropertyById(propertyId);
-    
+
     if (success) {
       res.status(200).json({ message: 'Property deleted successfully' });
     } else {
@@ -178,6 +178,7 @@ router.delete('/property/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete property', details: err.message });
   }
 });
+
 //   get property by search filter
 
 router.get('/property/search', async (req, res) => {
