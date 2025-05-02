@@ -3,25 +3,29 @@ import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,g
 const router = express.Router();
 
 router.post('/addtofeatured', async (req, res) => {
-    const { property_id } = req.body;
+    const { property_id, start_date, end_date } = req.body;
     
     if (!property_id) {
         return res.status(400).json({ message: "Property ID is required" });
     }
-    
+    if (!start_date || !end_date) {
+        return res.status(400).json({ message: "Start and End dates are required" });
+    }
+
     try {
         const isfeatured = await checkIfFeatured(property_id);
         if (isfeatured) {
            return res.status(400).json({ message: "This property is already featured" });
         }
         
-        const result = await addToFeatured(property_id);
+        const result = await addToFeatured(property_id, start_date, end_date);
         res.status(200).json({ message: "Property added to featured successfully", data: result });
     }
     catch (err) {
         res.status(500).json({ error: "Failed to add to featured", details: err.message });
     }
 });
+
 
 router.delete('/featured/:property_id', async (req, res) => {
     const { property_id } = req.params;

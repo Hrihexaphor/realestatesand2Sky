@@ -1,9 +1,13 @@
 import pool from '../config/db.js'
 
-export async function addToFeatured(property_id) {
-    const result = await pool.query(`INSERT INTO featured_properties (property_id) VALUES ($1) RETURNING *`, [property_id]);
-    return result.rows[0];
+export async function addToFeatured(property_id, start_date, end_date) {
+  const result = await pool.query(
+    `INSERT INTO featured_properties (property_id, featured_from, featured_to) VALUES ($1, $2, $3) RETURNING *`,
+    [property_id, start_date, end_date]
+  );
+  return result.rows[0];
 }
+
 
 export async function removeFromFeatured(property_id) {
     const result = await pool.query(`DELETE FROM featured_properties WHERE property_id = $1 RETURNING *`, [property_id]);

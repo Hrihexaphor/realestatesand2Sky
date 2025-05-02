@@ -3,6 +3,7 @@ import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
 import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments } from '../services/propertyService.js';
 import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties,getNewProperties } from '../services/propertyService.js';
+import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
 const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
 

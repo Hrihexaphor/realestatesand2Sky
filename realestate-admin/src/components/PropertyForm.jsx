@@ -15,10 +15,17 @@ const PropertyForm = ({editData,onClose}) => {
     price_per_sqft: '',
     developer_id: ''
   });
-  const [details, setDetails] = useState({});
+  const [details, setDetails] = useState(editData?.details || {
+    overlooking: [] // Initialize overlooking as an empty array within details
+  });
   const [location, setLocation] = useState({ latitude: '', longitude: '', address: '' });
   const [amenities, setAmenities] = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
+  
+  const overlookingOptions = [
+    'Pool', 'Park', 'Road', 'Garden', 'Sea', 'River', 'Club', 'Temple'
+  ];
+
   const [developers, setDevelopers] = useState([]);
   const [nearestOptions, setNearestOptions] = useState([]);
   const [nearestTo, setNearestTo] = useState([]);
@@ -31,10 +38,7 @@ const PropertyForm = ({editData,onClose}) => {
   const [documents, setDocuments] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const addressInputRef = useRef(null);
-  const overlookingOptions = [
-    'Pool', 'Park', 'Road', 'Garden', 'Sea', 'River', 'Club', 'Temple'
-  ];
-  const [overlooking, setOverlooking] = useState([]);
+
   // edit property 
     useEffect(() => {
       if (editData) {
@@ -67,11 +71,12 @@ const PropertyForm = ({editData,onClose}) => {
           });
           const categoryName = editData.property_category_name;
           // Specific fields based on property type
-          if (categoryName === 'Apartment' || categoryName === 'Flat') {
-            ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area', 
+          if (categoryName === 'Apartment/Flat') {
+            ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area','facing', 
      'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
-     'booking_amount','maintenance_charge','transaction_types','available_from', 
-            'carpet_area', 'furnished_status', 'covered_parking',].forEach(field => {
+     'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
+            'carpet_area', 'furnished_status', 'covered_parking','project_name','no_of_tower',
+          'super_built_up_area','youtube_link','about_location','available_from'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Villa' || categoryName === 'House') {
@@ -140,6 +145,17 @@ const PropertyForm = ({editData,onClose}) => {
       }
     }
   }, [editData, map, marker]);
+  // calculate the price for square feet automatically
+  useEffect(() => {
+    const area = parseFloat(details.super_built_up_area);
+    const price = parseFloat(basic.expected_price);
+  
+    if (!isNaN(area) && area > 0 && !isNaN(price)) {
+      const pricePerSqft = Math.round(price / area);
+      setBasic(prev => ({ ...prev, price_per_sqft: pricePerSqft }));
+    }
+  }, [details.super_built_up_area, basic.expected_price]);
+
   // Fetch dropdown data on mount
   useEffect(() => {
     const fetchData = async () => {
@@ -335,7 +351,22 @@ const PropertyForm = ({editData,onClose}) => {
     const { name, value } = e.target;
     setDetails(prev => ({ ...prev, [name]: value }));
   };
-
+  const handleOverlookingChange = (option, isChecked) => {
+    const currentOverlooking = details.overlooking || [];
+    let newOverlooking;
+    
+    if (isChecked) {
+      newOverlooking = [...currentOverlooking, option];
+    } else {
+      newOverlooking = currentOverlooking.filter(item => item !== option);
+    }
+    
+    // Update the details object with the new overlooking array
+    setDetails(prev => ({
+      ...prev,
+      overlooking: newOverlooking
+    }));
+  };
   const handleAddressSearch = () => {
     if (!window.google || !map) return;
     
@@ -432,6 +463,7 @@ const handleSubmit = async (e) => {
       basic: correctedBasic,
       details,
       location,
+      
       nearest_to: nearestTo,
       amenities: selectedAmenities
     };
@@ -502,7 +534,8 @@ const renderPropertySocietyDertails = ()=>{
     const categoryName = selectedCategory?.name || '';
     switch(categoryName){
       case 'Apartment/Flat':
-        
+      case 'Project Apartment':
+        case 'Project Flat':
           return(
             <>
               <div className="form-section">
@@ -696,7 +729,8 @@ const renderPropertySocietyDertails = ()=>{
   
     switch (categoryName) {
       case 'Apartment/Flat':
-      
+      case 'Project Apartment':
+        case 'Project Flat':
         return (
           <>
             <div className="form-row">
@@ -831,28 +865,22 @@ const renderPropertySocietyDertails = ()=>{
               </div>
             </div>
             <div className="form-row">
-              <div className="form-group">
-                <label>Overlooking</label>
-                <div className="grid grid-cols-2 gap-2">
-                   {overlookingOptions.map(option => (
+                  <div className="form-group">
+              <label>Overlooking</label>
+              <div className="grid grid-cols-2 gap-2">
+                {overlookingOptions.map(option => (
                   <label key={option} className="flex items-center gap-2">
-                   <input
-                  type="checkbox"
-                    value={option}
-                   checked={overlooking.includes(option)}
-                     onChange={(e) => {
-                  if (e.target.checked) {
-                   setOverlooking([...overlooking, option]);
-                    } else {
-                    setOverlooking(overlooking.filter(item => item !== option));
-                   }
-                  }}
-                 />
-                 {option}
-               </label>
-               ))}
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={details.overlooking?.includes(option)}
+                      onChange={(e) => handleOverlookingChange(option, e.target.checked)}
+                    />
+                    {option}
+                  </label>
+                ))}
               </div>
-              </div>
+            </div>
             </div>
             <div className="form-row">
               <div className="form-group">
@@ -907,7 +935,7 @@ const renderPropertySocietyDertails = ()=>{
                   type="date" 
                   id="available-from"
                   name="available_from" 
-                  value={details.available_from || ''} 
+                  value={details.available_from ? details.available_from.slice(0, 10) : ''} 
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -944,7 +972,7 @@ const renderPropertySocietyDertails = ()=>{
               <input 
                 type="number" 
                 name="booking_amount" 
-                value={basic.booking_amount}
+                value={details.booking_amount}
                 onChange={handleDetailsChange}
                 required
                 min="0"
@@ -956,7 +984,7 @@ const renderPropertySocietyDertails = ()=>{
               <input 
                 type="number" 
                 name="maintenance_charge" 
-                value={basic.maintenance_charge}
+                value={details.maintenance_charge}
                 onChange={handleDetailsChange}
                 min="0"
                 placeholder="Enter price per sqft"
@@ -1086,28 +1114,22 @@ const renderPropertySocietyDertails = ()=>{
               </div>
             </div>
             <div className="form-row">
-              <div className="form-group">
-                <label>Overlooking</label>
-                <div className="grid grid-cols-2 gap-2">
-                   {overlookingOptions.map(option => (
-                  <label key={option} className="flex items-center gap-2">
-                   <input
-                  type="checkbox"
-                    value={option}
-                   checked={overlooking.includes(option)}
-                     onChange={(e) => {
-                  if (e.target.checked) {
-                   setOverlooking([...overlooking, option]);
-                    } else {
-                    setOverlooking(overlooking.filter(item => item !== option));
-                   }
-                  }}
-                 />
-                 {option}
-               </label>
-               ))}
-              </div>
-              </div>
+            <div className="form-group">
+        <label>Overlooking</label>
+        <div className="grid grid-cols-2 gap-2">
+          {overlookingOptions.map(option => (
+            <label key={option} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                value={option}
+                checked={details.overlooking?.includes(option)}
+                onChange={(e) => handleOverlookingChange(option, e.target.checked)}
+              />
+              {option}
+            </label>
+          ))}
+        </div>
+      </div>
             </div>
             <div className="form-row">
               <div className="form-group">
@@ -1246,7 +1268,7 @@ const renderPropertySocietyDertails = ()=>{
               <input 
                 type="number" 
                 name="booking_amount" 
-                value={basic.booking_amount}
+                value={details.booking_amount}
                 onChange={handleDetailsChange}
                 required
                 min="0"
@@ -1258,7 +1280,7 @@ const renderPropertySocietyDertails = ()=>{
               <input 
                 type="number" 
                 name="maintenance_charge" 
-                value={basic.maintenance_charge}
+                value={details.maintenance_charge}
                 onChange={handleDetailsChange}
                 min="0"
                 placeholder="Enter price per sqft"
@@ -1723,7 +1745,7 @@ const renderPropertySocietyDertails = ()=>{
       />
       <div className="upload-placeholder">
         <span>Drop documents here or click to upload</span>
-        <small>Accepted: PDF, DOCX, JPG, PNG, MP4 (max 20 MB each)</small>
+        <small>Accepted: PDF, DOCX, JPG, PNG, MP4 (max 10 MB each)</small>
       </div>
     </label>
 
