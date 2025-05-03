@@ -7,12 +7,13 @@ const ViewFAQsPage = () => {
   const [faqs, setFaqs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchFaqs = async () => {
       setIsLoading(true);
       try {
-        const res = await axios.get(`http://localhost:3001/api/faq/${id}`);
+        const res = await axios.get(`${BASE_URL}/api/faq/${id}`);
         setFaqs(res.data);
         setError(null);
       } catch (err) {

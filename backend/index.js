@@ -16,6 +16,7 @@ import subcategoryRoutes from './routes/subcategoryRoutes.js'
 import userActivityRoutes from './routes/userActivityRoutes.js'
 import featuredPropertyRoutes from './routes/featuredPropertyRoutes.js'
 import faqRoutes from './routes/faqRoutes.js'
+import minimumdetails from './routes/getminimumpropertyRoutes.js'
 const app = express();
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -49,6 +50,7 @@ app.use('/api',blogRoutes)
 app.use('/api',userActivityRoutes)
 app.use('/api',featuredPropertyRoutes)
 app.use('/api',faqRoutes)
+app.use('/api',minimumdetails)
 app.use('/test',(req,res)=>{
   res.json({message:"hello hritesh"})
 })

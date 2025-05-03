@@ -8,7 +8,7 @@ const AddFAQPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ question: '', answer: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -26,7 +26,7 @@ const AddFAQPage = () => {
     setIsSubmitting(true);
     
     try {
-      await axios.post('http://localhost:3001/api/addfaq', {
+      await axios.post(`${BASE_URL}/api/addfaq`, {
         property_id: id,
         question: formData.question,
         answer: formData.answer
@@ -84,7 +84,7 @@ const AddFAQPage = () => {
           <div className="flex">
             <button 
               type="button" 
-              onClick={() => navigate(`/dashboard`)}
+              onClick={() => navigate(`/dashboard/property`)}
               className="mr-4 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               Cancel
