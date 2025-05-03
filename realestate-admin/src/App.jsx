@@ -12,6 +12,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import CategoryManager from './pages/CategoryManager';
 import FeaturedManager from './pages/FeaturedManager';
 import LeadPage from './pages/LeadPage';
+import AddFAQPage from './pages/AddFAQPage';
+import ViewFAQsPage from './pages/ViewFAQsPage';
+import PropertyTable from './components/PropertyCard';
 
 
 function App() {
@@ -19,7 +22,7 @@ function App() {
     <Routes>
       <Route path="/admin/login" element={<LoginPage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-        <Route index element={<div>Welcome to Dashboard</div>} />
+        <Route index element={<ProtectedRoute><PropertyTable/></ProtectedRoute>} />
         <Route path="property" element={<ProtectedRoute><PropertyPage /></ProtectedRoute>} />
         <Route path="property/:id" element={<ProtectedRoute><ViewPropertyDetails /></ProtectedRoute>} />
         <Route path="amenities" element={<ProtectedRoute><AmenityPage /></ProtectedRoute>} />
@@ -28,7 +31,8 @@ function App() {
         <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
         <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
         <Route path="leads" element={<ProtectedRoute><LeadPage/></ProtectedRoute>}/>
-
+        <Route path="property/:id/add-faq" element={<ProtectedRoute><AddFAQPage/></ProtectedRoute>} />
+        <Route path="property/:id/faqs" element={<ProtectedRoute><ViewFAQsPage /></ProtectedRoute>} />
         <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/login" />} />

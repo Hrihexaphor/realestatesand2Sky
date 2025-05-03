@@ -1,5 +1,5 @@
 import express from 'express';
-import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,getFeaturedPropertiesWithDetails } from '../services/featuredProperty.js';
+import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,getActiveFeaturedPropertiesLite } from '../services/featuredProperty.js';
 const router = express.Router();
 
 router.post('/addtofeatured', async (req, res) => {
@@ -52,12 +52,23 @@ router.get('/featuredids', async (req, res) => {
 });
 
 // get all featured property with details
-router.get('/featuredproperties',async(req,res)=>{
+// router.get('/featuredproperties',async(req,res)=>{
+//     try {
+//         const properties = await getFeaturedPropertiesWithDetails();
+//         res.status(200).json(properties);
+//       } catch (err) {
+//         res.status(500).json({ error: 'Failed to fetch featured property details', details: err.message });
+//       }
+// })
+
+// get featured property lite
+router.get('/featured-properties-lite', async (req, res) => {
     try {
-        const properties = await getFeaturedPropertiesWithDetails();
-        res.status(200).json(properties);
-      } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch featured property details', details: err.message });
-      }
-})
+      const data = await getActiveFeaturedPropertiesLite();
+      res.status(200).json(data);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch featured properties", details: err.message });
+    }
+  });
+  
 export default router;

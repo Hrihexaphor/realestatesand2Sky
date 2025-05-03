@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
 import { FaEdit, FaTrash, FaEye, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 export default function PropertyTable({ properties, onEdit, onDelete, onView }) {
   const tableRef = useRef(null);
-  
+  const navigate = useNavigate();
   // Function to handle manual horizontal scrolling
   const scrollHorizontal = (direction) => {
     if (tableRef.current) {
@@ -33,6 +34,8 @@ export default function PropertyTable({ properties, onEdit, onDelete, onView }) 
           <thead className="bg-gradient-to-r from-blue-600 to-blue-500 sticky top-0 z-20">
             <tr>
               <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-center text-white uppercase sticky left-0 z-30 bg-blue-600">Actions</th>
+              <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-center text-white uppercase sticky left-0 z-30 bg-blue-600">FAQ Actions</th>
+
               <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">S.No</th>
               <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Title</th>
               <th scope="col" className="px-6 py-4 text-xs font-medium tracking-wider text-left text-white uppercase">Category</th>
@@ -82,7 +85,24 @@ export default function PropertyTable({ properties, onEdit, onDelete, onView }) 
                       >
                         <FaTrash className="text-red-600" />
                       </button>
+                     
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium sticky left-0 z-10" style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb' }}>
+                  <button 
+                      onClick={() => navigate(`/dashboard/property/${property.property_id}/add-faq`)} 
+                      className="p-1.5 text-indigo-600 bg-indigo-100 rounded-full hover:bg-indigo-200 transition-colors duration-150"
+                      title="Add FAQ"
+                    >
+                      🟢add
+                    </button>
+                    <button 
+                      onClick={() => navigate(`/dashboard/property/${property.property_id}/faqs`)} 
+                      className="p-1.5 text-purple-600 bg-purple-100 rounded-full hover:bg-purple-200 transition-colors duration-150"
+                      title="View FAQs"
+                    >
+                      🔍view
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{property.title}</td>

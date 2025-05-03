@@ -1,9 +1,9 @@
 import pool from '../config/db.js';
 
 export async function createDevloper(data){
-    const {name,company_name,contact_email,phone_number,address,city,state} = data;
-    const result = await pool.query(`INSERT INTO developer (name,company_name,contact_email,phone_number,address,city,state)
-            VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,[name,company_name,contact_email,phone_number,address,city,state]);
+    const {name,company_name,contact_email,phone_number,address,city,state,partial_amount} = data;
+    const result = await pool.query(`INSERT INTO developer (name,company_name,contact_email,phone_number,address,city,state,partial_amount)
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,[name,company_name,contact_email,phone_number,address,city,state,partial_amount]);
         return result.rows[0];
     }
 export async function getAllDeveloper(){
@@ -31,7 +31,8 @@ export const updateDeveloper = async (id, developerData) => {
            address = $5,
            city = $6,
            state = $7
-       WHERE id = $8
+           partial_amount=$8
+       WHERE id = $9
        RETURNING *`,
       [name, company_name, contact_email, phone_number, address, city, state, id]
     );

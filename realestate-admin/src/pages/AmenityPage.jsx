@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { 
+  FaSwimmingPool, FaWifi, FaParking, FaSnowflake, FaUtensils, 
+  FaDumbbell, FaTv, FaBed, FaShower, FaCoffee, FaBaby, 
+  FaWheelchair, FaUmbrellaBeach, FaHotTub, FaBicycle, 
+  FaSprayCan, FaCocktail, FaDog, FaCar, FaShuttleVan
+} from 'react-icons/fa';
+import { MdLocalLaundryService, MdMeetingRoom, MdAir, MdSpa, MdOutdoorGrill } from 'react-icons/md';
+import {  GiLockers } from 'react-icons/gi';
+import { BsFillTelephoneFill } from 'react-icons/bs';
+import { IoGameControllerOutline } from 'react-icons/io5';
 
 const AmenityPage = () => {
   const [amenities, setAmenities] = useState([]);
@@ -9,8 +19,72 @@ const AmenityPage = () => {
   const [errors, setErrors] = useState({ name: '', icon: '' });
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
   const [submitting, setSubmitting] = useState(false);
+  const [showIconModal, setShowIconModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
+  // Icon mapping object
+  const iconComponents = {
+    'FaSwimmingPool': FaSwimmingPool,
+    'FaWifi': FaWifi,
+    'FaParking': FaParking,
+    'FaSnowflake': FaSnowflake,
+    'FaUtensils': FaUtensils,
+    'FaDumbbell': FaDumbbell,
+    'FaTv': FaTv,
+    'FaBed': FaBed,
+    'FaShower': FaShower,
+    'FaCoffee': FaCoffee,
+    'FaBaby': FaBaby,
+    'FaWheelchair': FaWheelchair,
+    'FaUmbrellaBeach': FaUmbrellaBeach,
+    'FaHotTub': FaHotTub,
+    'FaBicycle': FaBicycle,
+    'FaSprayCan': FaSprayCan,
+    'FaCocktail': FaCocktail,
+    'FaDog': FaDog,
+    'FaCar': FaCar,
+    'FaShuttleVan': FaShuttleVan,
+    'MdLocalLaundryService': MdLocalLaundryService,
+    'MdMeetingRoom': MdMeetingRoom,
+    'MdAir': MdAir,
+    'MdSpa': MdSpa,
+    'MdOutdoorGrill': MdOutdoorGrill,
+    // 'GiPoolTableLight': GiPoolTableLight,
+    'GiLockers': GiLockers,
+    'BsFillTelephoneFill': BsFillTelephoneFill,
+    'IoGameControllerOutline': IoGameControllerOutline,
+  };
+
+  // Icon categories
+  const iconCategories = [
+    {
+      name: 'Basic Amenities',
+      icons: ['FaWifi', 'FaParking', 'FaSnowflake', 'FaUtensils', 'FaBed', 'FaShower', 'FaCoffee']
+    },
+    {
+      name: 'Activities & Recreation',
+      icons: ['FaSwimmingPool', 'FaDumbbell', 'FaUmbrellaBeach', 'FaHotTub', 'FaBicycle', 'IoGameControllerOutline']
+    },
+    {
+      name: 'Special Services',
+      icons: ['FaBaby', 'FaWheelchair', 'FaSprayCan', 'FaCocktail', 'FaDog', 'FaCar', 'FaShuttleVan']
+    },
+    {
+      name: 'Room & Facility',
+      icons: ['MdLocalLaundryService', 'MdMeetingRoom', 'MdAir', 'MdSpa', 'MdOutdoorGrill', 'GiLockers', 'BsFillTelephoneFill', 'FaTv']
+    }
+  ];
+
+  // Filter icons based on search term
+  const filteredCategories = searchTerm 
+    ? [{ 
+        name: 'Search Results', 
+        icons: Object.keys(iconComponents).filter(name => 
+          name.toLowerCase().includes(searchTerm.toLowerCase()))
+      }]
+    : iconCategories;
+
   const validateForm = () => {
     const newErrors = { name: '', icon: '' };
     let isValid = true;
@@ -20,8 +94,8 @@ const AmenityPage = () => {
       isValid = false;
     }
     
-    if (!form.icon.trim()) {
-      newErrors.icon = 'Icon name is required';
+    if (!form.icon) {
+      newErrors.icon = 'Please select an icon';
       isValid = false;
     }
     
@@ -80,6 +154,17 @@ const AmenityPage = () => {
     }
   };
 
+  const selectIcon = (iconName) => {
+    setForm({ ...form, icon: iconName });
+    setShowIconModal(false);
+  };
+
+  // Render icon component based on icon name
+  const renderIconComponent = (iconName, size = 5) => {
+    const IconComponent = iconComponents[iconName];
+    return IconComponent ? <IconComponent className={`h-${size} w-${size}`} /> : null;
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Manage Amenities</h1>
@@ -106,15 +191,35 @@ const AmenityPage = () => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Icon Name
+                  Icon
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. pool-icon.png"
-                  value={form.icon}
-                  onChange={(e) => setForm({ ...form, icon: e.target.value })}
-                  className={`w-full border ${errors.icon ? 'border-red-500' : 'border-gray-300'} rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                />
+                <div className="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowIconModal(true)}
+                    className="flex-1 flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {form.icon ? (
+                      <div className="flex items-center space-x-2">
+                        {renderIconComponent(form.icon)}
+                        <span className="text-gray-700">{form.icon}</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">Select an icon</span>
+                    )}
+                  </button>
+                  {form.icon && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, icon: '' })}
+                      className="p-2 text-gray-500 hover:text-red-500"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
                 {errors.icon && <p className="mt-1 text-sm text-red-600">{errors.icon}</p>}
               </div>
               
@@ -162,9 +267,12 @@ const AmenityPage = () => {
                   >
                     <div className="flex items-center space-x-3">
                       <div className="bg-blue-100 text-blue-800 p-2 rounded-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                        </svg>
+                        {iconComponents[amenity.icon] ? 
+                          renderIconComponent(amenity.icon) : 
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                          </svg>
+                        }
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800">{amenity.name}</h3>
@@ -184,6 +292,63 @@ const AmenityPage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Icon Selection Modal */}
+      {showIconModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Select an Icon</h3>
+              <button
+                onClick={() => setShowIconModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search icons..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            <div className="space-y-6">
+              {filteredCategories.map((category) => (
+                <div key={category.name}>
+                  <h4 className="font-medium text-gray-700 mb-2">{category.name}</h4>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                    {category.icons.map((iconName) => (
+                      <button
+                        key={iconName}
+                        onClick={() => selectIcon(iconName)}
+                        className={`p-3 flex flex-col items-center justify-center border rounded-lg hover:bg-blue-50 transition-colors ${
+                          form.icon === iconName ? 'bg-blue-100 border-blue-500' : 'border-gray-200'
+                        }`}
+                      >
+                        {renderIconComponent(iconName, 6)}
+                        <span className="text-xs mt-1 text-gray-500 truncate w-full text-center">{iconName.replace(/^(Fa|Md|Gi|Bs|Io)/, '')}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              
+              {filteredCategories.length === 1 && filteredCategories[0].icons.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  No icons match your search. Try a different term.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (

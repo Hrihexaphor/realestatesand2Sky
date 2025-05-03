@@ -133,7 +133,7 @@ const FeaturedManager = () => {
             <thead className="bg-gray-100">
               <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Action</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Date</th>
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Date</th> */}
                 
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Location</th>
@@ -225,13 +225,13 @@ const FeaturedManager = () => {
                       </div>
                     )}
                   </td>
-                   <td className="px-6 py-4 whitespace-nowrap">
+                   {/* <td className="px-6 py-4 whitespace-nowrap">
                      {featuredIds.includes(property.id) && (
                         <span className="text-sm text-green-600">
                         {formatDate(property.featured_from)} - {formatDate(property.featured_to)}
                       </span>
                        )}
-                      </td>
+                      </td> */}
 
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">

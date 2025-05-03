@@ -17,6 +17,7 @@ const DeveloperPage = () => {
     address: '',
     city: '',
     state: '',
+    partial_amount:''
   });
   const [errors, setErrors] = useState({});
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -112,6 +113,7 @@ const DeveloperPage = () => {
       address: '',
       city: '',
       state: '',
+      partial_amount:'',
     });
     setEditingId(null);
     setErrors({});
@@ -148,7 +150,7 @@ const DeveloperPage = () => {
     dev.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dev.contact_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dev.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dev.state.toLowerCase().includes(searchTerm.toLowerCase())
+    dev.state.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
 
   // Form fields organized by section
@@ -163,7 +165,7 @@ const DeveloperPage = () => {
     },
     {
       title: "Address Information",
-      fields: ["address", "city", "state"]
+      fields: ["address", "city", "state","partial_amount"]
     }
   ];
 

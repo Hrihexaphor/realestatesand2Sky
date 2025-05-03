@@ -68,19 +68,18 @@ export default function PropertyPage() {
         </button>
       </div>
 
-      {showForm && (
+      {showForm ? (
         <div className="mb-6">
           <PropertyForm editData={editData} onClose={handleFormClose} />
         </div>
+      ) : (
+        <PropertyCard
+          properties={properties}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onView={handleView}
+        />
       )}
-
-<PropertyCard
-  properties={properties}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  onView={handleView}
-/>
-
     </div>
   );
 }

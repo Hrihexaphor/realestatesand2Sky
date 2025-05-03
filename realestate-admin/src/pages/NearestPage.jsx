@@ -120,7 +120,7 @@ const NearestToPage = () => {
                 onChange={(e) => setForm({ name: e.target.value })}
                 className={`w-full border ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} 
                   px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-                placeholder="e.g. School, Hospital, Park"
+                placeholder="e.g. School"
                 autoFocus
               />
               {error && (
