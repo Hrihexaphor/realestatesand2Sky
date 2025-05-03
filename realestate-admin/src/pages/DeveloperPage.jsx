@@ -164,8 +164,12 @@ const DeveloperPage = () => {
       fields: ["contact_email", "phone_number"]
     },
     {
+      title:"Payment",
+      fields:["partial_amount"]
+    },
+    {
       title: "Address Information",
-      fields: ["address", "city", "state","partial_amount"]
+      fields: ["address", "city", "state",]
     }
   ];
 
@@ -304,6 +308,12 @@ const DeveloperPage = () => {
                           </svg>
                           {dev.phone_number}
                         </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8zm0 0V5m0 10v3" />
+                            </svg>
+                            {dev.partial_amount}
+                          </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
