@@ -2,7 +2,7 @@ import express from 'express';
 import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
 import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments } from '../services/propertyService.js';
-import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties,getNewProperties } from '../services/propertyService.js';
+import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties } from '../services/propertyService.js';
 import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
 const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
@@ -234,15 +234,15 @@ router.get('/properties/ready-to-move', async (req,res)=>{
   }
 })
 // get all the new property from the table
-router.get('/properties/new', async (req, res) => {
-  try {
-    const properties = await getNewProperties();
-    res.status(200).json(properties);
-  } catch (err) {
-    console.error('Error fetching new properties:', err);
-    res.status(500).json({ error: 'Failed to fetch new properties' });
-  }
-});
+// router.get('/properties/new', async (req, res) => {
+//   try {
+//     const properties = await getNewProperties();
+//     res.status(200).json(properties);
+//   } catch (err) {
+//     console.error('Error fetching new properties:', err);
+//     res.status(500).json({ error: 'Failed to fetch new properties' });
+//   }
+// });
 
 // get property by id routes
 

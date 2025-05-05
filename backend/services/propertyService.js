@@ -569,6 +569,12 @@ export const searchProperty = async (filters) => {
         [propertyId]
       );
   
+      // 8. FAQs
+      const { rows: faqRows } = await pool.query(
+        `SELECT id, question, answer FROM faqs WHERE property_id = $1 ORDER BY created_at ASC`,
+        [propertyId]
+      );
+  
       return {
         basic,
         details: detailsRows[0] || null,
@@ -576,7 +582,8 @@ export const searchProperty = async (filters) => {
         images: imageRows,
         documents: documentRows,
         amenities: amenitiesRows,
-        nearest_to: nearestRows
+        nearest_to: nearestRows,
+        faqs: faqRows
       };
     } catch (error) {
       console.error('Error fetching property by ID:', error);
@@ -645,57 +652,57 @@ export const getReadyToMoveProperties = async ()=>{
 // new propperties display services
 // services/propertyService.js
 
-export const getNewProperties = async () => {
-  try{
-    const { rows: propertyRows } = await pool.query(`
-      SELECT 
-        p.*, 
-        d.name AS developer_name, d.company_name AS developer_company_name,
-        pc.name AS property_category_name,
-        psc.name AS property_subcategory_name
-      FROM property p
-      LEFT JOIN developer d ON p.developer_id = d.id
-      LEFT JOIN property_category pc ON p.category_id = pc.id
-      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-      WHERE p.transaction_type = $1
-      ORDER BY p.id DESC
-    `, ['New Property']);
+// export const getNewProperties = async () => {
+//   try{
+//     const { rows: propertyRows } = await pool.query(`
+//       SELECT 
+//         p.*, 
+//         d.name AS developer_name, d.company_name AS developer_company_name,
+//         pc.name AS property_category_name,
+//         psc.name AS property_subcategory_name
+//       FROM property p
+//       LEFT JOIN developer d ON p.developer_id = d.id
+//       LEFT JOIN property_category pc ON p.category_id = pc.id
+//       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+//       WHERE p.transaction_type = $1
+//       ORDER BY p.id DESC
+//     `, ['New Property']);
   
-    const newProperties = [];
+//     const newProperties = [];
   
-    for (const property of propertyRows) {
-      const id = property.id;
+//     for (const property of propertyRows) {
+//       const id = property.id;
   
-      const [{ rows: detailsRows }, { rows: imagesRows }, { rows: locationRows },
-             { rows: nearestRows }, { rows: amenitiesRows }, { rows: documentRows }] = await Promise.all([
-        pool.query(`SELECT * FROM property_details WHERE property_id = $1`, [id]),
-        pool.query(`SELECT * FROM property_images WHERE property_id = $1`, [id]),
-        pool.query(`SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`, [id]),
-        pool.query(`SELECT nt.id, nt.name, pnt.distance_km
-                    FROM property_nearest_to pnt
-                    JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
-                    WHERE pnt.property_id = $1`, [id]),
-        pool.query(`SELECT a.id, a.name, a.icon
-                    FROM property_amenity pa
-                    JOIN amenity a ON pa.amenity_id = a.id
-                    WHERE pa.property_id = $1`, [id]),
-        pool.query(`SELECT id, type, file_url FROM property_documents WHERE property_id = $1`, [id])
-      ]);
+//       const [{ rows: detailsRows }, { rows: imagesRows }, { rows: locationRows },
+//              { rows: nearestRows }, { rows: amenitiesRows }, { rows: documentRows }] = await Promise.all([
+//         pool.query(`SELECT * FROM property_details WHERE property_id = $1`, [id]),
+//         pool.query(`SELECT * FROM property_images WHERE property_id = $1`, [id]),
+//         pool.query(`SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`, [id]),
+//         pool.query(`SELECT nt.id, nt.name, pnt.distance_km
+//                     FROM property_nearest_to pnt
+//                     JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
+//                     WHERE pnt.property_id = $1`, [id]),
+//         pool.query(`SELECT a.id, a.name, a.icon
+//                     FROM property_amenity pa
+//                     JOIN amenity a ON pa.amenity_id = a.id
+//                     WHERE pa.property_id = $1`, [id]),
+//         pool.query(`SELECT id, type, file_url FROM property_documents WHERE property_id = $1`, [id])
+//       ]);
   
-      newProperties.push({
-        basic: property,
-        details: detailsRows[0] || null,
-        location: locationRows[0] || null,
-        images: imagesRows,
-        documents: documentRows,
-        amenities: amenitiesRows,
-        nearest_to: nearestRows
-      });
-    }
+//       newProperties.push({
+//         basic: property,
+//         details: detailsRows[0] || null,
+//         location: locationRows[0] || null,
+//         images: imagesRows,
+//         documents: documentRows,
+//         amenities: amenitiesRows,
+//         nearest_to: nearestRows
+//       });
+//     }
   
-    return newProperties;
-  }catch(error){
-    console.error("failed to fetch the new property",error)
-    throw new Error(`failed to fetch the new property${error.message}`)
-  }
-};
+//     return newProperties;
+//   }catch(error){
+//     console.error("failed to fetch the new property",error)
+//     throw new Error(`failed to fetch the new property${error.message}`)
+//   }
+// };

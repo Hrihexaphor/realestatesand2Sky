@@ -1,5 +1,7 @@
 import pool from '../config/db.js'
 
+
+// listing all property with minimum details
 export async function getMinimalProperties(page = 1, limit = 10) {
     const offset = (page - 1) * limit;
   
@@ -43,4 +45,256 @@ export async function getMinimalProperties(page = 1, limit = 10) {
       throw new Error(`Failed to get minimal properties: ${error.message}`);
     }
   }
+  
+  // new project minimum details services
+
+  export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
+    try {
+      const { rows } = await pool.query(`
+        SELECT 
+          p.id,
+          p.title,
+          pd.project_name,
+          pd.city,
+          pd.locality,
+          p.expected_price AS price,
+          pd.built_up_area,
+          d.name AS developer_name,
+          pc.name AS category_name,
+          psc.name AS subcategory_name,
+          (
+            SELECT pi.image_url
+            FROM property_images pi
+            WHERE pi.property_id = p.id
+            ORDER BY pi.id ASC
+            LIMIT 1
+          ) AS primary_image
+        FROM property p
+        LEFT JOIN property_details pd ON pd.property_id = p.id
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category pc ON p.category_id = pc.id
+        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+        WHERE pd.transaction_types = $1
+        ORDER BY p.id DESC
+        LIMIT $2 OFFSET $3
+      `, ['New property', limit, offset]);
+  
+      return rows;
+    } catch (error) {
+      console.error('Failed to fetch new project summaries:', error);
+      throw new Error(`Failed to fetch new project summaries: ${error.message}`);
+    }
+  };
+  
+  // get minimun details for Resale property 
+
+  export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
+    try {
+      const { rows } = await pool.query(`
+        SELECT 
+          p.id,
+          p.title,
+          pd.project_name,
+          pd.city,
+          pd.locality,
+          p.expected_price AS price,
+          pd.built_up_area,
+          d.name AS developer_name,
+          pc.name AS category_name,
+          psc.name AS subcategory_name,
+          (
+            SELECT pi.image_url
+            FROM property_images pi
+            WHERE pi.property_id = p.id
+            ORDER BY pi.id ASC
+            LIMIT 1
+          ) AS primary_image
+        FROM property p
+        LEFT JOIN property_details pd ON pd.property_id = p.id
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category pc ON p.category_id = pc.id
+        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+        WHERE pd.transaction_types = $1
+        ORDER BY p.id DESC
+        LIMIT $2 OFFSET $3
+      `, ['Resale', limit, offset]);
+  
+      return rows;
+    } catch (error) {
+      console.error('Failed to fetch resale property summaries:', error);
+      throw new Error(`Failed to fetch resale property summaries: ${error.message}`);
+    }
+  };
+  
+  // ready to move property with minimum details
+  export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
+    try {
+      const { rows } = await pool.query(`
+        SELECT 
+          p.id,
+          p.title,
+          pd.project_name,
+          pd.city,
+          pd.locality,
+          p.expected_price AS price,
+          pd.built_up_area,
+          d.name AS developer_name,
+          pc.name AS category_name,
+          psc.name AS subcategory_name,
+          (
+            SELECT pi.image_url
+            FROM property_images pi
+            WHERE pi.property_id = p.id
+            ORDER BY pi.id ASC
+            LIMIT 1
+          ) AS primary_image
+        FROM property p
+        LEFT JOIN property_details pd ON pd.property_id = p.id
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category pc ON p.category_id = pc.id
+        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+        WHERE p.possession_status = $1
+        ORDER BY p.id DESC
+        LIMIT $2 OFFSET $3
+      `, ['Ready to Move', limit, offset]);
+  
+      return rows;
+    } catch (error) {
+      console.error('Failed to fetch ready-to-move project summaries:', error);
+      throw new Error(`Failed to fetch ready-to-move project summaries: ${error.message}`);
+    }
+  };
+  
+  //  get the property which is in between 1cr to 2cr
+  export const getPropertiesInPriceRangeSummaryOnetotwo = async (limit = 10, offset = 0) => {
+    try {
+      const { rows } = await pool.query(`
+        SELECT 
+          p.id,
+          p.title,
+          pd.project_name,
+          pd.city,
+          pd.locality,
+          p.expected_price AS price,
+          pd.built_up_area,
+          d.name AS developer_name,
+          pc.name AS category_name,
+          psc.name AS subcategory_name,
+          (
+            SELECT pi.image_url
+            FROM property_images pi
+            WHERE pi.property_id = p.id
+            ORDER BY pi.id ASC
+            LIMIT 1
+          ) AS primary_image
+        FROM property p
+        LEFT JOIN property_details pd ON pd.property_id = p.id
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category pc ON p.category_id = pc.id
+        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+        WHERE p.expected_price BETWEEN $1 AND $2
+        ORDER BY p.id DESC
+        LIMIT $3 OFFSET $4
+      `, [10000000, 20000000, limit, offset]);
+  
+      return rows;
+    } catch (error) {
+      console.error('Failed to fetch properties in price range:', error);
+      throw new Error(`Failed to fetch properties in price range: ${error.message}`);
+    }
+  };
+  
+  // services to get property from top project from top builder
+  export const getTopProjectsFromTopBuilders = async (limitBuilders = 5) => {
+    try {
+      const { rows } = await pool.query(`
+        WITH top_builders AS (
+          SELECT d.id AS developer_id, d.name AS developer_name, COUNT(p.id) AS property_count
+          FROM developer d
+          JOIN property p ON p.developer_id = d.id
+          GROUP BY d.id
+          ORDER BY property_count DESC
+          LIMIT $1
+        )
+        SELECT 
+          p.id,
+          p.title,
+          pd.project_name,
+          pd.city,
+          pd.locality,
+          p.expected_price AS price,
+          pd.built_up_area,
+          d.name AS developer_name,
+          pc.name AS category_name,
+          psc.name AS subcategory_name,
+          (
+            SELECT pi.image_url
+            FROM property_images pi
+            WHERE pi.property_id = p.id
+            ORDER BY pi.id ASC
+            LIMIT 1
+          ) AS primary_image
+        FROM property p
+        JOIN top_builders tb ON p.developer_id = tb.developer_id
+        LEFT JOIN property_details pd ON pd.property_id = p.id
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category pc ON p.category_id = pc.id
+        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+        WHERE p.id IN (
+          SELECT DISTINCT ON (p2.developer_id) p2.id
+          FROM property p2
+          WHERE p2.developer_id IN (SELECT developer_id FROM top_builders)
+          ORDER BY p2.developer_id, p2.id DESC
+        )
+        ORDER BY p.id DESC;
+      `, [limitBuilders]);
+  
+      return rows;
+    } catch (error) {
+      console.error('Failed to fetch top projects from top builders:', error);
+      throw new Error(`Failed to fetch top projects: ${error.message}`);
+    }
+  };
+  
+
+  // services for project gallary
+
+  export const getLatestPropertiesWithImages = async (limit = 5) => {
+    try {
+      const { rows: properties } = await pool.query(`
+        SELECT 
+          p.id,
+          p.title,
+          p.expected_price AS price,
+          pd.project_name
+        FROM property p
+        LEFT JOIN property_details pd ON pd.property_id = p.id
+        ORDER BY p.id DESC
+        LIMIT $1
+      `, [limit]);
+  
+      // Collect all property IDs
+      const propertyIds = properties.map(p => p.id);
+  
+      // Fetch all images in one query
+      const { rows: allImages } = await pool.query(`
+        SELECT id, property_id, image_url
+        FROM property_images
+        WHERE property_id = ANY($1::int[])
+        ORDER BY id ASC
+      `, [propertyIds]);
+  
+      // Attach images to each property
+      const propertiesWithImages = properties.map(property => ({
+        ...property,
+        images: allImages.filter(img => img.property_id === property.id)
+      }));
+  
+      return propertiesWithImages;
+    } catch (error) {
+      console.error("Failed to fetch latest properties with images:", error);
+      throw new Error(`Fetch error: ${error.message}`);
+    }
+  };
+  
   

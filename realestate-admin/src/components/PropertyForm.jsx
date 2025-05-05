@@ -79,14 +79,20 @@ const PropertyForm = ({editData,onClose}) => {
           'super_built_up_area','youtube_link','about_location','available_from'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
-          } else if (categoryName === 'Villa' || categoryName === 'House') {
-            ['bedrooms', 'bathrooms', 'built_up_area', 'plot_area', 'total_floors',
-            'furnished_status', 'covered_parking'].forEach(field => {
+          } else if (categoryName === 'Villa/House') {
+            ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area','facing', 
+     'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
+     'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
+            'carpet_area', 'furnished_status', 'covered_parking','project_name','no_of_tower',
+          'super_built_up_area','youtube_link','about_location','available_from','no_of_house','plot_area','plot_breadth','plot_length','corner_plot'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
-          } else if (categoryName === 'Plot' || categoryName === 'Land') {
-            ['plot_area', 'plot_length', 'plot_breadth', 'plot_type', 'facing', 
-            'project_rera_id'].forEach(field => {
+          } else if (categoryName === 'Project Apartment' || categoryName === 'Project Flat') {
+            ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area','facing', 
+     'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
+     'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
+            'carpet_area', 'furnished_status', 'covered_parking','project_name','no_of_tower',
+          'super_built_up_area','youtube_link','about_location','available_from'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Hostel') {
