@@ -15,9 +15,10 @@ import AddFAQPage from './pages/AddFAQPage';
 import ViewFAQsPage from './pages/ViewFAQsPage';
 import PropertyTable from './components/PropertyCard';
 import ProtectedRoute from './components/ProtectedRoute';
+import axios from 'axios';
 // Set globally once in your main file (e.g., App.jsx or axios.js)
-axios.defaults.withCredentials = true;
 
+axios.defaults.withCredentials = true;
 function App() {
   return (
     <Routes>

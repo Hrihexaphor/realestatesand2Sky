@@ -29,14 +29,14 @@ router.post('/signup', async (req, res) => {
 //   admin login routes
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
+  
   // 1. Basic input validation
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
-
+  
   try {
-    // 2. Find admin by email - no .select() method needed for raw pg queries
+    // 2. Find admin by email
     const admin = await findAdmiByEmail(email);
     
     if (!admin) {
@@ -44,13 +44,13 @@ router.post('/login', async (req, res) => {
       await bcrypt.compare('dummy-password', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-
+    
     // 3. Compare passwords
     const isMatch = await bcrypt.compare(password, admin.password_hash);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-
+    
     // 4. Set session and respond
     req.session.user = {
       id: admin.id,
@@ -58,27 +58,28 @@ router.post('/login', async (req, res) => {
       email: admin.email,
       role: admin.role
     };
-
-    // Avoid blocking on logging
-    setImmediate(() => {
-      console.log(`Login success: ${email}`);
-    });
-
-    return res.json({
-      message: 'Login successful',
-      admin: {
-        id: admin.id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role
+    
+    // Explicitly save the session to ensure cookie is sent
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Failed to create session' });
       }
+      
+      console.log(`Login success for: ${email}, Session ID: ${req.sessionID}`);
+      
+      return res.json({
+        message: 'Login successful',
+        admin: {
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role
+        }
+      });
     });
-
   } catch (err) {
-    // Avoid blocking on logging
-    setImmediate(() => {
-      console.error('Login error:', err);
-    });
+    console.error('Login error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -89,13 +90,18 @@ router.post('/logout', (req, res) => {
   });
 });
 router.get('/auth/me', (req, res) => {
+  console.log('Auth/me request received, session:', {
+    hasSession: !!req.session,
+    sessionID: req.sessionID,
+    userExists: !!req.session?.user
+  });
+  
   if (!req.session || !req.session.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   
-  const { role, name, email } = req.session.user;
+  const { role, name, email, id } = req.session.user;
   
-  return res.json({ role, name, email });
+  return res.json({ role, name, email, id });
 });
-
   export default router;
