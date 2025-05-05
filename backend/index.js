@@ -25,16 +25,22 @@ const allowedOrigins = [
   'https://realestatesand2sky.onrender.com',   // Production
   // Add any other domains your frontend might be hosted on
 ];
-
+console.log('Allowed origins:', allowedOrigins);
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
+    console.log('Request origin:', origin);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    // Allow requests with no origin (mobile apps, curl)
+    if (!origin) {
+      console.log('No origin, allowing request');
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.includes(origin)) {
+      console.log('Origin allowed:', origin);
       callback(null, true);
     } else {
-      console.log("CORS blocked for origin:", origin);
+      console.error('Origin blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -46,21 +52,41 @@ app.use(express.json());
 // Improved session configuration
 const isProduction = process.env.NODE_ENV === 'production';
       
-app.use(session({
-  secret: process.env.SESSION_SECRET,
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'your-fallback-secret',
   resave: false,
   saveUninitialized: false,
+  name: 'realestate.sid', // Custom name to avoid default
   cookie: {
     httpOnly: true,
-    maxAge: 3600000, // 1 hour
-    sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site requests in production
-    secure: isProduction // true in production for HTTPS
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
   }
-}));
+};
 
+// Configure cookie settings based on environment
+if (isProduction) {
+  // Production settings - for cross-domain cookies
+  sessionConfig.cookie.sameSite = 'none';
+  sessionConfig.cookie.secure = true; // Required for sameSite=none
+  
+  console.log('Using production cookie settings: sameSite=none, secure=true');
+} else {
+  // Development settings
+  sessionConfig.cookie.sameSite = 'lax';
+  sessionConfig.cookie.secure = false;
+  
+  console.log('Using development cookie settings: sameSite=lax, secure=false');
+}
+app.use(session(sessionConfig));
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log('Session ID:', req.sessionID);
+  console.log('Cookies present:', !!req.headers.cookie);
+  next();
+});
 app.use('/uploads', express.static('uploads'));
 
-const PORT = process.env.PORT || 3003;
+
 
 app.use('/api', aminitiesRoutes);
 app.use('/api/admin', authRoutes);
@@ -76,18 +102,42 @@ app.use('/api', faqRoutes);
 app.use('/api', minimumdetails);
 
 // Debug endpoint to check session
-app.use('/api/check-session', (req, res) => {
+app.get('/api/check-session', (req, res) => {
+  // Display complete session information
   res.json({
-    sessionExists: !!req.session.userId,
-    userId: req.session.userId || null,
-    role: req.session.role || null
+    // Session existence check
+    hasSession: !!req.session,
+    sessionID: req.sessionID || null,
+    
+    // User data checks - both possible formats
+    user: req.session?.user || null,
+    userId: req.session?.userId || null,
+    
+    // Role checks - both possible formats
+    userRole: req.session?.user?.role || null,
+    directRole: req.session?.role || null,
+    
+    // Cookie information
+    hasCookies: !!req.headers.cookie,
+    cookieHeader: req.headers.cookie || null,
+    
+    // Request information
+    origin: req.headers.origin || null,
+    host: req.headers.host || null,
+    
+    // Session data (sanitized)
+    sessionData: req.session ? 
+      Object.keys(req.session).filter(key => key !== 'cookie').reduce((obj, key) => {
+        obj[key] = req.session[key];
+        return obj;
+      }, {}) : null
   });
 });
 
 app.use('/test', (req, res) => {
   res.json({message: "hello hritesh"});
 });
-
+const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Running in ${process.env.NODE_ENV || 'development'} mode`);

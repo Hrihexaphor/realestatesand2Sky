@@ -30,28 +30,27 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   
-  // 1. Basic input validation
+  // Basic validation (your existing code)
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
   
   try {
-    // 2. Find admin by email
+    // Find admin by email (your existing code)
     const admin = await findAdmiByEmail(email);
     
     if (!admin) {
-      // Use constant time response to prevent timing attacks
-      await bcrypt.compare('dummy-password', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+      // Your existing code for invalid user
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // 3. Compare passwords
+    // Compare passwords (your existing code)
     const isMatch = await bcrypt.compare(password, admin.password_hash);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // 4. Set session and respond
+    // Set session data
     req.session.user = {
       id: admin.id,
       name: admin.name,
@@ -59,15 +58,20 @@ router.post('/login', async (req, res) => {
       role: admin.role
     };
     
-    // Explicitly save the session to ensure cookie is sent
+    // THIS IS IMPORTANT: Explicitly save the session
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'Failed to create session' });
       }
       
-      console.log(`Login success for: ${email}, Session ID: ${req.sessionID}`);
+      // Log session data for debugging
+      console.log('Login successful, session data:', {
+        sessionID: req.sessionID,
+        user: req.session.user
+      });
       
+      // Return success response
       return res.json({
         message: 'Login successful',
         admin: {
@@ -90,18 +94,19 @@ router.post('/logout', (req, res) => {
   });
 });
 router.get('/auth/me', (req, res) => {
-  console.log('Auth/me request received, session:', {
+  console.log('Auth/me request received, session data:', {
     hasSession: !!req.session,
     sessionID: req.sessionID,
-    userExists: !!req.session?.user
+    user: req.session?.user || null
   });
   
+  // This checks for req.session.user as you're storing in your login route
   if (!req.session || !req.session.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   
-  const { role, name, email, id } = req.session.user;
-  
-  return res.json({ role, name, email, id });
+  // Return the user data from the session
+  const userData = req.session.user;
+  return res.json(userData);
 });
   export default router;
