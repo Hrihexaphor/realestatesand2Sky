@@ -12,14 +12,15 @@ router.post('/addblog', (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     try {
-      const { title, description } = req.body;
+      const { title, description, meta_title, meta_description } = req.body;
       const image_url = req.file ? req.file.path : null;
 
       if (!title || !description) {
         return res.status(400).json({ error: 'Title and description are required' });
       }
 
-      const blog = await addBlog({ title, description, image_url });
+      const blog = await addBlog({ title, description, image_url, meta_title, meta_description });
+
       res.status(201).json({ blog });
     } catch (error) {
       res.status(500).json({ error: error.message });

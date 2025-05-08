@@ -1,6 +1,9 @@
 import React, { useEffect, useState,useRef } from 'react';
 import axios from 'axios';
 import { Map, Building, Home, MapPin } from 'lucide-react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
 import './propertyForm.css';
 
 const PropertyForm = ({editData,onClose}) => {
@@ -1799,30 +1802,37 @@ const renderPropertySocietyDertails = ()=>{
       <div className="section-header">
         <h3>Peoperty Description</h3>
       </div>
-    <div className="form-row">
+            <div className="form-row">
               <div className="form-group full-width">
-                
-                <textarea
-                  name="description"
-                  value={details.description || ''}
-                  onChange={handleDetailsChange}
-                  rows="4"
-                  placeholder="Describe the property in detail..."
-                ></textarea>
+                <label>Description</label>
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={details.description || ''}
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+                    handleDetailsChange({
+                      target: { name: 'description', value: data }
+                    });
+                  }}
+                />
               </div>
             </div>
             <div className="form-row">
             <div className="form-group full-width">
-                <label>About Location</label>
-                <textarea
-                  name="about_location"
-                  value={details.about_location || ''}
-                  onChange={handleDetailsChange}
-                  rows="4"
-                  placeholder="Describe the property location in detail..."
-                ></textarea>
-              </div>
+              <label>About Location</label>
+              <CKEditor
+                editor={ClassicEditor}
+                data={details.about_location || ''}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  handleDetailsChange({
+                    target: { name: 'about_location', value: data }
+                  });
+                }}
+              />
             </div>
+</div>
+
     </div>
 
         <div className="form-actions">

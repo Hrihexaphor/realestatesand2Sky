@@ -1,10 +1,10 @@
 import pool from '../config/db.js'
 
 // Add blog post
-export async function addBlog({ title, description, image_url }) {
+export async function addBlog({ title, description, image_url, meta_title, meta_description }) {
   const result = await pool.query(
-    'INSERT INTO blogs (title, image_url, description) VALUES ($1, $2, $3) RETURNING *',
-    [title, image_url, description]
+    'INSERT INTO blogs (title, image_url, description, meta_title, meta_description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [title, image_url, description, meta_title, meta_description]
   );
   return result.rows[0];
 }
