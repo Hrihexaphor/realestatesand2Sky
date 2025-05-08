@@ -21,7 +21,8 @@ const app = express();
 
 // Improved CORS configuration
 const allowedOrigins = [
-  'http://localhost:5173',                     // Development
+  'http://localhost:5173',  
+  ' http://localhost:3000',                   // Development
   'https://realestatesand2sky.onrender.com',   // Production
   // Add any other domains your frontend might be hosted on
 ];
