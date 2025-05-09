@@ -32,4 +32,12 @@ const blogStorage = new CloudinaryStorage({
   },
 });
 
-export default { cloudinary, blogStorage };
+const aboutStorage = new CloudinaryStorage({
+  cloudinary,
+  params:{
+    folder: 'realestate/about',
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    transformation: [{ width: 1000, height: 1000, crop: 'limit'}]
+  },
+  });
+export default { cloudinary, blogStorage,aboutStorage };

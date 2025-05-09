@@ -12,11 +12,12 @@ import propertyRoutes from './routes/propertyRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import subcategoryRoutes from './routes/subcategoryRoutes.js';
-import userActivityRoutes from './routes/userActivityRoutes.js';
+
 import featuredPropertyRoutes from './routes/featuredPropertyRoutes.js';
 import faqRoutes from './routes/faqRoutes.js';
 import minimumdetails from './routes/getminimumpropertyRoutes.js';
-
+import pagesRoutes from './routes/pagesRoutes.js';
+import leadsRoutes from './routes/leadeGenaraterRoutes.js';
 const app = express();
 
 // ------------------ ✅ FIXED CORS SETUP ------------------
@@ -85,9 +86,10 @@ app.use('/api', propertyRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api', subcategoryRoutes);
 app.use('/api', blogRoutes);
-app.use('/api', userActivityRoutes);
+app.use('/api',leadsRoutes)
 app.use('/api', featuredPropertyRoutes);
 app.use('/api', faqRoutes);
+app.use('/api',pagesRoutes)
 app.use('/api', minimumdetails);
 
 // Optional test route
