@@ -5,6 +5,7 @@ export default function BlogCategoryManager() {
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ name: '', slug: '' });
   const [editingId, setEditingId] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchCategories();
@@ -12,7 +13,7 @@ export default function BlogCategoryManager() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/blog-categories');
+      const res = await axios.get(`${BASE_URL}/api/blog-categories`);
       setCategories(res.data.categories || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -33,9 +34,9 @@ export default function BlogCategoryManager() {
     e.preventDefault();
     try {
       if (editingId) {
-        await axios.put(`http://localhost:3001/api/blog-categories/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/blog-categories/${editingId}`, form);
       } else {
-        await axios.post('http://localhost:3001/api/blogCategories', form);
+        await axios.post(`$${BASE_URL}/api/blogCategories`, form);
       }
       setForm({ name: '', slug: '' });
       setEditingId(null);
@@ -52,7 +53,7 @@ export default function BlogCategoryManager() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/blog-categories/${id}`);
+      await axios.delete(`${BASE_URL}/api/blog-categories/${id}`);
       fetchCategories();
     } catch (error) {
       console.error('Error deleting category:', error);

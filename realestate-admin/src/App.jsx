@@ -19,6 +19,8 @@ import AboutUsPage from './pages/AboutUsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import InquiryLeadsPage from './pages/InquiryLeadsPage';
 import BlogCategoryManager from './pages/BlogCategoryManager';
+import CancellationPolicy from './pages/CancellationPolicy';
+import TermaAndServicesPage from './pages/TermaAndServicesPage';
 
 
 function App() {
@@ -36,9 +38,10 @@ function App() {
         <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
         {/* <Route path="leads" element={<ProtectedRoute><LeadPage/></ProtectedRoute>}/> */}
         <Route path="inquiryleads" element={<InquiryLeadsPage/>}/>
-
         <Route path="aboutus" element={<AboutUsPage/>}/>
         <Route path="privacypolicy" element={<PrivacyPolicyPage/>}/>
+        <Route path="cancelpolicy" element={<ProtectedRoute><CancellationPolicy/></ProtectedRoute>} />
+        <Route path="termandservice" element={<ProtectedRoute><TermaAndServicesPage/></ProtectedRoute>} />
         <Route path="property/:id/add-faq" element={<ProtectedRoute><AddFAQPage/></ProtectedRoute>} />
         <Route path="property/:id/faqs" element={<ProtectedRoute><ViewFAQsPage /></ProtectedRoute>} />
         <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />

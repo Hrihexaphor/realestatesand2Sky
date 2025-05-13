@@ -54,7 +54,7 @@ const deleteAboutPage = async (id) => {
   };
   
 
-//   privacy policy routes
+//   privacy policy services
 const addPrivacyPolicy = async ({ title, description }) => {
     const result = await pool.query(
       `INSERT INTO privacy_policy (title, description) VALUES ($1, $2) RETURNING *`,
@@ -84,7 +84,75 @@ const addPrivacyPolicy = async ({ title, description }) => {
     return result.rows[0];
   };
 
+  // cancellation policy services
+  const addCancellationPolicy = async ({ title, description }) => {
+    const result = await pool.query(
+      `INSERT INTO cancellation_policies (title, description) VALUES ($1, $2) RETURNING *`,
+      [title, description]
+    );
+    return result.rows[0];
+  };
+  
+  const getCancellationPolicies = async () => {
+    const result = await pool.query('SELECT * FROM cancellation_policies ORDER BY id DESC');
+    return result.rows;
+  };
+  
+  const updateCancellationPolicy = async (id, { title, description }) => {
+    const result = await pool.query(
+      `UPDATE cancellation_policies SET title = $1, description = $2 WHERE id = $3 RETURNING *`,
+      [title, description, id]
+    );
+    return result.rows[0];
+  };
+  
+  const deleteCancellationPolicy = async (id) => {
+    const result = await pool.query(
+      `DELETE FROM cancellation_policies WHERE id = $1 RETURNING *`,
+      [id]
+    );
+    return result.rows[0];
+  };
+  // terms and services services
+  const addTermandServices = async ({ title, description }) => {
+    const result = await pool.query(
+      `INSERT INTO terms_and_services (title, description) VALUES ($1, $2) RETURNING *`,
+      [title, description]
+    );
+    return result.rows[0];
+  };
+  
+  const getTermandServices = async () => {
+    const result = await pool.query('SELECT * FROM terms_and_services ORDER BY id DESC');
+    return result.rows;
+  };
+  
+  const updateTermandServices = async (id, { title, description }) => {
+    const result = await pool.query(
+      `UPDATE terms_and_services SET title = $1, description = $2 WHERE id = $3 RETURNING *`,
+      [title, description, id]
+    );
+    return result.rows[0];
+  };
+  
+  const deleteTermandServices = async (id) => {
+    const result = await pool.query(
+      `DELETE FROM terms_and_services WHERE id = $1 RETURNING *`,
+      [id]
+    );
+    return result.rows[0];
+  };
+
 export default { addAboutpage,getAboutUs,updateAboutPage,deleteAboutPage,addPrivacyPolicy,
     getPrivacyPolicies,
     updatePrivacyPolicy,
-    deletePrivacyPolicy };
+    deletePrivacyPolicy,
+    getCancellationPolicies,
+    addCancellationPolicy,
+    updateCancellationPolicy,
+    deleteCancellationPolicy,
+    addTermandServices,
+    getTermandServices,
+    updateTermandServices,
+    deleteTermandServices
+  };

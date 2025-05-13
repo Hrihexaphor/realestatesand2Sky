@@ -1,4 +1,3 @@
-// src/pages/BlogPage.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -19,7 +18,7 @@ export default function BlogPage() {
   const [imagePreview, setImagePreview] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [category,setCategory] = useState([]);
+  const [category, setCategory] = useState([]);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
   // CKEditor custom configuration
@@ -51,19 +50,22 @@ export default function BlogPage() {
       ]
     }
   };
+  
   // fetch the category of the blog
   useEffect(()=>{
     const fetchCategory = async () => {
       try{
-         const response = await axios.get('http://localhost:3001/api/blog-categories');
-         console.log("category data are",response.data)
-        setCategory(response.data.categories);
-      }catch(err){
+         const response = await axios.get(`${BASE_URL}/api/blog-categories`);
+         console.log("category data are", response.data);
+         setCategory(response.data.categories);
+      } catch(err) {
         console.log('error fetching category', err);
+        toast.error('Failed to fetch blog categories');
       }
     }
     fetchCategory();
-  },[])
+  }, [BASE_URL]);
+  
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -110,6 +112,7 @@ export default function BlogPage() {
     setForm({
       title: '',
       description: '',
+      blog_category_id: '',
       image: null,
       meta_title: '',
       meta_description: ''
@@ -125,48 +128,59 @@ export default function BlogPage() {
     const formData = new FormData();
     formData.append('title', form.title);
     formData.append('description', form.description);
-    formData.append('blog_category_id', form.blog_category_id);
-    formData.append('meta_title', form.meta_title);
-    formData.append('meta_description', form.meta_description);
+    
+    // Make sure category ID is sent as an integer or null
+    if (form.blog_category_id) {
+      formData.append('blog_category_id', form.blog_category_id);
+    }
+    
+    formData.append('meta_title', form.meta_title || '');
+    formData.append('meta_description', form.meta_description || '');
     if (form.image) formData.append('blogImage', form.image);
 
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/blogs/${editingId}`, formData);
+        await axios.put(`${BASE_URL}/api/blogs/${editingId}`, formData, { 
+          withCredentials: true 
+        });
         toast.success('Blog updated successfully');
       } else {
-        await axios.post(`${BASE_URL}/api/addblog`, formData);
+        await axios.post(
+          `${BASE_URL}/api/addblog`,
+          formData,
+          { withCredentials: true }
+        );
         toast.success('Blog added successfully');
       }
       resetForm();
       fetchBlogs();
     } catch (err) {
-      toast.error(editingId ? 'Failed to update blog' : 'Failed to add blog');
+      console.error('Error:', err.response?.data || err.message);
+      toast.error(err.response?.data?.error || (editingId ? 'Failed to update blog' : 'Failed to add blog'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
- const handleEdit = (blog) => {
-  setForm({
-    title: blog.title,
-    description: blog.description,
-    meta_title: blog.meta_title || '',
-    meta_description: blog.meta_description || '',
-    blog_category_id: blog.blog_category_id || '', // Include category ID
-    image: null // Image file should be selected manually if changed
-  });
+  const handleEdit = (blog) => {
+    setForm({
+      title: blog.title,
+      description: blog.description,
+      meta_title: blog.meta_title || '',
+      meta_description: blog.meta_description || '',
+      blog_category_id: blog.blog_category_id?.toString() || '', // Convert ID to string for form state
+      image: null // Image file should be selected manually if changed
+    });
 
-  setImagePreview(blog.image_url); // Show current image preview
-  setEditingId(blog.id);
+    setImagePreview(blog.image_url); // Show current image preview
+    setEditingId(blog.id);
 
-  // Scroll to the form
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-};
-
+    // Scroll to the form
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this blog post?')) return;
@@ -230,7 +244,6 @@ export default function BlogPage() {
                 />
               </div>
               <div>
-
                 <label htmlFor="meta_title" className="block text-sm font-medium text-gray-700 mb-1">
                   Meta Title
                 </label>
@@ -245,9 +258,9 @@ export default function BlogPage() {
                 />
               </div>
             </div>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="blog_category_id" className="block text-sm font-medium text-gray-700 mb-1">
                   Blog Category*
                 </label>
                 <select
@@ -259,8 +272,8 @@ export default function BlogPage() {
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                 >
                   <option value="">Select a category</option>
-                 {category.map((category) => (
-                    <option key={category.id} value={category.slug}>
+                  {category.map((category) => (
+                    <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
                   ))}

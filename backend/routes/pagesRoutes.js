@@ -123,4 +123,85 @@ router.post('/addprivacypolicy', async (req, res) => {
       res.status(500).json({ error: 'Failed to delete privacy policy' });
     }
   });
+  // cancellation policy Routes
+  router.post('/addcancelpolicy', async (req, res) => {
+    try {
+      const policy = await aboutServices.addCancellationPolicy(req.body);
+      res.status(201).json(policy);
+    } catch (err) {
+      console.error('Add Cancellation Policy Error:', err);
+      res.status(500).json({ error: 'Failed to add Cancellation policy' });
+    }
+  });
+  
+  router.get('/cancelpolicy', async (req, res) => {
+    try {
+      const policies = await aboutServices.getCancellationPolicies();
+      res.status(200).json(policies);
+    } catch (err) {
+      console.error('Get Cancellation Policies Error:', err);
+      res.status(500).json({ error: 'Failed to fetch Cancellation policies' });
+    }
+  });
+  
+  router.put('/cancelpolicy/:id', async (req, res) => {
+    try {
+      const updated = await aboutServices.updateCancellationPolicy(req.params.id, req.body);
+      res.status(200).json(updated);
+    } catch (err) {
+      console.error('Update Cancellation Policy Error:', err);
+      res.status(500).json({ error: 'Failed to update Cancellation policy' });
+    }
+  });
+  
+  router.delete('/cancelpolicy/:id', async (req, res) => {
+    try {
+      const deleted = await aboutServices.deleteCancellationPolicy(req.params.id);
+      res.status(200).json(deleted);
+    } catch (err) {
+      console.error('Delete Cancellation Policy Error:', err);
+      res.status(500).json({ error: 'Failed to delete Cancellation policy' });
+    }
+  });
+
+  // terms and services routes
+  router.post('/addtermsandservice', async (req, res) => {
+    try {
+      const policy = await aboutServices.addTermandServices(req.body);
+      res.status(201).json(policy);
+    } catch (err) {
+      console.error('Add Cancellation Policy Error:', err);
+      res.status(500).json({ error: 'Failed to add Cancellation policy' });
+    }
+  });
+  
+  router.get('/termsandservice', async (req, res) => {
+    try {
+      const policies = await aboutServices.getTermandServices();
+      res.status(200).json(policies);
+    } catch (err) {
+      console.error('Get Cancellation Policies Error:', err);
+      res.status(500).json({ error: 'Failed to fetch Cancellation policies' });
+    }
+  });
+  
+  router.put('/termsandservice/:id', async (req, res) => {
+    try {
+      const updated = await aboutServices.updateTermandServices(req.params.id, req.body);
+      res.status(200).json(updated);
+    } catch (err) {
+      console.error('Update Cancellation Policy Error:', err);
+      res.status(500).json({ error: 'Failed to update Cancellation policy' });
+    }
+  });
+  
+  router.delete('/termsandservice/:id', async (req, res) => {
+    try {
+      const deleted = await aboutServices.deleteTermandServices(req.params.id);
+      res.status(200).json(deleted);
+    } catch (err) {
+      console.error('Delete Cancellation Policy Error:', err);
+      res.status(500).json({ error: 'Failed to delete Cancellation policy' });
+    }
+  });
 export default router;

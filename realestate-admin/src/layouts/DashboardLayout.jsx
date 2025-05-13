@@ -46,7 +46,9 @@ const DashboardLayout = () => {
       label: "Pages",
       children: [
         { path: "/dashboard/aboutus", label: "About Us" },
-        { path: "/dashboard/privacypolicy", label: "Privacy Policy" }
+        { path: "/dashboard/privacypolicy", label: "Privacy Policy" },
+        { path: "/dashboard/cancelpolicy", label: "Cancellation Policy" },
+        { path: "/dashboard/termandservice", label: "Terms and services" }
       ]
     },
     { path: "/dashboard/blogs", icon: <FaNewspaper />, label: "Blog", 
