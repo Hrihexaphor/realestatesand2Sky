@@ -4,11 +4,15 @@ import cloudinaryConfig from '../utils/cloudinary.js'; // Import the full config
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinaryConfig.cloudinary, // ✅ use cloudinary instance
-  params: async (req, file) => ({
-    folder: file.fieldname === 'images' ? 'realestate_images' : 'realestate_documents',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],
-    public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
-  }),
+  params: async (req, file) => {
+    const isPDF = file.mimetype === 'application/pdf';
+    return {
+      folder: file.fieldname === 'images' ? 'realestate_images' : 'realestate_documents',
+      allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],
+      resource_type: isPDF ? 'raw' : 'image',  // ✅ important for non-image files
+      public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
+    };
+  },
 });
 
 const fileFilter = (req, file, cb) => {

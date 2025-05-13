@@ -13,7 +13,7 @@ const CancellationPolicy = () => {
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchPolicies = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/cancelypolicy`);
+      const res = await axios.get(`${BASE_URL}/api/cancelpolicy`);
       setPolicies(res.data);
     } catch (err) {
       toast.error('Failed to load policies');
@@ -64,7 +64,7 @@ const CancellationPolicy = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-700">Manage Privacy Policy</h2>
+      <h2 className="text-2xl font-semibold text-gray-700">Manage Cancellation Policy</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
         <div>
@@ -135,7 +135,7 @@ const CancellationPolicy = () => {
               ))}
               {policies.length === 0 && (
                 <tr>
-                  <td colSpan="3" className="text-center py-4 text-gray-400">No policies added yet.</td>
+                  <td colSpan="3" className="text-center py-4 text-gray-400">No cancel policies added yet.</td>
                 </tr>
               )}
             </tbody>

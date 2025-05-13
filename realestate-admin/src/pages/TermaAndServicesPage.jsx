@@ -64,7 +64,7 @@ const TermaAndServicesPage = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-700">Manage Privacy Policy</h2>
+      <h2 className="text-2xl font-semibold text-gray-700">Manage Term's and Service</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
         <div>

@@ -8,17 +8,22 @@ const FeaturedManager = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDateRange, setSelectedDateRange] = useState({
     startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Default to 30 days from now
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   });
   const [cities, setCities] = useState([]);
   const [selectedCities, setSelectedCities] = useState([]);
   const [showDatePickerFor, setShowDatePickerFor] = useState(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
   useEffect(() => {
     fetchProperties();
     fetchFeaturedIds();
     fetchCities();
+    
+    // Reset when component mounts
+    setShowDatePickerFor(null);
+    setSelectedCities([]);
   }, []);
   
   const fetchProperties = async () => {
@@ -51,7 +56,7 @@ const FeaturedManager = () => {
         { id: 3, name: 'Bangalore' },
         { id: 4, name: 'Chennai' },
         { id: 5, name: 'Kolkata' }
-      ]); // Fallback cities in case API doesn't exist yet
+      ]); // Fallback cities
     } catch (err) {
       // Set default cities if API doesn't exist yet
       setCities([
@@ -72,16 +77,19 @@ const FeaturedManager = () => {
     }
     
     try {
+      // Backend expects "featured_from" not "start_date" and "featured_to" not "end_date"
       await axios.post(`${BASE_URL}/api/addtofeatured`, { 
         property_id: id,
-        start_date: selectedDateRange.startDate,
-        end_date: selectedDateRange.endDate,
+        featured_from: selectedDateRange.startDate,
+        featured_to: selectedDateRange.endDate,
         cities: selectedCities
       });
       toast.success('Added to featured');
       setShowDatePickerFor(null);
+      setSelectedCities([]);
       fetchFeaturedIds();
     } catch (err) {
+      console.error("Error adding to featured:", err);
       toast.error(err.response?.data?.message || 'Failed to add');
     }
   };
@@ -132,9 +140,7 @@ const FeaturedManager = () => {
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Action</th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Date</th> */}
-                
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Action</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Location</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Details</th>
@@ -144,7 +150,7 @@ const FeaturedManager = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {properties.map((property) => (
-                <tr key={property.id} className={`${featuredIds.includes(property.id) ? 'bg-green-50' : 'bg-white'}`}>
+                <tr key={property.id} className={`${featuredIds.includes(property.id) ? 'bg-green-50' : 'bg-white'} relative`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {featuredIds.includes(property.id) ? (
                       <button
@@ -154,84 +160,88 @@ const FeaturedManager = () => {
                         Remove
                       </button>
                     ) : (
-                      <div>
+                      <div className="relative">
                         <button
                           className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
-                          onClick={() => setShowDatePickerFor(property.id)}
+                          onClick={() => {
+                            if (showDatePickerFor === property.id) {
+                              setShowDatePickerFor(null);
+                            } else {
+                              setShowDatePickerFor(property.id);
+                              setSelectedPropertyId(property.id);
+                              // Reset cities selection when opening a new property
+                              setSelectedCities([]);
+                            }
+                          }}
                         >
                           Add to Featured
                         </button>
                         
                         {showDatePickerFor === property.id && (
-                          <div className="absolute mt-2 p-4 bg-white rounded-lg shadow-xl border border-gray-200 z-10 w-72">
-                            <h3 className="font-medium mb-3 text-gray-800">Featured Settings</h3>
-                            
-                            <div className="mb-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                              <input
-                                type="date"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={selectedDateRange.startDate}
-                                onChange={(e) => setSelectedDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                                min={new Date().toISOString().split('T')[0]}
-                              />
+                          <div className="absolute top-8 left-0 mt-2 p-4 bg-white rounded-lg shadow-xl border border-gray-200 z-50 w-72">
+                            <div className="flex justify-between items-center mb-3">
+                              <h3 className="font-medium text-gray-800">Featured Settings</h3>
+                              <button 
+                                onClick={() => setShowDatePickerFor(null)}
+                                className="text-gray-500 hover:text-gray-700"
+                              >
+                                ✖
+                              </button>
                             </div>
                             
-                            <div className="mb-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                              <input
-                                type="date"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={selectedDateRange.endDate}
-                                onChange={(e) => setSelectedDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                                min={selectedDateRange.startDate}
-                              />
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
+                                <input
+                                  type="date"
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  value={selectedDateRange.startDate}
+                                  onChange={(e) => setSelectedDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                                  min={new Date().toISOString().split('T')[0]}
+                                />
+                              </div>
+                              
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
+                                <input
+                                  type="date"
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  value={selectedDateRange.endDate}
+                                  onChange={(e) => setSelectedDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                                  min={selectedDateRange.startDate}
+                                />
+                              </div>
                             </div>
                             
-                            <div className="mb-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Select Cities</label>
-                              <div className="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2">
+                            <div className="mb-3">
+                              <label className="block text-xs font-medium text-gray-700 mb-1">Select Cities</label>
+                              <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto border border-gray-300 rounded-md p-2">
                                 {cities.map(city => (
-                                  <div key={city.id} className="flex items-center mb-1">
+                                  <div key={`city-${property.id}-${city.id}`} className="flex items-center">
                                     <input
                                       type="checkbox"
-                                      id={`city-${city.id}`}
+                                      id={`city-${property.id}-${city.id}`}
                                       checked={selectedCities.includes(city.id)}
                                       onChange={() => handleCitySelect(city.id)}
-                                      className="mr-2"
+                                      className="mr-1"
                                     />
-                                    <label htmlFor={`city-${city.id}`} className="text-sm text-gray-700">{city.name}</label>
+                                    <label htmlFor={`city-${property.id}-${city.id}`} className="text-xs text-gray-700 mr-2">{city.name}</label>
                                   </div>
                                 ))}
                               </div>
                             </div>
                             
-                            <div className="flex justify-between">
-                              <button
-                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded text-sm"
-                                onClick={() => setShowDatePickerFor(null)}
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm"
-                                onClick={() => handleAdd(property.id)}
-                              >
-                                Confirm
-                              </button>
-                            </div>
+                            <button
+                              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm"
+                              onClick={() => handleAdd(selectedPropertyId || property.id)}
+                            >
+                              Confirm
+                            </button>
                           </div>
                         )}
                       </div>
                     )}
                   </td>
-                   {/* <td className="px-6 py-4 whitespace-nowrap">
-                     {featuredIds.includes(property.id) && (
-                        <span className="text-sm text-green-600">
-                        {formatDate(property.featured_from)} - {formatDate(property.featured_to)}
-                      </span>
-                       )}
-                      </td> */}
 
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -251,6 +261,11 @@ const FeaturedManager = () => {
                       <div>
                         <div className="text-sm font-medium text-gray-900">{property.title}</div>
                         <div className="text-xs text-gray-500">{property.property_category_name}</div>
+                        {featuredIds.includes(property.id) && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Featured: {formatDate(property.featured_from || selectedDateRange.startDate)} - {formatDate(property.featured_to || selectedDateRange.endDate)}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -281,7 +296,6 @@ const FeaturedManager = () => {
                       {property.possession_status}
                     </span>
                   </td>
-                  
                 </tr>
               ))}
             </tbody>
