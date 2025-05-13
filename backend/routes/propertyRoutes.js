@@ -1,7 +1,7 @@
 import express from 'express';
 import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
-import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments } from '../services/propertyService.js';
+import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments,insertPropertyConfigurations } from '../services/propertyService.js';
 import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties } from '../services/propertyService.js';
 import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
 const router = express.Router();
@@ -24,7 +24,7 @@ router.post('/property', upload.fields([
       return res.status(400).json({ error: 'Invalid JSON format' });
     }
 
-    const { basic, details, location, nearest_to, amenities } = parsedData;
+    const { basic, details, location, nearest_to, amenities, configurations } = parsedData;
     
     // Validate required fields
     if (!basic || !basic.title) {
@@ -75,7 +75,9 @@ router.post('/property', upload.fields([
     if (amenities && amenities.length > 0) {
       await insertAmenities(property.id, amenities);
     }
-
+     if (configurations && configurations.length > 0) {
+      await insertPropertyConfigurations(property.id, configurations);
+    }
     // Process images
     if (req.files?.images?.length > 0) {
       const imageLinks = req.files.images.map((file, index) => ({

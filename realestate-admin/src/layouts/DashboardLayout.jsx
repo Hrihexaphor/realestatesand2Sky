@@ -49,7 +49,12 @@ const DashboardLayout = () => {
         { path: "/dashboard/privacypolicy", label: "Privacy Policy" }
       ]
     },
-    { path: "/dashboard/blogs", icon: <FaNewspaper />, label: "Blog" },
+    { path: "/dashboard/blogs", icon: <FaNewspaper />, label: "Blog", 
+       children: [
+        { path: "/dashboard/blog-category", label: "add Category" },
+        { path: "/dashboard/blogs", label: "add Blog" }
+      ]
+    },
   ];
 
   return (

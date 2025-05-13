@@ -87,7 +87,37 @@ export async function insertPropertyDetails(property_id, details) {
    throw new Error(`Failed to insert property details: ${error.message}`);
  }
 }
-
+export async function insertPropertyConfigurations(property_id, configurations) {
+  try {
+    if (!configurations || configurations.length === 0) {
+      return;
+    }
+    
+    for (let config of configurations) {
+      // Insert each configuration
+      await pool.query(`
+        INSERT INTO property_configurations (
+          property_id, bhk_type, bedrooms, bathrooms, 
+          super_built_up_area, carpet_area, 
+          balconies 
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          property_id, 
+          config.bhk_type,
+          config.bedrooms,
+          config.bathrooms,
+          config.super_built_up_area,
+          config.carpet_area,
+          config.balconies
+        ]
+      );
+    }
+  } catch (error) {
+    console.error("Error inserting property configurations:", error);
+    throw new Error(`Failed to insert property configurations: ${error.message}`);
+  }
+}
 /**
 * Insert property location into the database
 * @param {number} property_id - The ID of the property
@@ -532,7 +562,14 @@ export const searchProperty = async (filters) => {
         `SELECT * FROM property_details WHERE property_id = $1`,
         [propertyId]
       );
-  
+      
+      // property configurtion
+      const { rows: bhkRows } = await pool.query(
+        `SELECT id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies
+        FROM property_configurations
+        WHERE property_id = $1`,
+        [propertyId]
+      )
       // 3. Location
       const { rows: locationRows } = await pool.query(
         `SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`,
@@ -583,7 +620,8 @@ export const searchProperty = async (filters) => {
         documents: documentRows,
         amenities: amenitiesRows,
         nearest_to: nearestRows,
-        faqs: faqRows
+        faqs: faqRows,
+        bhk_configurations: bhkRows
       };
     } catch (error) {
       console.error('Error fetching property by ID:', error);

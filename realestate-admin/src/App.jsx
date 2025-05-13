@@ -18,6 +18,7 @@ import PropertyTable from './components/PropertyCard';
 import AboutUsPage from './pages/AboutUsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import InquiryLeadsPage from './pages/InquiryLeadsPage';
+import BlogCategoryManager from './pages/BlogCategoryManager';
 
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
         <Route path="property/:id/add-faq" element={<ProtectedRoute><AddFAQPage/></ProtectedRoute>} />
         <Route path="property/:id/faqs" element={<ProtectedRoute><ViewFAQsPage /></ProtectedRoute>} />
         <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
+        <Route path="blog-category" element={<ProtectedRoute><BlogCategoryManager/></ProtectedRoute>} />
+
       </Route>
       <Route path="*" element={<Navigate to="/admin/login" />} />
     </Routes>

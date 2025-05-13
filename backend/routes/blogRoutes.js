@@ -1,25 +1,38 @@
 import express from 'express';
 import uploadBlogImage from '../middleware/blogUpload.js';
-import { addBlog, getAllBlogs, updateBlog, deleteBlog } from '../services/blogServices.js';
+import { addBlog, getAllBlogs, updateBlog, deleteBlog,  getAllBlogCategories, 
+  getBlogCategoryById, 
+  createBlogCategory, 
+  updateBlogCategory, 
+  deleteBlogCategory  } from '../services/blogServices.js';
+
+
 import multer from 'multer';
 
 const router = express.Router();
 
 // Route to add a new blog post
 router.post('/addblog', (req, res) => {
-  uploadBlogImage.single('blogImage')(req, res, async function(err) {
+  uploadBlogImage.single('blogImage')(req, res, async function (err) {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
     }
     try {
-      const { title, description, meta_title, meta_description } = req.body;
+      const { title, description, meta_title, meta_description, blog_category_id } = req.body;
       const image_url = req.file ? req.file.path : null;
 
       if (!title || !description) {
         return res.status(400).json({ error: 'Title and description are required' });
       }
 
-      const blog = await addBlog({ title, description, image_url, meta_title, meta_description });
+      const blog = await addBlog({
+        title,
+        description,
+        image_url,
+        meta_title,
+        meta_description,
+        blog_category_id: blog_category_id ? parseInt(blog_category_id) : null
+      });
 
       res.status(201).json({ blog });
     } catch (error) {
@@ -27,6 +40,7 @@ router.post('/addblog', (req, res) => {
     }
   });
 });
+
 
 // Route to view all blog posts
 router.get('/blogs', async (req, res) => {
@@ -44,21 +58,40 @@ router.put('/blogs/:id', (req, res) => {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
     }
+
     try {
-      const { title, description } = req.body;
+      const {
+        title,
+        description,
+        meta_title,
+        meta_description,
+        blog_category_id
+      } = req.body;
+
       const image_url = req.file ? req.file.path : null;
       const blogId = req.params.id;
 
-      const updatedBlog = await updateBlog(blogId, { title, description, image_url });
+      const updatedBlog = await updateBlog(blogId, {
+        title,
+        description,
+        image_url,
+        meta_title,
+        meta_description,
+        blog_category_id: blog_category_id ? parseInt(blog_category_id) : null
+      });
+
       if (!updatedBlog) {
         return res.status(404).json({ error: 'Blog not found' });
       }
+
       res.status(200).json({ blog: updatedBlog });
     } catch (error) {
+      console.error('Error updating blog:', error);
       res.status(500).json({ error: error.message });
     }
   });
 });
+
 
 // Route to delete a blog post
 router.delete('/blogs/:id', async (req, res) => {
@@ -74,4 +107,67 @@ router.delete('/blogs/:id', async (req, res) => {
   }
 });
 
+// blog_category routes
+router.get('/blog-categories', async (req, res) => {
+  try {
+    const categories = await getAllBlogCategories();
+    res.status(200).json({ categories });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get a single blog category by ID
+router.get('/blog-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const category = await getBlogCategoryById(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    res.status(200).json({ category });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create a new blog category
+router.post('/blogCategories', async (req, res) => {
+  const { name, slug } = req.body;
+  try {
+    const newCategory = await createBlogCategory(name, slug);
+    res.status(201).json({ category: newCategory });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update a blog category
+router.put('/blog-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, slug } = req.body;
+  try {
+    const updatedCategory = await updateBlogCategory(id, name, slug);
+    if (!updatedCategory) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    res.status(200).json({ category: updatedCategory });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a blog category
+router.delete('/blog-categories/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedCategory = await deleteBlogCategory(id);
+    if (!deletedCategory) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    res.status(200).json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 export default router;

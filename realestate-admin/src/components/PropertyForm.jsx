@@ -1,4 +1,5 @@
 import React, { useEffect, useState,useRef } from 'react';
+import PropertyConfiguration from './PropertyConfiguration';
 import axios from 'axios';
 import { Map, Building, Home, MapPin } from 'lucide-react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -21,6 +22,7 @@ const PropertyForm = ({editData,onClose}) => {
   const [details, setDetails] = useState(editData?.details || {
     overlooking: [] // Initialize overlooking as an empty array within details
   });
+  const [configurations, setConfigurations] = useState([]);
   const [location, setLocation] = useState({ latitude: '', longitude: '', address: '' });
   const [amenities, setAmenities] = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
@@ -355,7 +357,9 @@ const PropertyForm = ({editData,onClose}) => {
       setDetails({});
     }
   };
-
+   const handleAddConfigurations = (configList) => {
+    setConfigurations(configList);
+  };
   const handleDetailsChange = (e) => {
     const { name, value } = e.target;
     setDetails(prev => ({ ...prev, [name]: value }));
@@ -468,8 +472,17 @@ const handleSubmit = async (e) => {
       price_per_sqft: basic.price_per_sqft,
       developer_id: basic.developer_id
     };
+    // const createpropertyConfig = {
+    //   bhk_type:configuration.bhk_type,
+    //   bedrooms:configuration.bedrooms,
+    //   bathrooms:configuration.bathrooms,
+    //   balconies:configuration.balconies,
+    //   carpet_area:configuration.carpet_area,
+    //   super_built_up_area:configuration.super_built_up_area
+    // }
     const propertyData = {
       basic: correctedBasic,
+       configurations: configurations,
       details,
       location,
       
@@ -519,7 +532,7 @@ const handleSubmit = async (e) => {
       });
       
       await axios.post(
-        `${BASE_URL}/api/property`,
+        `http://localhost:3001/api/property`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -737,11 +750,178 @@ const renderPropertySocietyDertails = ()=>{
     );
   
     switch (categoryName) {
-      case 'Apartment/Flat':
-      case 'Project Apartment':
+       case 'Project Apartment':
         case 'Project Flat':
+          return(
+            <>
+                   <section className="form-section">
+          <PropertyConfiguration 
+            onAddConfiguration={handleAddConfigurations} 
+          />
+        </section>
+        <div className="form-row">
+          <div className="form-group">
+                <label>Facing</label>
+                <select
+                  name="facing"
+                  value={details.facing || ''}
+                  onChange={handleDetailsChange}
+                >
+                  <option value="">Select</option>
+                  <option value="North">North</option>
+                  <option value="South">South</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                  <option value="North-East">North-East</option>
+                  <option value="North-West">North-West</option>
+                  <option value="South-East">South-East</option>
+                  <option value="South-West">South-West</option>
+                </select>
+              </div>
+                 <div className="form-group">
+                <label>Total Floors</label>
+                <input
+                  type="number"
+                  name="total_floors"
+                  value={details.total_floors || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
+              </div>
+        </div>
+         <div className="form-row">
+              <div className="form-group">
+                <label>Furnished Status</label>
+                <select
+                  name="furnished_status"
+                  value={details.furnished_status || ''}
+                  onChange={handleDetailsChange}
+                >
+                  <option value="">Select</option>
+                  <option value="Unfurnished">Unfurnished</option>
+                  <option value="Semi-Furnished">Semi-Furnished</option>
+                  <option value="Fully-Furnished">Fully-Furnished</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Number of Covered Parking</label>
+                <input
+                  type="number"
+                  name="covered_parking"
+                  value={details.covered_parking || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+            </div>
+                <div className="form-row">
+                  <div className="form-group">
+              <label>Overlooking</label>
+              <div className="grid grid-cols-2 gap-2">
+                {overlookingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={details.overlooking?.includes(option)}
+                      onChange={(e) => handleOverlookingChange(option, e.target.checked)}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </div>
+            </div>
+             <div className="form-row">
+              <div className="form-group">
+                <label>Transaction Type</label>
+                <select name='transaction_types' value={details.transaction_types || ''} onChange={handleDetailsChange}>
+                  <option value="Resale">Resale</option>
+                  <option value="New property">New Property</option>
+                </select>
+              </div>
+              <div className="form-group">
+              <label>Possession Status</label>
+              <select 
+                name="possession_status" 
+                value={basic.possession_status}
+                onChange={handleBasicChange}
+              >
+                <option value="">Select Status</option>
+                <option value="Ready to Move">Ready to Move</option>
+                <option value="Under Construction">Under Construction</option>
+                
+              </select>
+            </div>
+            <div className="form-group">
+                <label htmlFor="available-from" className="block mb-2 font-medium">Available From</label>
+                <input 
+                  type="date" 
+                  id="available-from"
+                  name="available_from" 
+                  value={details.available_from ? details.available_from.slice(0, 10) : ''} 
+                  onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+              <label>Expected Price*</label>
+              <input 
+                type="number" 
+                name="expected_price" 
+                value={basic.expected_price}
+                onChange={handleBasicChange}
+                required
+                min="0"
+                placeholder="Enter price in ₹"
+              />
+            </div>
+            <div className="form-group">
+              <label>Price per Sqft</label>
+              <input 
+                type="number" 
+                name="price_per_sqft" 
+                value={basic.price_per_sqft}
+                onChange={handleBasicChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Booking Amount</label>
+              <input 
+                type="number" 
+                name="booking_amount" 
+                value={details.booking_amount}
+                onChange={handleDetailsChange}
+                required
+                min="0"
+                placeholder="Enter booking amount"
+              />
+            </div>
+            <div className="form-group">
+              <label>Maintenance Charges</label>
+              <input 
+                type="number" 
+                name="maintenance_charge" 
+                value={details.maintenance_charge}
+                onChange={handleDetailsChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
+            </>
+          )
+      case 'Apartment/Flat':
+     
         return (
           <>
+       
             <div className="form-row">
               <div className="form-group">
               <label>Bedrooms</label>
@@ -863,7 +1043,7 @@ const renderPropertySocietyDertails = ()=>{
                 </select>
               </div>
               <div className="form-group">
-                <label>Covered Parking</label>
+                <label>Number of Covered Parking</label>
                 <input
                   type="number"
                   name="covered_parking"
