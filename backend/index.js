@@ -12,7 +12,7 @@ import propertyRoutes from './routes/propertyRoutes.js';
 import blogRoutes from './routes/blogRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import subcategoryRoutes from './routes/subcategoryRoutes.js';
-
+import citiesRoutes from './routes/citiesRoutes.js';
 import featuredPropertyRoutes from './routes/featuredPropertyRoutes.js';
 import faqRoutes from './routes/faqRoutes.js';
 import minimumdetails from './routes/getminimumpropertyRoutes.js';
@@ -88,6 +88,7 @@ app.use('/api', subcategoryRoutes);
 app.use('/api', blogRoutes);
 app.use('/api',leadsRoutes)
 app.use('/api', featuredPropertyRoutes);
+app.use('/api', citiesRoutes);
 app.use('/api', faqRoutes);
 app.use('/api',pagesRoutes)
 app.use('/api', minimumdetails);
