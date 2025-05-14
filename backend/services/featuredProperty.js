@@ -1,29 +1,111 @@
 import pool from '../config/db.js'
 
-export async function addToFeatured(property_id, start_date, end_date) {
-  const result = await pool.query(
-    `INSERT INTO featured_properties (property_id, featured_from, end_date) VALUES ($1, $2, $3) RETURNING *`,
-    [property_id, start_date, end_date]
-  );
-  return result.rows[0];
+export async function addToFeatured(property_id, start_date, end_date, cities = []) {
+  // Begin a transaction
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    
+    // Insert into the main featured_properties table
+    const featuredResult = await client.query(
+      `INSERT INTO featured_properties (property_id, featured_from, featured_to) 
+       VALUES ($1, $2, $3) RETURNING *`,
+      [property_id, start_date, end_date]
+    );
+    
+    // If cities are provided, insert them into a relationship table
+    if (cities && cities.length > 0) {
+      for (const cityId of cities) {
+        await client.query(
+          `INSERT INTO featured_property_cities (featured_property_id, city_id) 
+           VALUES ($1, $2)`,
+          [featuredResult.rows[0].id, cityId]
+        );
+      }
+    }
+    
+    await client.query('COMMIT');
+    return featuredResult.rows[0];
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 
 export async function removeFromFeatured(property_id) {
-    const result = await pool.query(`DELETE FROM featured_properties WHERE property_id = $1 RETURNING *`, [property_id]);
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+    
+    // Get the featured property ID first
+    const featuredProperty = await client.query(
+      `SELECT id FROM featured_properties WHERE property_id = $1`,
+      [property_id]
+    );
+    
+    if (featuredProperty.rows.length > 0) {
+      const featuredId = featuredProperty.rows[0].id;
+      
+      // Remove any city relationships if they exist
+      await client.query(
+        `DELETE FROM featured_property_cities WHERE featured_property_id = $1`,
+        [featuredId]
+      );
+    }
+    
+    // Delete the main featured property record
+    const result = await client.query(
+      `DELETE FROM featured_properties WHERE property_id = $1 RETURNING *`, 
+      [property_id]
+    );
+    
+    await client.query('COMMIT');
     return result.rows[0];
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 export async function getAllFeaturedIds() {
-    const result = await pool.query(`SELECT property_id FROM featured_properties`);
-    return result.rows.map(row => row.property_id); // Return array of IDs
+  const result = await pool.query(`SELECT property_id FROM featured_properties`);
+  return result.rows.map(row => row.property_id); // Return array of IDs
 }
+
 
 export async function checkIfFeatured(property_id) {
-    const result = await pool.query(`SELECT * FROM featured_properties WHERE property_id = $1`, [property_id]);
-    return result.rows[0]; // Returns the row if found, undefined if not
+  const result = await pool.query(
+    `SELECT * FROM featured_properties WHERE property_id = $1`,
+    [property_id]
+  );
+  return result.rows.length > 0;
 }
 
+export async function getFeaturedProperties(cityIds = []) {
+  let query = `
+    SELECT p.*, fp.featured_from, fp.featured_to 
+    FROM properties p
+    JOIN featured_properties fp ON p.id = fp.property_id
+  `;
+  
+  // If cities are specified, filter by those cities
+  if (cityIds && cityIds.length > 0) {
+    query += `
+      JOIN featured_property_cities fpc ON fp.id = fpc.featured_property_id
+      WHERE fpc.city_id IN (${cityIds.join(',')})
+    `;
+  }
+  
+  const result = await pool.query(query);
+  return result.rows;
+}
 // export async function getFeaturedPropertiesWithDetails(){
 //     try{
 //       const { rows: featuredRows } = await pool.query(`

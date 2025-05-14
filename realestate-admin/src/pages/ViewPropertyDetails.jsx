@@ -119,13 +119,19 @@ export default function ViewPropertyDetails() {
                 </div>
               </div>
               
-              <div className="flex flex-col items-center">
-                <span className="text-gray-500 text-sm">Bedrooms</span>
-                <div className="flex items-center gap-1">
-                  <FaBed className="text-blue-500" />
-                  <span className="font-medium">{property.details.bedrooms}</span>
-                </div>
+             <div className="flex flex-col items-center">
+              <span className="text-gray-500 text-sm">Bedrooms</span>
+              <div className="flex items-center gap-1">
+                <FaBed className="text-blue-500" />
+                <span className="font-medium">
+                  {property.details.bedrooms !== null && property.details.bedrooms !== undefined
+                    ? property.details.bedrooms
+                    : property.bhk_configurations?.length > 0
+                    ? property.bhk_configurations[0].bedrooms
+                    : 'N/A'}
+                </span>
               </div>
+            </div>
               
               <div className="flex flex-col items-center">
                 <span className="text-gray-500 text-sm">Bathrooms</span>
