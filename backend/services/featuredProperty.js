@@ -91,7 +91,7 @@ export async function checkIfFeatured(property_id) {
 export async function getFeaturedProperties(cityIds = []) {
   let query = `
     SELECT p.*, fp.featured_from, fp.featured_to 
-    FROM properties p
+    FROM property p
     JOIN featured_properties fp ON p.id = fp.property_id
   `;
   

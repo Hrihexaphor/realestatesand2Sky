@@ -8,11 +8,12 @@ import {
   FaStar, 
   FaUserTie, 
   FaNewspaper,
-
+  FaAtlas,
   FaSignOutAlt,
   FaBars,
   FaArrowLeft,
-  FaRegFileAlt
+  FaRegFileAlt,
+  FaHive
 } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -35,6 +36,8 @@ const DashboardLayout = () => {
     { path: "/dashboard/nearest", icon: <FaMapMarkerAlt />, label: "Nearest To" },
     { path: "/dashboard/category", icon: <FaBuilding />, label: "Property Category" },
     { path: "/dashboard/featured", icon: <FaStar />, label: "Featured Property" },
+    { path: "/dashboard/advertisement", icon: <FaAtlas />, label: "Advertisement" },
+    { path: "/dashboard/review", icon: <FaHive />, label: "Review & Rating" },
     { path: "/dashboard/leads", icon: <FaUserTie />, label: "Leads",
       children: [
         { path: "/dashboard/inquiryleads", label: "Post Requirement" },

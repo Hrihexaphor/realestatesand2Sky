@@ -20,7 +20,8 @@ const PropertyForm = ({editData,onClose}) => {
     developer_id: ''
   });
   const [details, setDetails] = useState(editData?.details || {
-    overlooking: [] // Initialize overlooking as an empty array within details
+    overlooking: [] ,// Initialize overlooking as an empty array within details
+    facing:[]
   });
   const [configurations, setConfigurations] = useState([]);
   const [location, setLocation] = useState({ latitude: '', longitude: '', address: '' });
@@ -30,7 +31,7 @@ const PropertyForm = ({editData,onClose}) => {
   const overlookingOptions = [
     'Pool', 'Park', 'Road', 'Garden', 'Sea', 'River', 'Club', 'Temple'
   ];
-
+  const facingOptions = ['East','West','North','South','North-East','North-West','South-East','South-West'];
   const [developers, setDevelopers] = useState([]);
   const [nearestOptions, setNearestOptions] = useState([]);
   const [nearestTo, setNearestTo] = useState([]);
@@ -380,6 +381,17 @@ const PropertyForm = ({editData,onClose}) => {
       overlooking: newOverlooking
     }));
   };
+  const handleFacingChange = (option, isChecked) =>{
+    const currentFacing = details.facing || [];
+    let newFacing;
+    if(isChecked){
+      newFacing = [...currentFacing, option];
+    }else{
+      newFacing = currentFacing.filter(item => item !== option);
+
+    }
+    setDetails( prev =>({...prev,facing:newFacing}))
+  }
   const handleAddressSearch = () => {
     if (!window.google || !map) return;
     
@@ -532,7 +544,7 @@ const handleSubmit = async (e) => {
       });
       
       await axios.post(
-        `http://localhost:3001/api/property`,
+        `${BASE_URL}/api/property`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -762,23 +774,24 @@ const renderPropertySocietyDertails = ()=>{
         <div className="form-row">
           <div className="form-group">
                 <label>Facing</label>
-                <select
-                  name="facing"
-                  value={details.facing || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="North">North</option>
-                  <option value="South">South</option>
-                  <option value="East">East</option>
-                  <option value="West">West</option>
-                  <option value="North-East">North-East</option>
-                  <option value="North-West">North-West</option>
-                  <option value="South-East">South-East</option>
-                  <option value="South-West">South-West</option>
-                </select>
+                <div className="grid grid-cols-2 gap-2">
+                {facingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={details.facing?.includes(option)}
+                      onChange={(e) => handleFacingChange(option, e.target.checked)}
+                    />
+                    {option}
+                  </label>
+                ))}
               </div>
-                 <div className="form-group">
+              </div>
+        </div>
+           <div className="form-row">
+               
+               <div className="form-group">
                 <label>Total Floors</label>
                 <input
                   type="number"
@@ -788,7 +801,10 @@ const renderPropertySocietyDertails = ()=>{
                   min="1"
                 />
               </div>
-        </div>
+               <div className="form-group">
+
+                </div>
+              </div>
          <div className="form-row">
               <div className="form-group">
                 <label>Furnished Status</label>
@@ -981,21 +997,19 @@ const renderPropertySocietyDertails = ()=>{
               </div>
               <div className="form-group">
                 <label>Facing</label>
-                <select
-                  name="facing"
-                  value={details.facing || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="North">North</option>
-                  <option value="South">South</option>
-                  <option value="East">East</option>
-                  <option value="West">West</option>
-                  <option value="North-East">North-East</option>
-                  <option value="North-West">North-West</option>
-                  <option value="South-East">South-East</option>
-                  <option value="South-West">South-West</option>
-                </select>
+                <div className="grid grid-cols-2 gap-2">
+                {facingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={details.facing?.includes(option)}
+                      onChange={(e) => handleFacingChange(option, e.target.checked)}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
               </div>
             </div>
             <div className="form-row">
@@ -1244,23 +1258,21 @@ const renderPropertySocietyDertails = ()=>{
                     ))}
                   </div>
               </div>
-              <div className="form-group">
+             <div className="form-group">
                 <label>Facing</label>
-                <select
-                  name="facing"
-                  value={details.facing || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="North">North</option>
-                  <option value="South">South</option>
-                  <option value="East">East</option>
-                  <option value="West">West</option>
-                  <option value="North-East">North-East</option>
-                  <option value="North-West">North-West</option>
-                  <option value="South-East">South-East</option>
-                  <option value="South-West">South-West</option>
-                </select>
+                <div className="grid grid-cols-2 gap-2">
+                {facingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      value={option}
+                      checked={details.facing?.includes(option)}
+                      onChange={(e) => handleFacingChange(option, e.target.checked)}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
               </div>
             </div>
             <div className="form-row">

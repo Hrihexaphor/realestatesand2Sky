@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -14,13 +14,38 @@ const FeaturedManager = () => {
   const [cities, setCities] = useState([]);
   const [selectedCities, setSelectedCities] = useState([]);
   const [showDatePickerFor, setShowDatePickerFor] = useState(null);
+  const [modalPosition, setModalPosition] = useState({ top: false });
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const modalRef = useRef(null);
+  const buttonRefs = useRef({});
   
   useEffect(() => {
     fetchProperties();
     fetchFeaturedData();
     fetchCities();
   }, []);
+  
+  // Effect to calculate modal position whenever showDatePickerFor changes
+  useEffect(() => {
+    if (showDatePickerFor && buttonRefs.current[showDatePickerFor]) {
+      calculateModalPosition(showDatePickerFor);
+    }
+  }, [showDatePickerFor]);
+  
+  const calculateModalPosition = (propertyId) => {
+    const buttonElement = buttonRefs.current[propertyId];
+    if (!buttonElement) return;
+    
+    const buttonRect = buttonElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const spaceBelow = viewportHeight - buttonRect.bottom;
+    const modalHeight = 380; // Approximate modal height
+    
+    // If there's not enough space below, position it above
+    setModalPosition({
+      top: spaceBelow < modalHeight,
+    });
+  };
   
   const fetchProperties = async () => {
     setLoading(true);
@@ -170,8 +195,9 @@ const FeaturedManager = () => {
                         Remove
                       </button>
                     ) : (
-                      <div>
+                      <div className="relative">
                         <button
+                          ref={el => buttonRefs.current[property.id] = el}
                           className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
                           onClick={() => setShowDatePickerFor(property.id)}
                         >
@@ -179,7 +205,18 @@ const FeaturedManager = () => {
                         </button>
                         
                         {showDatePickerFor === property.id && (
-                          <div className="absolute mt-2 p-4 bg-white rounded-lg shadow-xl border border-gray-200 z-10 w-72">
+                          <div
+                            ref={modalRef}
+                            className={`fixed z-10 w-72 bg-white rounded-lg shadow-xl border border-gray-200 p-4 ${
+                              modalPosition.top ? 'bottom-12' : 'mt-2'
+                            }`}
+                            style={{
+                              left: buttonRefs.current[property.id]?.getBoundingClientRect().left,
+                              [modalPosition.top ? 'bottom' : 'top']: modalPosition.top
+                                ? `calc(100vh - ${buttonRefs.current[property.id]?.getBoundingClientRect().top}px)`
+                                : `${buttonRefs.current[property.id]?.getBoundingClientRect().bottom}px`
+                            }}
+                          >
                             <h3 className="font-medium mb-3 text-gray-800">Featured Settings</h3>
                             
                             <div className="mb-4">

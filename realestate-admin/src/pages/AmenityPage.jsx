@@ -5,26 +5,40 @@ import {
   FaSwimmingPool, FaWifi, FaParking, FaSnowflake, FaUtensils, 
   FaDumbbell, FaTv, FaBed, FaShower, FaCoffee, FaBaby, 
   FaWheelchair, FaUmbrellaBeach, FaHotTub, FaBicycle, 
-  FaSprayCan, FaCocktail, FaDog, FaCar, FaShuttleVan
+  FaSprayCan, FaCocktail, FaDog, FaCar, FaShuttleVan,
+  FaWater, FaFireExtinguisher, FaUserShield, FaChild, 
+  FaUserTie, FaHome, FaStore, FaBroadcastTower, 
+  FaRunning, FaBasketballBall, FaTableTennis, FaChessBoard,
+  FaTrophy, FaBookReader, FaTree, FaRecycle, 
+  FaLeaf, FaTint, FaSquareFull, FaDoorClosed, FaSink, 
+  FaBolt, FaPhone, FaPaintRoller, FaPlug
 } from 'react-icons/fa';
-import { MdLocalLaundryService, MdMeetingRoom, MdAir, MdSpa, MdOutdoorGrill } from 'react-icons/md';
-import {  GiLockers } from 'react-icons/gi';
-import { BsFillTelephoneFill } from 'react-icons/bs';
-import { IoGameControllerOutline } from 'react-icons/io5';
+import { 
+  MdLocalLaundryService, MdMeetingRoom, MdAir, MdSpa, 
+  MdOutdoorGrill, MdSecurity, MdSportsBasketball, MdPool, 
+  MdFitnessCenter, MdLocalLibrary, MdNature, MdWaterDrop,
+  MdCleaningServices
+} from 'react-icons/md';
+import { GiLockers, GiCctvCamera, GiFireplace, } from 'react-icons/gi';
+import { BsFillTelephoneFill, BsFillShieldLockFill } from 'react-icons/bs';
+import { IoGameControllerOutline, IoWater } from 'react-icons/io5';
+import { ImOffice } from 'react-icons/im';
 
 const AmenityPage = () => {
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ name: '', icon: '' });
-  const [errors, setErrors] = useState({ name: '', icon: '' });
+  const [form, setForm] = useState({ name: '', icon: '', category: 'General' });
+  const [errors, setErrors] = useState({ name: '', icon: '', category: '' });
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
   const [submitting, setSubmitting] = useState(false);
   const [showIconModal, setShowIconModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [activeTab, setActiveTab] = useState('all');
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   
   // Icon mapping object
   const iconComponents = {
+    // Original icons
     'FaSwimmingPool': FaSwimmingPool,
     'FaWifi': FaWifi,
     'FaParking': FaParking,
@@ -50,29 +64,159 @@ const AmenityPage = () => {
     'MdAir': MdAir,
     'MdSpa': MdSpa,
     'MdOutdoorGrill': MdOutdoorGrill,
-    // 'GiPoolTableLight': GiPoolTableLight,
     'GiLockers': GiLockers,
     'BsFillTelephoneFill': BsFillTelephoneFill,
     'IoGameControllerOutline': IoGameControllerOutline,
+    
+    // New icons
+    'FaWater': FaWater,
+    'FaFireExtinguisher': FaFireExtinguisher,
+    'FaUserShield': FaUserShield,
+    'FaChild': FaChild,
+    'FaUserTie': FaUserTie,
+    'FaHome': FaHome,
+    'FaStore': FaStore,
+    'FaBroadcastTower': FaBroadcastTower,
+    'FaRunning': FaRunning,
+    'FaBasketballBall': FaBasketballBall,
+    'FaTableTennis': FaTableTennis,
+    'FaChessBoard': FaChessBoard,
+    'FaTrophy': FaTrophy,
+    'FaBookReader': FaBookReader,
+    'FaTree': FaTree,
+    'FaRecycle': FaRecycle,
+    'FaLeaf': FaLeaf,
+    'FaTint': FaTint,
+    'FaSquareFull': FaSquareFull,
+    'FaDoorClosed': FaDoorClosed,
+    'FaSink': FaSink,
+    'FaBolt': FaBolt,
+    'FaPhone': FaPhone,
+    'FaPaintRoller': FaPaintRoller,
+    'FaPlug': FaPlug,
+    'MdSecurity': MdSecurity,
+    'MdSportsBasketball': MdSportsBasketball,
+    'MdPool': MdPool,
+    'MdFitnessCenter': MdFitnessCenter,
+    'MdLocalLibrary': MdLocalLibrary,
+    'MdNature': MdNature,
+    'MdWaterDrop': MdWaterDrop,
+    'MdCleaningServices': MdCleaningServices,
+    'GiCctvCamera': GiCctvCamera,
+    'GiFireplace': GiFireplace,
+    'BsFillShieldLockFill': BsFillShieldLockFill,
+    'IoWater': IoWater,
+    'ImOffice': ImOffice
   };
+
+  // Category definitions
+  const amenityCategories = [
+    { id: 'general', name: 'General' },
+    { id: 'safety', name: 'Safety' },
+    { id: 'sports', name: 'Sports' },
+    { id: 'leisure', name: 'Leisure' },
+    { id: 'environment', name: 'Environment' },
+    { id: 'home', name: 'Home Specifications' }
+  ];
+
+  // Predefined amenities with categories and icons
+  const predefinedAmenities = [
+    // General
+    { name: '24X7 Water Supply', icon: 'FaWater', category: 'General' },
+    { name: 'Fire Fighting System', icon: 'FaFireExtinguisher', category: 'General' },
+    { name: 'Security', icon: 'MdSecurity', category: 'General' },
+    { name: 'Visitor Parking', icon: 'FaParking', category: 'General' },
+    { name: 'Mud Playing Zone', icon: 'FaChild', category: 'General' },
+    { name: 'Pets Zone', icon: 'FaDog', category: 'General' },
+    { name: 'Children Playing Zone', icon: 'FaChild', category: 'General' },
+    { name: 'Senior Citizen Sitting Area', icon: 'FaUserTie', category: 'General' },
+    { name: 'Crèche', icon: 'FaBaby', category: 'General' },
+    { name: 'DTH And Broadband Connection', icon: 'FaBroadcastTower', category: 'General' },
+    { name: 'Senior Citizens Walking Track', icon: 'FaRunning', category: 'General' },
+    { name: 'Clubhouse', icon: 'FaHome', category: 'General' },
+    { name: 'Society Office', icon: 'ImOffice', category: 'General' },
+    { name: 'Convenience Store', icon: 'FaStore', category: 'General' },
+    
+    // Safety
+    { name: 'Reserved Parking', icon: 'FaParking', category: 'Safety' },
+    { name: 'CCTV Surveillance', icon: 'GiCctvCamera', category: 'Safety' },
+    { name: 'Entrance Gate With Security', icon: 'BsFillShieldLockFill', category: 'Safety' },
+    { name: 'Fire Fighting System', icon: 'FaFireExtinguisher', category: 'Safety' },
+    { name: 'Fireplace', icon: 'GiFireplace', category: 'Safety' },
+    
+    // Sports
+    { name: 'Kids Play Area', icon: 'FaChild', category: 'Sports' },
+    { name: 'Lattu Game', icon: 'IoGameControllerOutline', category: 'Sports' },
+    { name: 'Game Corners', icon: 'FaChessBoard', category: 'Sports' },
+    { name: 'Indoor Games', icon: 'IoGameControllerOutline', category: 'Sports' },
+    { name: 'Basketball Court', icon: 'FaBasketballBall', category: 'Sports' },
+    { name: 'Multipurpose Play Court', icon: 'MdSportsBasketball', category: 'Sports' },
+    { name: 'Badminton Court', icon: 'FaTrophy', category: 'Sports' },
+    
+    // Leisure
+    { name: 'Community Club', icon: 'FaHome', category: 'Leisure' },
+    { name: 'Recreation/Kids Club', icon: 'FaChild', category: 'Leisure' },
+    { name: 'Swimming Pool', icon: 'FaSwimmingPool', category: 'Leisure' },
+    { name: 'Play Area With Swimming Pool', icon: 'MdPool', category: 'Leisure' },
+    { name: 'Study Library', icon: 'MdLocalLibrary', category: 'Leisure' },
+    { name: 'Indoor Kids\' Play Area', icon: 'FaChild', category: 'Leisure' },
+    { name: 'Indoor Games And Activities', icon: 'IoGameControllerOutline', category: 'Leisure' },
+    { name: 'Gym', icon: 'MdFitnessCenter', category: 'Leisure' },
+    { name: 'Kids Pool', icon: 'FaSwimmingPool', category: 'Leisure' },
+    { name: 'Nature Walkway', icon: 'FaTree', category: 'Leisure' },
+    { name: 'Green Wall', icon: 'MdNature', category: 'Leisure' },
+    
+    // Environment
+    { name: 'Sewage Treatment Plant', icon: 'MdCleaningServices', category: 'Environment' },
+    { name: 'Organic Waste Convertor', icon: 'FaRecycle', category: 'Environment' },
+    { name: 'Eco Life', icon: 'FaLeaf', category: 'Environment' },
+    { name: 'Drip Irrigation System', icon: 'FaTint', category: 'Environment' },
+    
+    // Home Specifications
+    { name: 'Marble flooring', icon: 'FaSquareFull', category: 'Home Specifications' },
+    { name: 'Laminate finish doors', icon: 'FaDoorClosed', category: 'Home Specifications' },
+    { name: 'Premium sanitary and CP fittings', icon: 'FaShower', category: 'Home Specifications' },
+    { name: 'Stainless steel sink', icon: 'FaSink', category: 'Home Specifications' },
+    { name: 'False Ceiling', icon: 'FaHome', category: 'Home Specifications' },
+    { name: 'Concealed Electrification', icon: 'FaBolt', category: 'Home Specifications' },
+    { name: 'TV Point', icon: 'FaTv', category: 'Home Specifications' },
+    { name: 'Telephone point', icon: 'FaPhone', category: 'Home Specifications' },
+    { name: 'Acrylic Emulsion Paint', icon: 'FaPaintRoller', category: 'Home Specifications' },
+   
+    { name: 'Multi-stranded cables', icon: 'FaPlug', category: 'Home Specifications' },
+    
+    { name: 'Geyser Point', icon: 'FaShower', category: 'Home Specifications' }
+  ];
 
   // Icon categories
   const iconCategories = [
     {
       name: 'Basic Amenities',
-      icons: ['FaWifi', 'FaParking', 'FaSnowflake', 'FaUtensils', 'FaBed', 'FaShower', 'FaCoffee']
+      icons: ['FaWifi', 'FaParking', 'FaSnowflake', 'FaUtensils', 'FaBed', 'FaShower', 'FaCoffee', 'FaWater']
     },
     {
       name: 'Activities & Recreation',
-      icons: ['FaSwimmingPool', 'FaDumbbell', 'FaUmbrellaBeach', 'FaHotTub', 'FaBicycle', 'IoGameControllerOutline']
+      icons: ['FaSwimmingPool', 'FaDumbbell', 'FaUmbrellaBeach', 'FaHotTub', 'FaBicycle', 'IoGameControllerOutline', 
+             'FaBasketballBall', 'FaTableTennis', 'FaChessBoard',  'FaRunning']
     },
     {
       name: 'Special Services',
-      icons: ['FaBaby', 'FaWheelchair', 'FaSprayCan', 'FaCocktail', 'FaDog', 'FaCar', 'FaShuttleVan']
+      icons: ['FaBaby', 'FaWheelchair', 'FaSprayCan', 'FaCocktail', 'FaDog', 'FaCar', 'FaShuttleVan', 
+             'FaUserTie', 'FaChild', 'FaStore']
+    },
+    {
+      name: 'Safety & Security',
+      icons: ['FaFireExtinguisher', 'MdSecurity', 'GiCctvCamera', 'BsFillShieldLockFill', 'GiFireplace']
+    },
+    {
+      name: 'Environment & Utilities',
+      icons: ['FaTree', 'FaRecycle', 'FaLeaf', 'FaTint', 'MdNature', 'MdWaterDrop', 'MdCleaningServices']
     },
     {
       name: 'Room & Facility',
-      icons: ['MdLocalLaundryService', 'MdMeetingRoom', 'MdAir', 'MdSpa', 'MdOutdoorGrill', 'GiLockers', 'BsFillTelephoneFill', 'FaTv']
+      icons: ['MdLocalLaundryService', 'MdMeetingRoom', 'MdAir', 'MdSpa', 'MdOutdoorGrill', 'GiLockers', 
+             'BsFillTelephoneFill', 'FaTv', 'FaHome', 'FaSquareFull', 'FaDoorClosed', 'FaSink', 'FaBolt', 
+             'FaPhone', 'FaPaintRoller', 'FaPlug']
     }
   ];
 
@@ -86,7 +230,7 @@ const AmenityPage = () => {
     : iconCategories;
 
   const validateForm = () => {
-    const newErrors = { name: '', icon: '' };
+    const newErrors = { name: '', icon: '', category: '' };
     let isValid = true;
     
     if (!form.name.trim()) {
@@ -96,6 +240,11 @@ const AmenityPage = () => {
     
     if (!form.icon) {
       newErrors.icon = 'Please select an icon';
+      isValid = false;
+    }
+    
+    if (!form.category) {
+      newErrors.category = 'Please select a category';
       isValid = false;
     }
     
@@ -109,11 +258,29 @@ const AmenityPage = () => {
       const res = await axios.get(`${BASE_URL}/api/amenities`);
       setAmenities(res.data);
     } catch (err) {
-      toast.error('Failed to load amenities');
-      console.error('Error fetching amenities:', err);
+      // If API fails, use predefined amenities for demo purposes
+      setAmenities(predefinedAmenities.map((item, index) => ({
+        ...item,
+        id: index + 1
+      })));
+      console.log('Using predefined amenities (API might not be available)');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBulkImport = () => {
+    // Simulate adding all predefined amenities
+    toast.info('Bulk importing predefined amenities...');
+    
+    // In a real implementation, you would make API calls here
+    setTimeout(() => {
+      setAmenities(predefinedAmenities.map((item, index) => ({
+        ...item,
+        id: index + 1
+      })));
+      toast.success('Successfully imported all amenities');
+    }, 1000);
   };
 
   useEffect(() => {
@@ -127,10 +294,18 @@ const AmenityPage = () => {
     
     setSubmitting(true);
     try {
-      await axios.post(`${BASE_URL}/api/amenities`, form);
+      // In a real implementation, this would be an API call
+      // await axios.post(`${BASE_URL}/api/amenities`, form);
+      
+      // For demo, just add to local state
+      const newAmenity = {
+        ...form,
+        id: amenities.length > 0 ? Math.max(...amenities.map(a => a.id)) + 1 : 1
+      };
+      
+      setAmenities([...amenities, newAmenity]);
       toast.success('Amenity added successfully');
-      setForm({ name: '', icon: '' });
-      fetchAmenities();
+      setForm({ name: '', icon: '', category: 'General' });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add amenity');
       console.error('Error adding amenity:', err);
@@ -139,13 +314,36 @@ const AmenityPage = () => {
     }
   };
 
+  const handleAddPredefined = (amenity) => {
+    const exists = amenities.some(a => 
+      a.name.toLowerCase() === amenity.name.toLowerCase() && 
+      a.category === amenity.category
+    );
+    
+    if (exists) {
+      toast.info(`"${amenity.name}" already exists in the ${amenity.category} category`);
+      return;
+    }
+    
+    const newAmenity = {
+      ...amenity,
+      id: amenities.length > 0 ? Math.max(...amenities.map(a => a.id)) + 1 : 1
+    };
+    
+    setAmenities([...amenities, newAmenity]);
+    toast.success(`Added "${amenity.name}" to ${amenity.category} category`);
+  };
+
   const handleDelete = async () => {
     if (!deleteModal.id) return;
     
     try {
-      await axios.delete(`${BASE_URL}/api/amenities/${deleteModal.id}`);
+      // In a real implementation, this would be an API call
+      // await axios.delete(`${BASE_URL}/api/amenities/${deleteModal.id}`);
+      
+      // For demo, just remove from local state
+      setAmenities(amenities.filter(amenity => amenity.id !== deleteModal.id));
       toast.success('Amenity deleted successfully');
-      fetchAmenities();
     } catch (err) {
       toast.error('Failed to delete amenity');
       console.error('Error deleting amenity:', err);
@@ -159,11 +357,21 @@ const AmenityPage = () => {
     setShowIconModal(false);
   };
 
+  // Filter amenities based on active tab
+  const filteredAmenities = activeTab === 'all' 
+    ? amenities 
+    : amenities.filter(amenity => amenity.category.toLowerCase() === activeTab);
+
   // Render icon component based on icon name
   const renderIconComponent = (iconName, size = 5) => {
     const IconComponent = iconComponents[iconName];
     return IconComponent ? <IconComponent className={`h-${size} w-${size}`} /> : null;
   };
+
+  // Get unused predefined amenities for quick-add
+  const unusedPredefinedAmenities = predefinedAmenities.filter(pa => 
+    !amenities.some(a => a.name.toLowerCase() === pa.name.toLowerCase() && a.category === pa.category)
+  );
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">

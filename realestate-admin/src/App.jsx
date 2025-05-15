@@ -21,6 +21,8 @@ import InquiryLeadsPage from './pages/InquiryLeadsPage';
 import BlogCategoryManager from './pages/BlogCategoryManager';
 import CancellationPolicy from './pages/CancellationPolicy';
 import TermaAndServicesPage from './pages/TermaAndServicesPage';
+import AdvertisementForm from './pages/AdvertisementForm ';
+import ReviewTable from './pages/ReviewTable';
 
 
 function App() {
@@ -36,6 +38,8 @@ function App() {
         <Route path="nearest" element={<ProtectedRoute><NearestPage /></ProtectedRoute>} />
         <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
         <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
+        <Route path="review" element={<ProtectedRoute><ReviewTable/></ProtectedRoute>}/>
+        <Route path="advertisement" element={<ProtectedRoute><AdvertisementForm/></ProtectedRoute>}/>
         {/* <Route path="leads" element={<ProtectedRoute><LeadPage/></ProtectedRoute>}/> */}
         <Route path="inquiryleads" element={<InquiryLeadsPage/>}/>
         <Route path="aboutus" element={<AboutUsPage/>}/>

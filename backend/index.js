@@ -18,6 +18,8 @@ import faqRoutes from './routes/faqRoutes.js';
 import minimumdetails from './routes/getminimumpropertyRoutes.js';
 import pagesRoutes from './routes/pagesRoutes.js';
 import leadsRoutes from './routes/leadeGenaraterRoutes.js';
+import advertisementRoutes from './routes/advertisementRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 const app = express();
 
 // ------------------ ✅ FIXED CORS SETUP ------------------
@@ -92,6 +94,8 @@ app.use('/api', citiesRoutes);
 app.use('/api', faqRoutes);
 app.use('/api',pagesRoutes)
 app.use('/api', minimumdetails);
+app.use('/api',advertisementRoutes);
+app.use('/api', reviewRoutes);
 
 // Optional test route
 app.get('/api/check-session', (req, res) => {

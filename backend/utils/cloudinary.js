@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import dotenv from 'dotenv';
-
+import {v4 as uuidv4 }  from 'uuid'
 // Ensure environment variables are loaded
 dotenv.config();
 
@@ -40,4 +40,18 @@ const aboutStorage = new CloudinaryStorage({
     transformation: [{ width: 1000, height: 1000, crop: 'limit'}]
   },
   });
-export default { cloudinary, blogStorage,aboutStorage };
+
+ const advertisementStorage = new CloudinaryStorage({
+  cloudinary,
+  params: (req, file) => {
+    const filename = file.originalname.split('.')[0]; // get name without extension
+    return {
+      folder: 'realestate/advertisement',
+      allowed_formats: ['jpg', 'jpeg', 'png'],
+      public_id: `${filename}-${uuidv4()}`, // e.g., "banner-1-2f3e4g"
+      transformation: [{ width: 500, height: 500, crop: 'limit' }]
+    };
+  },
+});
+
+export default { cloudinary, blogStorage,aboutStorage,advertisementStorage };
