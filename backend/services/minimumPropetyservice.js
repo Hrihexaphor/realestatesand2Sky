@@ -75,7 +75,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             WHERE pi.property_id = p.id
             ORDER BY pi.id ASC
             LIMIT 1
-          ) AS primary_image
+          ) AS primary_image,
              EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -119,7 +119,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             WHERE pi.property_id = p.id
             ORDER BY pi.id ASC
             LIMIT 1
-          ) AS primary_image
+          ) AS primary_image,
              EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -162,7 +162,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             WHERE pi.property_id = p.id
             ORDER BY pi.id ASC
             LIMIT 1
-          ) AS primary_image
+          ) AS primary_image,
              EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -205,7 +205,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             WHERE pi.property_id = p.id
             ORDER BY pi.id ASC
             LIMIT 1
-          ) AS primary_image
+          ) AS primary_image,
              EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -256,7 +256,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             WHERE pi.property_id = p.id
             ORDER BY pi.id ASC
             LIMIT 1
-          ) AS primary_image
+          ) AS primary_image,
              EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -293,7 +293,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
           p.id,
           p.title,
           p.expected_price AS price,
-          pd.project_name
+          pd.project_name,
             EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
