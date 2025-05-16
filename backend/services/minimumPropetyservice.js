@@ -23,7 +23,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         pd.furnished_status,
         pd.available_from,
         d.name AS developer_name,
-
+        psc.name AS subcategory_name,
         (
           SELECT pi.image_url
           FROM property_images pi
@@ -41,6 +41,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
       FROM property p
       LEFT JOIN property_details pd ON p.id = pd.property_id
       LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       ORDER BY p.id DESC
       LIMIT $1 OFFSET $2
     `, [limit, offset]);
@@ -75,6 +76,10 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             ORDER BY pi.id ASC
             LIMIT 1
           ) AS primary_image
+             EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured
         FROM property p
         LEFT JOIN property_details pd ON pd.property_id = p.id
         LEFT JOIN developer d ON p.developer_id = d.id
@@ -115,6 +120,10 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             ORDER BY pi.id ASC
             LIMIT 1
           ) AS primary_image
+             EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured
         FROM property p
         LEFT JOIN property_details pd ON pd.property_id = p.id
         LEFT JOIN developer d ON p.developer_id = d.id
@@ -154,6 +163,10 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             ORDER BY pi.id ASC
             LIMIT 1
           ) AS primary_image
+             EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured
         FROM property p
         LEFT JOIN property_details pd ON pd.property_id = p.id
         LEFT JOIN developer d ON p.developer_id = d.id
@@ -193,6 +206,10 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             ORDER BY pi.id ASC
             LIMIT 1
           ) AS primary_image
+             EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured
         FROM property p
         LEFT JOIN property_details pd ON pd.property_id = p.id
         LEFT JOIN developer d ON p.developer_id = d.id
@@ -240,6 +257,10 @@ export async function getMinimalProperties(page = 1, limit = 10) {
             ORDER BY pi.id ASC
             LIMIT 1
           ) AS primary_image
+             EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured
         FROM property p
         JOIN top_builders tb ON p.developer_id = tb.developer_id
         LEFT JOIN property_details pd ON pd.property_id = p.id
@@ -273,6 +294,10 @@ export async function getMinimalProperties(page = 1, limit = 10) {
           p.title,
           p.expected_price AS price,
           pd.project_name
+            EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured
         FROM property p
         LEFT JOIN property_details pd ON pd.property_id = p.id
         ORDER BY p.id DESC
