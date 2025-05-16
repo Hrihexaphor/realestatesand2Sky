@@ -294,6 +294,8 @@ export async function getMinimalProperties(page = 1, limit = 10) {
           p.title,
           p.expected_price AS price,
           pd.project_name,
+          pd.city,
+          pd.locality,
             EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id

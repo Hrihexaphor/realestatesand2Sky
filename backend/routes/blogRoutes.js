@@ -4,7 +4,9 @@ import { addBlog, getAllBlogs, updateBlog, deleteBlog,  getAllBlogCategories,
   getBlogCategoryById, 
   createBlogCategory, 
   updateBlogCategory, 
-  deleteBlogCategory  } from '../services/blogServices.js';
+  deleteBlogCategory,
+  getBlogCategoryCounts
+} from '../services/blogServices.js';
 
 
 import multer from 'multer';
@@ -166,6 +168,14 @@ router.delete('/blog-categories/:id', async (req, res) => {
       return res.status(404).json({ error: 'Category not found' });
     }
     res.status(200).json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.get('/blogcategories', async (req, res) => {
+  try {
+    const categories = await getBlogCategoryCounts();
+    res.status(200).json({ categories });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

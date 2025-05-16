@@ -14,9 +14,17 @@ export async function addBlog({ title, description, image_url, meta_title, meta_
 
 // View all blog posts
 export async function getAllBlogs() {
-  const result = await pool.query('SELECT * FROM blogs ORDER BY created_at DESC');
+  const result = await pool.query(
+    `SELECT b.*, 
+            c.name AS category_name, 
+            c.slug AS category_slug
+     FROM blogs b
+     LEFT JOIN blog_category c ON b.blog_category_id = c.id
+     ORDER BY b.created_at DESC`
+  );
   return result.rows;
 }
+
 
 // Update blog post
     export async function updateBlog(id, {
@@ -108,5 +116,25 @@ export async function deleteBlogCategory(id) {
   } catch (error) {
     console.error('Error deleting blog category:', error);
     throw new Error(`Failed to delete blog category: ${error.message}`);
+  }
+}
+
+export async function getBlogCategoryCounts() {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        c.id,
+        c.name,
+        c.slug,
+        COUNT(b.id) AS blog_count
+      FROM blog_category c
+      LEFT JOIN blogs b ON b.blog_category_id = c.id
+      GROUP BY c.id, c.name, c.slug
+      ORDER BY c.name ASC
+    `);
+    return result.rows;
+  } catch (error) {
+    console.error('Error getting blog category counts:', error);
+    throw new Error(`Failed to get blog category counts: ${error.message}`);
   }
 }
