@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
-export default function PropertyTable({ properties, onEdit, onDelete, onView }) {
+export default function PropertyCard({ properties, onEdit, onDelete, onView }) {
   const tableRef = useRef(null);
   const navigate = useNavigate();
   

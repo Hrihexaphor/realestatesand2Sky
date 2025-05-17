@@ -30,27 +30,26 @@ function App() {
     <Routes>
       <Route path="/admin/login" element={<LoginPage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-        <Route index element={<ProtectedRoute><PropertyTable/></ProtectedRoute>} />
-        <Route path="property" element={<ProtectedRoute><PropertyPage /></ProtectedRoute>} />
-        <Route path="property/:id" element={<ProtectedRoute><ViewPropertyDetails /></ProtectedRoute>} />
-        <Route path="amenities" element={<ProtectedRoute><AmenityPage /></ProtectedRoute>} />
-        <Route path="developer" element={<ProtectedRoute><DeveloperPage /></ProtectedRoute>} />
-        <Route path="nearest" element={<ProtectedRoute><NearestPage /></ProtectedRoute>} />
-        <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
-        <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
-        <Route path="review" element={<ProtectedRoute><ReviewTable/></ProtectedRoute>}/>
-        <Route path="advertisement" element={<ProtectedRoute><AdvertisementForm/></ProtectedRoute>}/>
-        {/* <Route path="leads" element={<ProtectedRoute><LeadPage/></ProtectedRoute>}/> */}
-        <Route path="inquiryleads" element={<InquiryLeadsPage/>}/>
-        <Route path="aboutus" element={<AboutUsPage/>}/>
-        <Route path="privacypolicy" element={<PrivacyPolicyPage/>}/>
-        <Route path="cancelpolicy" element={<ProtectedRoute><CancellationPolicy/></ProtectedRoute>} />
-        <Route path="termandservice" element={<ProtectedRoute><TermaAndServicesPage/></ProtectedRoute>} />
-        <Route path="property/:id/add-faq" element={<ProtectedRoute><AddFAQPage/></ProtectedRoute>} />
-        <Route path="property/:id/faqs" element={<ProtectedRoute><ViewFAQsPage /></ProtectedRoute>} />
-        <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
-        <Route path="blog-category" element={<ProtectedRoute><BlogCategoryManager/></ProtectedRoute>} />
-
+        <Route index element={<PropertyTable />} />
+        <Route path="property" element={<PropertyPage />} />
+        <Route path="property/:id" element={<ViewPropertyDetails />} />
+        <Route path="amenities" element={<AmenityPage />} />
+        <Route path="developer" element={<DeveloperPage />} />
+        <Route path="nearest" element={<NearestPage />} />
+        <Route path="category" element={<CategoryManager />} />
+        <Route path="featured" element={<FeaturedManager />} />
+        <Route path="review" element={<ReviewTable />} />
+        <Route path="advertisement" element={<AdvertisementForm />} />
+        {/* <Route path="leads" element={<LeadPage/>}/> */}
+        <Route path="inquiryleads" element={<InquiryLeadsPage />} />
+        <Route path="aboutus" element={<AboutUsPage />} />
+        <Route path="privacypolicy" element={<PrivacyPolicyPage />} />
+        <Route path="cancelpolicy" element={<CancellationPolicy />} />
+        <Route path="termandservice" element={<TermaAndServicesPage />} />
+        <Route path="property/:id/add-faq" element={<AddFAQPage />} />
+        <Route path="property/:id/faqs" element={<ViewFAQsPage />} />
+        <Route path="blogs" element={<BlogPage />} />
+        <Route path="blog-category" element={<BlogCategoryManager />} />
       </Route>
       <Route path="*" element={<Navigate to="/admin/login" />} />
     </Routes>

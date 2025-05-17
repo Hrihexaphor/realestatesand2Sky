@@ -57,7 +57,7 @@ app.use('/uploads', express.static('uploads'));
 const isProduction = process.env.NODE_ENV === 'production';
 
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'your-fallback-secret',
+  secret: process.env.SESSION_SECRET || 'Session_Secret_1234',
   resave: false,
   saveUninitialized: false,
   name: 'realestate.sid',
@@ -99,13 +99,13 @@ app.use('/api', reviewRoutes);
 
 // Optional test route
 app.get('/api/check-session', (req, res) => {
-  res.json({
-    hasSession: !!req.session,
-    sessionID: req.sessionID || null,
-    user: req.session?.user || null,
-    cookieHeader: req.headers.cookie || null,
-    origin: req.headers.origin || null,
-  });
+  console.log(req.session)
+  if(!req.session && !req.session.user) {
+    res.status(401).send();
+    return;
+  }
+
+  res.json(req.session?.user || null);
 });
 
 app.use('/test', (req, res) => {
