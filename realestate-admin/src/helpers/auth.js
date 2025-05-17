@@ -17,3 +17,13 @@ export async function checkSession() {
     return null;
   }
 }
+
+export async function logout() {
+   try {
+    await axios.post(`${BASE_URL}/api/admin/logout`, null, {
+      withCredentials: true,
+    });
+  } catch (err) {
+    console.error("Auth check failed:", err);
+  }
+}

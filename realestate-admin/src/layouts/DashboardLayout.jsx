@@ -18,6 +18,7 @@ import {
 import { useState } from 'react';
 import DropdownNavItem from '../components/DropdownNavItem';
 import SingleNavItem from '../components/SingleNavItem';
+import { logout } from '../helpers/auth';
 
 const NAV_ITEMS = [
   { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
@@ -66,6 +67,11 @@ const DashboardLayout = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.reload();
+  }
+
 
 
   return (
@@ -96,7 +102,7 @@ const DashboardLayout = () => {
 
           <div className={`mt-auto px-3 py-4 border-t border-gray-700 ${isCollapsed ? 'hidden' : 'block'}`}>
 
-            <div className="flex items-center px-3 py-3 rounded-lg hover:bg-gray-700 cursor-pointer text-gray-300 hover:text-white transition-all duration-200">
+            <div onClick={handleLogout} className="flex items-center px-3 py-3 rounded-lg hover:bg-gray-700 cursor-pointer text-gray-300 hover:text-white transition-all duration-200">
               <FaSignOutAlt className="text-lg mr-3" />
               <span className="text-sm font-medium">Logout</span>
             </div>
