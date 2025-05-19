@@ -581,7 +581,7 @@ const renderPropertySocietyDertails = ()=>{
     )
     const categoryName = selectedCategory?.name || '';
     switch(categoryName){
-      case 'Apartment/Flat':
+      case 'Apartment':
       case 'Project Apartment':
           return(
             <>
@@ -949,7 +949,6 @@ const renderPropertySocietyDertails = ()=>{
             </>
           )
       case 'Apartment':
-     
         return (
           <>
        
