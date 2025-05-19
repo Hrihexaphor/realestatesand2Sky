@@ -36,7 +36,6 @@ function App() {
         <Route path="property/:id" element={<ProtectedRoute><ViewPropertyDetails /></ProtectedRoute>} />
         <Route path="amenities" element={<ProtectedRoute><AmenityPage /></ProtectedRoute>} />
         <Route path="developer" element={<ProtectedRoute><DeveloperPage /></ProtectedRoute>} />
-        <Route path="cities" element={<ProtectedRoute><CityManager /></ProtectedRoute>} />
         <Route path="nearest" element={<ProtectedRoute><NearestPage /></ProtectedRoute>} />
         <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
         <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>

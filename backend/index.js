@@ -100,13 +100,13 @@ app.use('/api', reviewRoutes);
 app.use('/api',gallaryRoutes);
 // Optional test route
 app.get('/api/check-session', (req, res) => {
-  res.json({
-    hasSession: !!req.session,
-    sessionID: req.sessionID || null,
-    user: req.session?.user || null,
-    cookieHeader: req.headers.cookie || null,
-    origin: req.headers.origin || null,
-  });
+  console.log(req.session)
+  if(!req.session && !req.session.user) {
+    res.status(401).send();
+    return;
+  }
+
+  res.json(req.session?.user || null);
 });
 
 app.use('/test', (req, res) => {

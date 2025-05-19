@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
+import { checkSession } from '../helpers/auth';
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -30,14 +31,26 @@ const LoginPage = () => {
         withCredentials: true,
       });
       console.log('Login successful:', res.data);
-      localStorage.setItem('admin', JSON.stringify(res.data.admin));
-      navigate('/dashboard');
+      // localStorage.setItem('admin', JSON.stringify(res.data.admin));
+      navigate('/dashboard/property');
     } catch (err) {
       console.error('Login error:', err);
       setError('Invalid email or password');
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    async function loadAuth() {
+      const session = await checkSession();
+      if (session) {
+        navigate('/dashboard/property');
+      }
+    }
+
+    loadAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 via-white to-purple-100 px-4">
