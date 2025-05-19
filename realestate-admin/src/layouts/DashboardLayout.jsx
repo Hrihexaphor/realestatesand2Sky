@@ -18,6 +18,10 @@ import {
 
 } from 'react-icons/fa';
 import { useState } from 'react';
+import SingleNavItem from '../components/SingleNavItem';
+import DropdownNavItem from '../components/DropdownNavItem';
+import { logout } from '../helpers/auth';
+
 
 const DashboardLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -31,6 +35,10 @@ const DashboardLayout = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    window.location.reload();
+  }
   const navItems = [
     { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
     { path: "/dashboard/amenities", icon: <FaBath />, label: "Amenities" },
@@ -85,7 +93,7 @@ const DashboardLayout = () => {
 
         <div className="py-4 overflow-y-auto h-[calc(100%-4rem)]">
           <nav className="px-3 space-y-1">
-            {NAV_ITEMS.map((item) =>
+            {navItems.map((item) =>
               item.children ? (<DropdownNavItem key={item.label} item={item} isCollapsed={isCollapsed} openDropdown={openDropdown} onClick={toggleDropdown} />) : (<SingleNavItem key={item.label} item={item} isCollapsed={isCollapsed} />)
             )}
           </nav>

@@ -15,7 +15,7 @@ const PropertyConfiguration = ({ onAddConfiguration }) => {
   });
   const [isEditing, setIsEditing] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
-  const bhkOptions = ['1BHK', '2BHK', '3BHK', '4BHK', '5BHK', '6BHK'];
+  const bhkOptions = ['1BHK', '2BHK', '3BHK', '4BHK', '5BHK', '6BHK','7BHK','8BHK','9BHK','10BHK'];
 
   const handleBHKSelect = (bhk) => {
     setSelectedBHK(bhk);
@@ -119,7 +119,7 @@ const handleFormSubmit = (e) => {
            <div className="form-row">
                     <label>Bedrooms</label>
                     <div className="radio-group">
-                        {[1, 2, 3, 4, 5].map((num) => (
+                        {[1, 2, 3, 4, 5,6,7,8,9,10].map((num) => (
                         <label key={`bedroom-${num}`}>
                             <input
                             type="radio"
@@ -139,7 +139,7 @@ const handleFormSubmit = (e) => {
                 <div className="form-row">
                 <label>Bathrooms</label>
                 <div className="radio-group">
-                    {[1, 2, 3, 4, 5].map((num) => (
+                    {[1, 2, 3, 4, 5,6,7,8,9,10].map((num) => (
                     <label key={`bathroom-${num}`}>
                         <input
                         type="radio"
@@ -185,7 +185,7 @@ const handleFormSubmit = (e) => {
              <div className="form-row">
                 <label>Balconies</label>
                 <div className="radio-group">
-                    {[0, 1, 2, 3, 4, 5].map((num) => (
+                    {[0, 1, 2, 3, 4, 5,6,7,8].map((num) => (
                     <label key={`balconies-${num}`}>
                         <input
                         type="radio"

@@ -793,6 +793,7 @@ const renderPropertySocietyDertails = ()=>{
                     <input
                       type="checkbox"
                       value={option}
+                      className='mr-2'
                       checked={details.facing?.includes(option)}
                       onChange={(e) => handleFacingChange(option, e.target.checked)}
                     />
@@ -852,6 +853,7 @@ const renderPropertySocietyDertails = ()=>{
                     <input
                       type="checkbox"
                       value={option}
+                      className='mr-2'
                       checked={details.overlooking?.includes(option)}
                       onChange={(e) => handleOverlookingChange(option, e.target.checked)}
                     />
@@ -1016,6 +1018,7 @@ const renderPropertySocietyDertails = ()=>{
                     <input
                       type="checkbox"
                       value={option}
+                      className='mr-2'
                       checked={details.facing?.includes(option)}
                       onChange={(e) => handleFacingChange(option, e.target.checked)}
                     />
@@ -1089,6 +1092,7 @@ const renderPropertySocietyDertails = ()=>{
                     <input
                       type="checkbox"
                       value={option}
+                      className='mr-2'
                       checked={details.overlooking?.includes(option)}
                       onChange={(e) => handleOverlookingChange(option, e.target.checked)}
                     />
@@ -1267,6 +1271,7 @@ const renderPropertySocietyDertails = ()=>{
                     <input
                       type="checkbox"
                       value={option}
+                      className='mr-2'
                       checked={details.facing?.includes(option)}
                       onChange={(e) => handleFacingChange(option, e.target.checked)}
                     />
@@ -1313,6 +1318,7 @@ const renderPropertySocietyDertails = ()=>{
               <input
                 type="checkbox"
                 value={option}
+                className='mr-2'
                 checked={details.overlooking?.includes(option)}
                 onChange={(e) => handleOverlookingChange(option, e.target.checked)}
               />

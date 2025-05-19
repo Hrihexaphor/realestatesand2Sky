@@ -103,7 +103,7 @@ const FeaturedManager = () => {
   const fetchGalleryData = async () => {
     try {
       // Get active gallery properties
-      const galleryRes = await axios.get(`http://localhost:3001/api/activegallary`);
+      const galleryRes = await axios.get(`${BASE_URL}/api/activegallary`);
       
       // Create a map of property_id -> gallery data and a set of gallery IDs
       const galleryMap = {};
@@ -181,7 +181,7 @@ const FeaturedManager = () => {
 
   const handleAddToGallery = async (id) => {
     try {
-      await axios.post(`http://localhost:3001/api/addgallary`, { 
+      await axios.post(`${BASE_URL}/api/addgallary`, { 
         property_id: id,
         gallery_from: galleryDateRange.startDate,
         gallery_to: galleryDateRange.endDate
@@ -196,7 +196,7 @@ const FeaturedManager = () => {
   
   const handleRemoveFromGallery = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/removegallary/${id}`);
+      await axios.delete(`${BASE_URL}/api/removegallary/${id}`);
       toast.success('Removed from gallery');
       fetchGalleryData();
     } catch (err) {
