@@ -68,11 +68,12 @@ const sessionConfig = {
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'None',
     secure: isProduction,
-    domain: '.onrender.com'
   }
 };
 
 app.use(session(sessionConfig));
+
+app.set('trust proxy', 1); // Trust first proxy for render.com
 
 // ------------------ ✅ Log every request ------------------
 app.use((req, res, next) => {
