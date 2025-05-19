@@ -13,7 +13,9 @@ import {
   FaBars,
   FaArrowLeft,
   FaRegFileAlt,
-  FaHive
+  FaHive,
+  FaCity
+
 } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -35,6 +37,7 @@ const DashboardLayout = () => {
     { path: "/dashboard/developer", icon: <FaHardHat />, label: "Developer" },
     { path: "/dashboard/nearest", icon: <FaMapMarkerAlt />, label: "Nearest To" },
     { path: "/dashboard/category", icon: <FaBuilding />, label: "Property Category" },
+    { path: "/dashboard/cities", icon: <FaCity />, label: "Cities" },
     { path: "/dashboard/featured", icon: <FaStar />, label: "Featured Property" },
     { path: "/dashboard/advertisement", icon: <FaAtlas />, label: "Advertisement" },
     { path: "/dashboard/review", icon: <FaHive />, label: "Review & Rating" },

@@ -11,7 +11,13 @@ router.post('/advertisement', (req,res)=>{
             }
         try {
     const { link, position, location, start_date, end_date } = req.body;
-
+          let parsedCityIds = [];
+          if (Array.isArray(cityIds)) {
+            parsedCityIds = cityIds.map(id => parseInt(id));
+          } else if (typeof cityIds === 'string') {
+            parsedCityIds = cityIds.split(',').map(id => parseInt(id));
+          }
+          
     if (!req.file?.path) {
       return res.status(400).json({ error: "Image is required." });
     }
@@ -22,7 +28,8 @@ router.post('/advertisement', (req,res)=>{
       position,
       location,
       start_date,
-      end_date
+      end_date,
+       cityIds: parsedCityIds
     });
     res.status(201).json({ message: "Advertisement created successfully", newAd });
     } catch (err) {

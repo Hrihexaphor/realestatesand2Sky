@@ -1,6 +1,8 @@
 
 import express from 'express'
-import { getMinimalProperties,getNewProjectsSummary,getResaleProjectsSummary,getReadyToMoveProjectsSummary,getPropertiesInPriceRangeSummaryOnetotwo,getTopProjectsFromTopBuilders,getLatestPropertiesWithImages } from '../services/minimumPropetyservice.js'
+import { getMinimalProperties,getNewProjectsSummary,getResaleProjectsSummary,getReadyToMoveProjectsSummary,getPropertiesInPriceRangeSummaryOnetotwo,getTopProjectsFromTopBuilders,getLatestPropertiesWithImages,
+    getAllLocalitiesWithCount,getPropertiesByLocality
+ } from '../services/minimumPropetyservice.js'
 
 const router = express.Router()
 
@@ -86,5 +88,29 @@ router.get('/latest-with-images', async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
-  
-export default router;     
+ 
+  // GET /api/localities
+router.get('/localities', async (req, res) => {
+  try {
+    const data = await getAllLocalitiesWithCount();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching localities:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// GET /api/properties/by-locality?name=Patia
+router.get('/properties/by-locality', async (req, res) => {
+  const { name } = req.query;
+  if (!name) return res.status(400).json({ error: 'Locality name is required' });
+
+  try {
+    const data = await getPropertiesByLocality(name);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+export default router;      

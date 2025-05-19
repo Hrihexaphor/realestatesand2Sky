@@ -5,35 +5,52 @@ import { toast } from 'react-toastify';
 const FeaturedManager = () => {
   const [properties, setProperties] = useState([]);
   const [featuredIds, setFeaturedIds] = useState([]);
+  const [galleryIds, setGalleryIds] = useState([]);
   const [featuredProperties, setFeaturedProperties] = useState({});
+  const [galleryProperties, setGalleryProperties] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedDateRange, setSelectedDateRange] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Default to 30 days from now
+  });
+  const [galleryDateRange, setGalleryDateRange] = useState({
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Default to 30 days from now
   });
   const [cities, setCities] = useState([]);
   const [selectedCities, setSelectedCities] = useState([]);
   const [showDatePickerFor, setShowDatePickerFor] = useState(null);
+  const [showGalleryPickerFor, setShowGalleryPickerFor] = useState(null);
   const [modalPosition, setModalPosition] = useState({ top: false });
+  const [galleryModalPosition, setGalleryModalPosition] = useState({ top: false });
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const modalRef = useRef(null);
+  const galleryModalRef = useRef(null);
   const buttonRefs = useRef({});
+  const galleryButtonRefs = useRef({});
   
   useEffect(() => {
     fetchProperties();
     fetchFeaturedData();
+    fetchGalleryData();
     fetchCities();
   }, []);
   
   // Effect to calculate modal position whenever showDatePickerFor changes
   useEffect(() => {
     if (showDatePickerFor && buttonRefs.current[showDatePickerFor]) {
-      calculateModalPosition(showDatePickerFor);
+      calculateModalPosition(showDatePickerFor, buttonRefs.current[showDatePickerFor], setModalPosition);
     }
   }, [showDatePickerFor]);
   
-  const calculateModalPosition = (propertyId) => {
-    const buttonElement = buttonRefs.current[propertyId];
+  // Effect to calculate gallery modal position
+  useEffect(() => {
+    if (showGalleryPickerFor && galleryButtonRefs.current[showGalleryPickerFor]) {
+      calculateModalPosition(showGalleryPickerFor, galleryButtonRefs.current[showGalleryPickerFor], setGalleryModalPosition);
+    }
+  }, [showGalleryPickerFor]);
+  
+  const calculateModalPosition = (propertyId, buttonElement, setPositionFunc) => {
     if (!buttonElement) return;
     
     const buttonRect = buttonElement.getBoundingClientRect();
@@ -42,7 +59,7 @@ const FeaturedManager = () => {
     const modalHeight = 380; // Approximate modal height
     
     // If there's not enough space below, position it above
-    setModalPosition({
+    setPositionFunc({
       top: spaceBelow < modalHeight,
     });
   };
@@ -80,6 +97,30 @@ const FeaturedManager = () => {
       setFeaturedProperties(featuredMap);
     } catch (err) {
       toast.error('Error fetching featured data');
+    }
+  };
+
+  const fetchGalleryData = async () => {
+    try {
+      // Get active gallery properties
+      const galleryRes = await axios.get(`http://localhost:3001/api/activegallary`);
+      
+      // Create a map of property_id -> gallery data and a set of gallery IDs
+      const galleryMap = {};
+      const galleryIdSet = [];
+      
+      galleryRes.data.forEach(item => {
+        galleryMap[item.property_id] = {
+          gallery_from: item.gallery_from,
+          gallery_to: item.gallery_to
+        };
+        galleryIdSet.push(item.property_id);
+      });
+      
+      setGalleryProperties(galleryMap);
+      setGalleryIds(galleryIdSet);
+    } catch (err) {
+      toast.error('Error fetching gallery data');
     }
   };
   
@@ -138,6 +179,31 @@ const FeaturedManager = () => {
     }
   };
 
+  const handleAddToGallery = async (id) => {
+    try {
+      await axios.post(`http://localhost:3001/api/addgallary`, { 
+        property_id: id,
+        gallery_from: galleryDateRange.startDate,
+        gallery_to: galleryDateRange.endDate
+      });
+      toast.success('Added to gallery');
+      setShowGalleryPickerFor(null);
+      fetchGalleryData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to add to gallery');
+    }
+  };
+  
+  const handleRemoveFromGallery = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3001/api/removegallary/${id}`);
+      toast.success('Removed from gallery');
+      fetchGalleryData();
+    } catch (err) {
+      toast.error('Failed to remove from gallery');
+    }
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -174,8 +240,10 @@ const FeaturedManager = () => {
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Action</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured Period</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery Period</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Location</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Details</th>
@@ -185,7 +253,7 @@ const FeaturedManager = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {properties.map((property) => (
-                <tr key={property.id} className={`${featuredIds.includes(property.id) ? 'bg-green-50' : 'bg-white'}`}>
+                <tr key={property.id} className={`${featuredIds.includes(property.id) ? 'bg-green-50' : galleryIds.includes(property.id) ? 'bg-blue-50' : 'bg-white'}`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {featuredIds.includes(property.id) ? (
                       <button
@@ -284,7 +352,88 @@ const FeaturedManager = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {featuredIds.includes(property.id) && featuredProperties[property.id] && (
                       <span className="text-sm text-green-600">
-                        {formatDate(featuredProperties[property.id].featured_from)} - {formatDate(featuredProperties[property.id].featured_to)}
+                        {formatDate(featuredProperties[property.id].featured_from)} <br/> - {formatDate(featuredProperties[property.id].featured_to)}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {galleryIds.includes(property.id) ? (
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
+                        onClick={() => handleRemoveFromGallery(property.id)}
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <div className="relative">
+                        <button
+                          ref={el => galleryButtonRefs.current[property.id] = el}
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
+                          onClick={() => setShowGalleryPickerFor(property.id)}
+                        >
+                          Add to Gallery
+                        </button>
+                        
+                        {showGalleryPickerFor === property.id && (
+                          <div
+                            ref={galleryModalRef}
+                            className={`fixed z-10 w-72 bg-white rounded-lg shadow-xl border border-gray-200 p-4 ${
+                              galleryModalPosition.top ? 'bottom-12' : 'mt-2'
+                            }`}
+                            style={{
+                              left: galleryButtonRefs.current[property.id]?.getBoundingClientRect().left,
+                              [galleryModalPosition.top ? 'bottom' : 'top']: galleryModalPosition.top
+                                ? `calc(100vh - ${galleryButtonRefs.current[property.id]?.getBoundingClientRect().top}px)`
+                                : `${galleryButtonRefs.current[property.id]?.getBoundingClientRect().bottom}px`
+                            }}
+                          >
+                            <h3 className="font-medium mb-3 text-gray-800">Gallery Settings</h3>
+                            
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                              <input
+                                type="date"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={galleryDateRange.startDate}
+                                onChange={(e) => setGalleryDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                                min={new Date().toISOString().split('T')[0]}
+                              />
+                            </div>
+                            
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                              <input
+                                type="date"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={galleryDateRange.endDate}
+                                onChange={(e) => setGalleryDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                                min={galleryDateRange.startDate}
+                              />
+                            </div>
+                            
+                            <div className="flex justify-between">
+                              <button
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded text-sm"
+                                onClick={() => setShowGalleryPickerFor(null)}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm"
+                                onClick={() => handleAddToGallery(property.id)}
+                              >
+                                Confirm
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {galleryIds.includes(property.id) && galleryProperties[property.id] && (
+                      <span className="text-sm text-blue-600">
+                        {formatDate(galleryProperties[property.id].gallery_from)} <br/> - {formatDate(galleryProperties[property.id].gallery_to)}
                       </span>
                     )}
                   </td>
@@ -312,8 +461,6 @@ const FeaturedManager = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{property.address || property.locality}</div>
                     <div className="text-xs text-gray-500">{property.city}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex space-x-2 text-sm text-gray-500">
                       <span>{property.bedrooms || '-'} Beds</span>
                       <span>•</span>
@@ -322,6 +469,9 @@ const FeaturedManager = () => {
                       <span>{property.carpet_area || property.built_up_area || '-'} Sq.ft</span>
                     </div>
                   </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
+                    
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{formatPrice(property.expected_price)}</div>
                     {property.price_per_sqft && (

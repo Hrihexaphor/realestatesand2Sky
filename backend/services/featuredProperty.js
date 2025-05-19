@@ -173,11 +173,13 @@ export async function getActiveFeaturedPropertiesLite() {
         d.name AS developer_name,
         pi.image_url AS primary_image,
         fp.featured_from,
+        psc.name AS subcategory_name,
         fp.featured_to
       FROM featured_properties fp
       INNER JOIN property p ON fp.property_id = p.id
       LEFT JOIN property_details pd ON pd.property_id = p.id
       LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN LATERAL (
         SELECT image_url
         FROM property_images

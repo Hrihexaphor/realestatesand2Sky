@@ -9,14 +9,29 @@ const AdvertisementForm = () => {
     location: "",
     start_date: "",
     end_date: "",
+     cityIds: [],
   });
+  const [cities, setCities] = useState([]);
   const [advertisementImage, setAdvertisementImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [advertisements, setAdvertisements] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState({});
    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+useEffect(() => {
+  axios.get(`http://localhost:3001/api/cities`).then(res => {
+    console.log(res.data);
+    setCities(res.data);
+  });
+}, []);
+// useEffect(() => {
+//   if (editingAd) {
+//     setFormData({
+//       ...editingAd,
+//       cityIds: editingAd.cityIds || [], // ✅ fallback to empty array if undefined
+//     });
+//   }
+// }, [editingAd]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -201,8 +216,35 @@ const AdvertisementForm = () => {
               className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
-          <div className="col-span-full flex justify-end mt-4">
+          <div>
+                <label className="block text-sm font-medium text-gray-700">Cities *</label>
+                <div className="mt-2 space-y-1">
+                  {cities.map(city => (
+                    <label key={city.id} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        value={city.id}
+                        checked={formData.cityIds?.includes(String(city.id)) || false}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData(prev => {
+                            const selected = new Set(prev.cityIds.map(String));
+                            if (e.target.checked) {
+                              selected.add(value);
+                            } else {
+                              selected.delete(value);
+                            }
+                            return { ...prev, cityIds: Array.from(selected) };
+                          });
+                        }}
+                        className="form-checkbox h-4 w-4 text-blue-600"
+                      />
+                      <span className="text-gray-700">{city.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            <div className="col-span-full flex justify-end mt-4">
             <button
               type="submit"
               disabled={isLoading}

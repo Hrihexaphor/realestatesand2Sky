@@ -13,6 +13,7 @@ export default function BlogPage() {
     blog_category_id: '',
     image: null,
     meta_title: '',
+    youtube_link:'',
     meta_description: ''
   });
   const [imagePreview, setImagePreview] = useState(null);
@@ -113,6 +114,7 @@ export default function BlogPage() {
       title: '',
       description: '',
       blog_category_id: '',
+      youtube_link:'',
       image: null,
       meta_title: '',
       meta_description: ''
@@ -133,6 +135,7 @@ export default function BlogPage() {
     if (form.blog_category_id) {
       formData.append('blog_category_id', form.blog_category_id);
     }
+    formData.append('youtube_link', form.youtube_link || '');
     
     formData.append('meta_title', form.meta_title || '');
     formData.append('meta_description', form.meta_description || '');
@@ -146,7 +149,7 @@ export default function BlogPage() {
         toast.success('Blog updated successfully');
       } else {
         await axios.post(
-          `${BASE_URL}/api/addblog`,
+          `http://localhost:3001/api/addblog`,
           formData,
           { withCredentials: true }
         );
@@ -167,6 +170,7 @@ export default function BlogPage() {
       title: blog.title,
       description: blog.description,
       meta_title: blog.meta_title || '',
+      youtube_link:blog.youtube_link || '',
       meta_description: blog.meta_description || '',
       blog_category_id: blog.blog_category_id?.toString() || '', // Convert ID to string for form state
       image: null // Image file should be selected manually if changed
@@ -278,6 +282,20 @@ export default function BlogPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+                  <div>
+                <label htmlFor="meta_title" className="block text-sm font-medium text-gray-700 mb-1">
+                  Youtube Link
+                </label>
+                <input
+                  id="youtube_link"
+                  type="text"
+                  name="youtube_link"
+                  value={form.youtube_link}
+                  onChange={handleChange}
+                  placeholder="enter youtube link"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
               </div>
             </div>
 

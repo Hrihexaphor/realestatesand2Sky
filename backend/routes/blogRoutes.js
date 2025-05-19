@@ -20,7 +20,7 @@ router.post('/addblog', (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     try {
-      const { title, description, meta_title, meta_description, blog_category_id } = req.body;
+      const { title, description, meta_title, meta_description, blog_category_id,youtube_link } = req.body;
       const image_url = req.file ? req.file.path : null;
 
       if (!title || !description) {
@@ -33,6 +33,7 @@ router.post('/addblog', (req, res) => {
         image_url,
         meta_title,
         meta_description,
+        youtube_link,
         blog_category_id: blog_category_id ? parseInt(blog_category_id) : null
       });
 

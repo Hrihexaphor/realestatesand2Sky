@@ -1,12 +1,12 @@
 import pool from '../config/db.js'
 
 // Add blog post
-export async function addBlog({ title, description, image_url, meta_title, meta_description, blog_category_id }) {
+export async function addBlog({ title, description, image_url, meta_title, meta_description, blog_category_id,youtube_link }) {
   const result = await pool.query(
     `INSERT INTO blogs 
-     (title, image_url, description, meta_title, meta_description, blog_category_id) 
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [title, image_url, description, meta_title, meta_description, blog_category_id]
+     (title, image_url, description, meta_title, meta_description, blog_category_id,youtube_link) 
+     VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING *`,
+    [title, image_url, description, meta_title, meta_description, blog_category_id,youtube_link]
   );
   return result.rows[0];
 }

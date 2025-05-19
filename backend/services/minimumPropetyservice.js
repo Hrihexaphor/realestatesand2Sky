@@ -330,4 +330,73 @@ export async function getMinimalProperties(page = 1, limit = 10) {
     }
   };
   
-  
+  //  Get all localities with property count
+export async function getAllLocalitiesWithCount() {
+  const result = await pool.query(`
+    SELECT locality, COUNT(*) AS property_count
+    FROM property_details
+    WHERE locality IS NOT NULL AND locality <> ''
+    GROUP BY locality
+    ORDER BY property_count DESC
+  `);
+  return result.rows;
+}
+
+//  Get properties in a specific locality
+export const getPropertiesByLocality = async (localityName, limit = 10, offset = 0) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        p.id,
+        p.title,
+        pd.project_name,
+        pd.city,
+        pd.locality,
+        p.expected_price AS price,
+        pd.built_up_area,
+        d.name AS developer_name,
+        pc.name AS category_name,
+        psc.name AS subcategory_name,
+        (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id
+          ORDER BY pi.id ASC
+          LIMIT 1
+        ) AS primary_image,
+        EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured,
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'bhk_type', config.bhk_type,
+              'bedrooms', config.bedrooms,
+              'bathrooms', config.bathrooms,
+              'super_built_up_area', config.super_built_up_area,
+              'carpet_area', config.carpet_area,
+              'balconies', config.balconies
+            )
+          ) FILTER (WHERE config.id IS NOT NULL), '[]'
+        ) AS configurations
+      FROM property p
+      LEFT JOIN property_details pd ON pd.property_id = p.id
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      LEFT JOIN property_configurations config ON config.property_id = p.id
+      WHERE pd.locality ILIKE $1
+      GROUP BY p.id, pd.project_name, pd.city, pd.locality, pd.built_up_area,
+               d.name, pc.name, psc.name
+      ORDER BY p.id DESC
+      LIMIT $2 OFFSET $3
+    `, [localityName, limit, offset]);
+
+    return rows;
+  } catch (error) {
+    console.error('Failed to fetch properties by locality:', error);
+    throw new Error(`Failed to fetch properties by locality: ${error.message}`);
+  }
+};
+

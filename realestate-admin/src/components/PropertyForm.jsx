@@ -36,6 +36,7 @@ const PropertyForm = ({editData,onClose}) => {
   const [nearestOptions, setNearestOptions] = useState([]);
   const [nearestTo, setNearestTo] = useState([]);
   const [images, setImages] = useState([]);
+  const [mainImageIndex, setMainImageIndex] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [map, setMap] = useState(null);
   const [marker, setMarker] = useState(null);
@@ -432,19 +433,32 @@ const PropertyForm = ({editData,onClose}) => {
     setNearestTo(updated);
   };
 
-  const handleImageChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
+const handleImageChange = (e) => {
+  const selectedFiles = Array.from(e.target.files);
   
-    // Optional: Filter duplicates
-    const filtered = selectedFiles.filter(
-      newFile => !images.some(existing => existing.name === newFile.name && existing.size === newFile.size)
-    );
+  // Filter duplicates
+  const filtered = selectedFiles.filter(
+    newFile => !images.some(existing => existing.name === newFile.name && existing.size === newFile.size)
+  );
   
-    setImages(prev => [...prev, ...filtered]);
-  }
-  const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-  };
+  setImages(prev => [...prev, ...filtered]);
+};
+
+const removeImage = (idx) => {
+  setImages(prev => {
+    const newImages = [...prev];
+    newImages.splice(idx, 1);
+    
+    // Update main image index if needed
+    if (mainImageIndex === idx) {
+      setMainImageIndex(0);
+    } else if (mainImageIndex > idx) {
+      setMainImageIndex(prevIndex => prevIndex - 1);
+    }
+    
+    return newImages;
+  });
+};
   
   const handleDocumentChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -569,7 +583,6 @@ const renderPropertySocietyDertails = ()=>{
     switch(categoryName){
       case 'Apartment/Flat':
       case 'Project Apartment':
-        case 'Project Flat':
           return(
             <>
               <div className="form-section">
@@ -942,7 +955,7 @@ const renderPropertySocietyDertails = ()=>{
               <div className="form-group">
               <label>Bedrooms</label>
                   <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[1, 2, 3, 4, 5].map((num) => (
+                    {[1, 2, 3, 4, 5,6,7,8].map((num) => (
                       <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                         <input
                           type="radio"
@@ -960,7 +973,7 @@ const renderPropertySocietyDertails = ()=>{
               <div className="form-group">
                 <label>Bathrooms</label>
                 <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[1, 2, 3,].map((num) => (
+                    {[1, 2, 3,4,5,6].map((num) => (
                       <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                         <input
                           type="radio"
@@ -980,7 +993,7 @@ const renderPropertySocietyDertails = ()=>{
               <div className="form-group">
               <label>Balconies</label>
               <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[0,1, 2, 3,].map((num) => (
+                    {[0,1, 2, 3,4,5].map((num) => (
                       <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                         <input
                           type="radio"
@@ -1202,67 +1215,55 @@ const renderPropertySocietyDertails = ()=>{
         return (
           <>
             <div className="form-row">
-              <div className="form-group">
-              <label>Bedrooms</label>
-                  <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="bedrooms"
-                          value={num}
-                          checked={parseInt(details.bedrooms) === num}
-                          onChange={handleDetailsChange}
-                          style={{ accentColor: '#4a90e2' }}
-                        />
-                        <span style={{ marginLeft: '4px' }}>{num}</span>
-                      </label>
-                    ))}
-                  </div>
+               <div className="form-group">
+                <label>Bedrooms</label>
+                <input
+                  type="number"
+                  name="bedrooms"
+                  value={details.bedrooms || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
               </div>
-              <div className="form-group">
+                <div className="form-group">
                 <label>Bathrooms</label>
-                <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[1, 2, 3,].map((num) => (
-                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="bathrooms"
-                          value={num}
-                          checked={parseInt(details.bathrooms) === num}
-                          onChange={handleDetailsChange}
-                          style={{ accentColor: '#4a90e2' }}
-                        />
-                        <span style={{ marginLeft: '4px' }}>{num}</span>
-                      </label>
-                    ))}
-                  </div>
+                <input
+                  type="number"
+                  name="bathrooms"
+                  value={details.bathrooms || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
               </div>
             </div>
             <div className="form-row">
-              <div className="form-group">
-              <label>Balconies</label>
-              <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[0,1, 2, 3,].map((num) => (
-                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="balconies"
-                          value={num}
-                          checked={parseInt(details.balconies) === num}
-                          onChange={handleDetailsChange}
-                          style={{ accentColor: '#4a90e2' }}
-                        />
-                        <span style={{ marginLeft: '4px' }}>{num}</span>
-                      </label>
-                    ))}
-                  </div>
+               <div className="form-group">
+                <label>Balconies</label>
+                <input
+                  type="number"
+                  name="balconies"
+                  value={details.balconies || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
               </div>
+               <div className="form-group">
+                <label>Total Floors</label>
+                <input
+                  type="number"
+                  name="total_floors"
+                  value={details.total_floors || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
+              </div>
+            </div>
+            <div className="form-row">
              <div className="form-group">
                 <label>Facing</label>
                 <div className="grid grid-cols-2 gap-2">
                 {facingOptions.map(option => (
-                  <label key={option} className="flex items-center gap-2">
+                  <label key={option} className="flex items-center gap-4">
                     <input
                       type="checkbox"
                       value={option}
@@ -1274,19 +1275,8 @@ const renderPropertySocietyDertails = ()=>{
                 ))}
               </div>
               </div>
-            </div>
-            <div className="form-row">
-             
-              <div className="form-group">
-                <label>Total Floors</label>
-                <input
-                  type="number"
-                  name="total_floors"
-                  value={details.total_floors || ''}
-                  onChange={handleDetailsChange}
-                  min="1"
-                />
-              </div>
+            
+              
             </div>
               
             <div className="form-row">
@@ -1868,9 +1858,8 @@ const renderPropertySocietyDertails = ()=>{
             <p className="no-items">No nearest places added yet</p>
           )}
         </div>
-
-         {/* Images */}
-          <div className="form-section image-section">
+{/* Images */}
+<div className="form-section image-section">
   <div className="section-header">
     <h3>Images</h3>
     <p>Upload high-quality images of the property</p>
@@ -1886,7 +1875,11 @@ const renderPropertySocietyDertails = ()=>{
         onChange={handleImageChange}
         className="file-input"
       />
-      <label htmlFor="property-images" className="file-upload-container">
+      <label 
+        htmlFor="property-images" 
+        className="file-upload-container"
+      
+      >
         <svg 
           className="file-upload-icon" 
           width="48" 
@@ -1917,13 +1910,23 @@ const renderPropertySocietyDertails = ()=>{
             src={img instanceof File ? URL.createObjectURL(img) : img.url || img} 
             alt={`Preview ${idx}`} 
           />
-          <button 
-            type="button" 
-            className="remove-image-btn"
-            onClick={() => removeImage(idx)}
-          >
-            ×
-          </button>
+          <div className="image-actions">
+            <button 
+              type="button" 
+              className="remove-image-btn"
+              onClick={() => removeImage(idx)}
+            >
+              ×
+            </button>
+
+            <button 
+              type="button"
+              className={`main-image-btn ${mainImageIndex === idx ? 'active' : ''}`}
+              onClick={() => setMainImageIndex(idx)}
+            >
+              {mainImageIndex === idx ? "Main Image ✓" : "Set as Main"}
+            </button>
+          </div>
         </div>
       ))}
     </div>
@@ -1955,12 +1958,16 @@ const renderPropertySocietyDertails = ()=>{
     {docObj.file.name}
     <select value={docObj.type} onChange={(e) => updateDocumentType(idx, e.target.value)}>
       <option value="brochure">Brochure</option>
-      <option value="floor_plan">Floor Plan</option>
-      <option value="rera_certificate">RERA Certificate</option>
-      <option value="video">Video</option>
       <option value="1BHK">1BHK</option>
       <option value="2BHK">2BHK</option>
       <option value="3BHK">3BHK</option>
+      <option value="4BHK">4BHK</option>
+      <option value="5BHK">5BHK</option>
+      <option value="6BHK">6BHK</option>
+      <option value="6BHK">7BHK</option>
+      <option value="6BHK">8BHK</option>
+      <option value="6BHK">9BHK</option>
+      <option value="6BHK">10BHK</option>
     </select>
     <button type="button" className="remove-btn" onClick={() => removeDocument(idx)}>❌</button>
   </li>

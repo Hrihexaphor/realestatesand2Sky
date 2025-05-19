@@ -20,6 +20,7 @@ import pagesRoutes from './routes/pagesRoutes.js';
 import leadsRoutes from './routes/leadeGenaraterRoutes.js';
 import advertisementRoutes from './routes/advertisementRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import gallaryRoutes from './routes/galleryRoutes.js';
 const app = express();
 
 // ------------------ ✅ FIXED CORS SETUP ------------------
@@ -57,7 +58,7 @@ app.use('/uploads', express.static('uploads'));
 const isProduction = process.env.NODE_ENV === 'production';
 
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'your-fallback-secret',
+  secret: process.env.SESSION_SECRET || 'Session_Secret_1234',
   resave: false,
   saveUninitialized: false,
   name: 'realestate.sid',
@@ -96,7 +97,7 @@ app.use('/api',pagesRoutes)
 app.use('/api', minimumdetails);
 app.use('/api',advertisementRoutes);
 app.use('/api', reviewRoutes);
-
+app.use('/api',gallaryRoutes);
 // Optional test route
 app.get('/api/check-session', (req, res) => {
   res.json({

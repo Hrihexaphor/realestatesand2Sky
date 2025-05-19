@@ -613,3 +613,17 @@
   font-size: 0.875rem;
   text-align: center;
 }
+.main-image-btn {
+  background: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-image-btn.active {
+  background: #52c41a;
+}
