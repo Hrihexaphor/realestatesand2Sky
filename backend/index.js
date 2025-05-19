@@ -27,7 +27,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'realestatesand2-sky.vercel.app',
+  'https://realestatesand2-sky.vercel.app',
   'https://realestatesand2sky.onrender.com'
 ];
 
