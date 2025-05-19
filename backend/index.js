@@ -111,7 +111,7 @@ app.get('/api/check-session', (req, res) => {
 });
 
 app.use('/test', (req, res) => {
-  res.json({ message: 'hello hritesh' });
+  res.json({ message: 'hello hritesh', environment: process.env.NODE_ENV });
 });
 
 // ------------------ ✅ Start Server ------------------
