@@ -67,11 +67,13 @@ const sessionConfig = {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: isProduction ? 'none' : 'lax',
-    secure: isProduction 
-  } 
+    secure: isProduction
+  }
 };
 
 app.use(session(sessionConfig));
+
+app.set('trust proxy', 1); // Trust first proxy for render.com
 
 // ------------------ ✅ Log every request ------------------
 app.use((req, res, next) => {
@@ -111,7 +113,7 @@ app.get('/api/check-session', (req, res) => {
 });
 
 app.use('/test', (req, res) => {
-  res.json({ message: 'hello hritesh' });
+  res.json({ message: 'hello hritesh', environment: process.env.NODE_ENV });
 });
 
 // ------------------ ✅ Start Server ------------------
