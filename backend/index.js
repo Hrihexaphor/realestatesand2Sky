@@ -67,7 +67,8 @@ const sessionConfig = {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'None',
-    secure: isProduction
+    secure: isProduction,
+    domain: '.onrender.com'
   }
 };
 
@@ -111,7 +112,7 @@ app.get('/api/check-session', (req, res) => {
 });
 
 app.use('/test', (req, res) => {
-  res.json({ message: 'hello hritesh', environment: process.env.NODE_ENV });
+  res.json({ message: 'hello hritesh', environment: process.env.NODE_ENV, sessionConfig });
 });
 
 // ------------------ ✅ Start Server ------------------
