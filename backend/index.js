@@ -67,8 +67,8 @@ const sessionConfig = {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: isProduction ? 'none' : 'lax',
-    secure: isProduction
-  }
+    secure: isProduction 
+  } 
 };
 
 app.use(session(sessionConfig));
