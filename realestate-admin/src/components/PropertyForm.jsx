@@ -948,7 +948,7 @@ const renderPropertySocietyDertails = ()=>{
           </div>
             </>
           )
-      case 'Apartment/Flat':
+      case 'Apartment':
      
         return (
           <>
