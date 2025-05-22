@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { findAdmiByEmail,createAdmin,getAllUsers,deleteUserById } from '../services/adminServices.js';    
+import { findUserByEmail,createAdmin,getAllUsers,deleteUserById } from '../services/adminServices.js';    
 
 const router = express.Router();
 router.post('/signup', async (req, res) => {
@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
   
   try {
     // Find admin by email (your existing code)
-    const admin = await findAdmiByEmail(email);
+    const admin = await findUserByEmail(email);
     
     if (!admin) {
       // Your existing code for invalid user
@@ -59,7 +59,8 @@ router.post('/login', async (req, res) => {
       id: admin.id,
       name: admin.name,
       email: admin.email,
-      role: admin.role
+      role: admin.role,
+      permissions: admin.permissions
     };
     
     // THIS IS IMPORTANT: Explicitly save the session

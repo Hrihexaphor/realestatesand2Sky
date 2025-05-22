@@ -3,8 +3,9 @@ import axios from 'axios';
 import { BASE_URL, ROUTES, USER_ROLES } from '../config';
 import { useSession } from '../providers/SessionProvider';
 import { toast } from 'react-toastify';
+import { getTopLevelPermissions } from '../helpers/routes';
 
-const permissions = ROUTES.map(route => ({ label: route.label, value: route.path }));
+const permissions = getTopLevelPermissions(ROUTES)
 
 const UserManager = () => {
   const { session } = useSession();

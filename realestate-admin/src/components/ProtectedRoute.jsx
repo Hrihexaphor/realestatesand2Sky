@@ -12,7 +12,8 @@ const ProtectedRoute = ({ children }) => {
  
   const isAllowed = useMemo(() => {
     if(session?.user?.role === USER_ROLES.ADMIN) return true;
-    return (session?.user?.permissions ?? [])?.some((allowedPath) => currentPath.startsWith(allowedPath))
+    const cleanPath = currentPath.replace('/dashboard/', '');
+    return (session?.user?.permissions ?? [])?.some((allowedPath) => allowedPath === cleanPath);
   }, [session, currentPath]);
 
   if (loading) {

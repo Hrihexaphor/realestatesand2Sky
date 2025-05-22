@@ -1,8 +1,8 @@
 import pool from '../config/db.js';
-export async function findAdmiByEmail(email) {
+export async function findUserByEmail(email) {
     // Only select needed fields and use LIMIT 1 for optimization
     const result = await pool.query(
-        `SELECT id, name, email, role, password_hash FROM admin WHERE email = $1 LIMIT 1`,
+        `SELECT id, name, email, role, password_hash, permissions FROM admin WHERE email = $1 LIMIT 1`,
         [email]
     );
     return result.rows[0];

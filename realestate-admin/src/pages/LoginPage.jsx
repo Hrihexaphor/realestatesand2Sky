@@ -44,7 +44,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (session?.user && !sessionLoading) {
-      const navigateTo = session?.user?.role === 'admin' ? '/dashboard/property' : (session?.user?.permissions?.at(0) ?? '/dashboard/property');
+      const navigateTo = session?.user?.role === 'admin' ? '/dashboard/property' : `/dashboard/${(session?.user?.permissions?.at(0) ?? 'property')}`;
       navigate(navigateTo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

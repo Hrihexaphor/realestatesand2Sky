@@ -27,7 +27,7 @@ import { USER_ROLES } from '../config';
 
 
 const NAV_ITEMS = [
-    { path: "/dashboard/usermanager", icon: <FaRegUser/>, label: "Manage User" },
+    { path: "/dashboard/usermanager", icon: <FaRegUser/>, label: "Manage User"},
     { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
     { path: "/dashboard/amenities", icon: <FaBath />, label: "Amenities" },
     { path: "/dashboard/keyfeature", icon: <FaKeycdn />, label: "Key Feature" },
@@ -80,17 +80,21 @@ const DashboardLayout = () => {
     await logout();
     window.location.reload();
   }
+  
   const allowedNavItems = NAV_ITEMS.filter((item) => {
     if(session?.user?.role === USER_ROLES.ADMIN) return true;
 
     if (item.children) {
       item.children = item.children.filter((child) => {
-        return session?.user?.permissions?.some((permission) => child.path.startsWith(permission));
+        const childPath = child.path.replace('/dashboard/', '');
+        return session?.user?.permissions?.some((permission) => childPath.startsWith(permission));
       });
       return item.children.length > 0;
     }
-    
-    return session?.user?.permissions?.some((permission) => item.path.startsWith(permission));
+
+    const cleanPath = item.path?.replace('/dashboard/', '');
+ 
+    return session?.user?.permissions?.some((permission) => cleanPath.startsWith(permission));
   }); 
 
   return (
