@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
-import { checkSession } from '../helpers/auth';
+import { useSession } from '../providers/SessionProvider';
+import LoaderComponent from '../components/LoaderComponent';
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -10,6 +11,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { session, loading: sessionLoading } = useSession();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,16 +43,15 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    async function loadAuth() {
-      const session = await checkSession();
-      if (session) {
-        navigate('/dashboard/property');
-      }
+    if (session) {
+      navigate('/dashboard/property');
     }
-
-    loadAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [session])
+
+  if(sessionLoading) {
+    return <LoaderComponent/>
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 via-white to-purple-100 px-4">
