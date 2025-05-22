@@ -2,61 +2,29 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './layouts/DashboardLayout';
-import PropertyPage from './pages/PropertyPage';
-import ViewPropertyDetails from './pages/ViewPropertyDetails';
-import AmenityPage from './pages/AmenityPage';
-import DeveloperPage from './pages/DeveloperPage';
-import NearestPage from './pages/NearestPage';
-import BlogPage from './pages/BlogPage';
+import * as Pages from './pages';
+import SessionProvider from './providers/SessionProvider';
+import { ROUTES } from './config';
 import ProtectedRoute from './components/ProtectedRoute';
-import CategoryManager from './pages/CategoryManager';
-import FeaturedManager from './pages/FeaturedManager';
-// import LeadPage from './pages/LeadPage';
-import AddFAQPage from './pages/AddFAQPage';
-import ViewFAQsPage from './pages/ViewFAQsPage';
-import PropertyTable from './components/PropertyCard';
-import AboutUsPage from './pages/AboutUsPage';
-import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-import InquiryLeadsPage from './pages/InquiryLeadsPage';
-import BlogCategoryManager from './pages/BlogCategoryManager';
-import CancellationPolicy from './pages/CancellationPolicy';
-import TermaAndServicesPage from './pages/TermaAndServicesPage';
-import AdvertisementForm from './pages/AdvertisementForm ';
-import ReviewTable from './pages/ReviewTable';
-import CityManager from './pages/CityManager';
-import KeyFeatureManager from './pages/KeyFeatureManager';
-
 
 function App() {
   return (
-    <Routes>
-      <Route path="/admin/login" element={<LoginPage />} />
-      <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-        <Route index element={<ProtectedRoute><PropertyTable/></ProtectedRoute>} />
-        <Route path="property" element={<ProtectedRoute><PropertyPage /></ProtectedRoute>} />
-        <Route path="property/:id" element={<ProtectedRoute><ViewPropertyDetails /></ProtectedRoute>} />
-        <Route path="amenities" element={<ProtectedRoute><AmenityPage /></ProtectedRoute>} />
-        <Route path="keyfeature" element={<ProtectedRoute><KeyFeatureManager /></ProtectedRoute>} />
-        <Route path="developer" element={<ProtectedRoute><DeveloperPage /></ProtectedRoute>} />
-        <Route path="nearest" element={<ProtectedRoute><NearestPage /></ProtectedRoute>} />
-        <Route path="category" element={<ProtectedRoute><CategoryManager/></ProtectedRoute>}/>
-        <Route path="featured" element={<ProtectedRoute><FeaturedManager/></ProtectedRoute>}/>
-        <Route path="review" element={<ProtectedRoute><ReviewTable/></ProtectedRoute>}/>
-        <Route path="advertisement" element={<ProtectedRoute><AdvertisementForm/></ProtectedRoute>}/>
-        {/* <Route path="leads" element={<ProtectedRoute><LeadPage/></ProtectedRoute>}/> */}
-        <Route path="inquiryleads" element={<InquiryLeadsPage/>}/>
-        <Route path="aboutus" element={<AboutUsPage/>}/>
-        <Route path="privacypolicy" element={<PrivacyPolicyPage/>}/>
-        <Route path="cancelpolicy" element={<ProtectedRoute><CancellationPolicy/></ProtectedRoute>} />
-        <Route path="termandservice" element={<ProtectedRoute><TermaAndServicesPage/></ProtectedRoute>} />
-        <Route path="property/:id/add-faq" element={<ProtectedRoute><AddFAQPage/></ProtectedRoute>} />
-        <Route path="property/:id/faqs" element={<ProtectedRoute><ViewFAQsPage /></ProtectedRoute>} />
-        <Route path="blogs" element={<ProtectedRoute><BlogPage /></ProtectedRoute>} />
-        <Route path="blog-category" element={<ProtectedRoute><BlogCategoryManager/></ProtectedRoute>} />
-
-      </Route>
-      <Route path="*" element={<Navigate to="/admin/login" />} />
-    </Routes>
+    <SessionProvider>
+      <Routes>
+        <Route path="/admin/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+          {
+            ROUTES.map((route, index) => {
+              const Component = Pages[route.element];
+              return (
+                <Route key={index} path={route.path} element={<Component />} />
+              );
+            })
+          }
+        </Route>
+        <Route path="*" element={<Navigate to="/admin/login" />} />
+      </Routes>
+    </SessionProvider>
   );
 }
 

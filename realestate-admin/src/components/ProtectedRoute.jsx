@@ -1,32 +1,39 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { checkSession } from '../helpers/auth';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useSession } from '../providers/SessionProvider';
+import LoaderComponent from './LoaderComponent';
+import { useMemo } from 'react';
+import { USER_ROLES } from '../config';
 
 const ProtectedRoute = ({ children }) => {
-  const [session, setSession] = useState(null);
+  const { session, loading } = useSession();
+  const location = useLocation();
 
-  useEffect(() => {
-    async function loadAuth() {
-      const userData = await checkSession();
-      setSession({ user: userData });
-    }
+  const currentPath = location.pathname;
+ 
+  const isAllowed = useMemo(() => {
+    if(session?.user?.role === USER_ROLES.ADMIN) return true;
+    return (session?.user?.permissions ?? [])?.some((allowedPath) => currentPath.startsWith(allowedPath))
+  }, [session, currentPath]);
 
-    loadAuth();
-  }, []);
-
-  if (!session) {
-    return (
-      <div className="w-full h-screen flex items-center justify-center">
-        <svg className="animate-spin h-14 w-14 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
-      </div>
-    )
+  if (loading) {
+    return <LoaderComponent />;
   }
 
-  if (!session.user) {
+  if (!session?.user) {
     return <Navigate to="/admin/login" />;
+  }
+
+  if (!isAllowed) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-center">
+        <div>
+          <h1 className="text-2xl font-bold text-red-500">403 - Forbidden</h1>
+          <p className="text-gray-600 mt-2">
+            You do not have permission to access this page.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return children;
