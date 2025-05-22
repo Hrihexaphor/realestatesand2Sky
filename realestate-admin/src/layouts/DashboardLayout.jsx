@@ -15,8 +15,8 @@ import {
   FaRegFileAlt,
   FaHive,
   FaCity,
-  FaKeycdn
-
+  FaKeycdn,
+   FaRegUser
 } from 'react-icons/fa';
 import { useState } from 'react';
 import SingleNavItem from '../components/SingleNavItem';
@@ -27,6 +27,7 @@ import { USER_ROLES } from '../config';
 
 
 const NAV_ITEMS = [
+    { path: "/dashboard/usermanager", icon: <FaRegUser/>, label: "Add User" },
     { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
     { path: "/dashboard/amenities", icon: <FaBath />, label: "Amenities" },
     { path: "/dashboard/keyfeature", icon: <FaKeycdn />, label: "Key Feature" },

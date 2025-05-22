@@ -15,3 +15,14 @@ export async function createAdmin(name,email,passwordHash,role) {
     )
     return result.rows[0];
 }
+
+export async function getAllUsers() {
+  const result = await pool.query(
+    `SELECT id, name, email, role FROM admin WHERE role != 'admin' ORDER BY id DESC`
+  );
+  return result.rows;
+}
+export async function  deleteUserById(id){
+     const result = await pool.query('DELETE FROM admin WHERE id = $1', [id]);
+  return result.rowCount > 0;
+}
