@@ -4,27 +4,31 @@ import { findAdmiByEmail,createAdmin,getAllUsers,deleteUserById } from '../servi
 
 const router = express.Router();
 router.post('/signup', async (req, res) => {
-    const { name, email, password,role } = req.body;
-  
-    if (!name || !email || !password || !role) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-    if (role !== 'admin' && role !== 'manager' && role !== 'seller') {
-      return res.status(400).json({ error: "Invalid role" });
-    }
-    const validRoles = ['admin', 'manager', 'seller','account','listing'];
+  const { name, email, password, role, permissions } = req.body;
+
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  const validRoles = ['admin', 'manager', 'seller', 'account', 'listing'];
   if (!validRoles.includes(role)) {
     return res.status(400).json({ error: "Invalid role" });
   }
-    try {
-      const passwordHash = await bcrypt.hash(password, 10);
-      const newAdmin = await createAdmin(name, email, passwordHash,role);
-      res.status(201).json(newAdmin);
-    } catch (err) {
-      console.error('signup error', err);
-      res.status(500).json({ error: "Signup failed" });
-    }
-  });
+
+  if (!Array.isArray(permissions)) {
+    return res.status(400).json({ error: "Permissions must be an array" });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const newAdmin = await createAdmin(name, email, passwordHash, role, permissions);
+    res.status(201).json(newAdmin);
+  } catch (err) {
+    console.error('signup error', err);
+    res.status(500).json({ error: "Signup failed" });
+  }
+});
+
 
 //   admin login routes
 router.post('/login', async (req, res) => {

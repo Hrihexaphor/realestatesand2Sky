@@ -1,15 +1,25 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { USER_ROLES } from '../config';
-// import { BASE_URL } from '../config';
 import { useSession } from '../providers/SessionProvider';
 import { toast } from 'react-toastify';
 
+const mockPermissions = [
+  'add_property',
+  'edit_property',
+  'delete_property',
+  'view_leads',
+  'manage_users',
+  'approve_listing'
+];
+
 const UserManager = () => {
   const { session } = useSession();
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: '', permissions: [] });
   const [users, setUsers] = useState([]);
-    const BASE_URL = 'http://localhost:3001'; // Change this to your backend URL
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+//   const BASE_URL = 'http://localhost:3001';
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -23,28 +33,40 @@ const UserManager = () => {
     }
   };
 
+  const handlePermissionToggle = (perm) => {
+    setFormData((prev) => {
+      const alreadyHas = prev.permissions.includes(perm);
+      return {
+        ...prev,
+        permissions: alreadyHas
+          ? prev.permissions.filter((p) => p !== perm)
+          : [...prev.permissions, perm]
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post(`${BASE_URL}/api/admin/signup`, formData);
       toast.success('User added successfully');
-      setFormData({ name: '', email: '', password: '', role: '' });
+      setFormData({ name: '', email: '', password: '', role: '', permissions: [] });
       fetchUsers();
     } catch (error) {
       toast.error(error.response?.data?.error || 'Signup failed');
     }
   };
-  const handleDelete = async (id) => {
-  if (!window.confirm('Are you sure you want to delete this user?')) return;
-  try {
-    await axios.delete(`${BASE_URL}/api/user/${id}`);
-    toast.success('User deleted');
-    fetchUsers(); // refresh list
-  } catch (err) {
-    toast.error('Error deleting user');
-  }
-};
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await axios.delete(`${BASE_URL}/api/user/${id}`);
+      toast.success('User deleted');
+      fetchUsers();
+    } catch (err) {
+      toast.error('Error deleting user');
+    }
+  };
 
   if (!session?.user?.role || session.user.role !== 'admin') {
     return <p className="text-center text-red-500 font-semibold mt-8">Access Denied</p>;
@@ -85,6 +107,23 @@ const UserManager = () => {
             <option key={role} value={role}>{role}</option>
           ))}
         </select>
+
+        <div className="mt-2">
+          <label className="block mb-1 font-medium">Select Permissions</label>
+          <div className="grid grid-cols-2 gap-2">
+            {mockPermissions.map((perm) => (
+              <label key={perm} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.permissions.includes(perm)}
+                  onChange={() => handlePermissionToggle(perm)}
+                />
+                <span className="text-sm">{perm}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         <button
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
@@ -98,7 +137,7 @@ const UserManager = () => {
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-left">
             <tr>
-              <th className="px-4 py-2 border">slno</th>
+              <th className="px-4 py-2 border">Sl No</th>
               <th className="px-4 py-2 border">Name</th>
               <th className="px-4 py-2 border">Email</th>
               <th className="px-4 py-2 border">Role</th>
@@ -108,7 +147,7 @@ const UserManager = () => {
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center py-4">No users found</td>
+                <td colSpan="5" className="text-center py-4">No users found</td>
               </tr>
             ) : (
               users.map((user, index) => (
@@ -117,13 +156,14 @@ const UserManager = () => {
                   <td className="px-4 py-2 border">{user.name}</td>
                   <td className="px-4 py-2 border">{user.email}</td>
                   <td className="px-4 py-2 border capitalize">{user.role}</td>
-                  <td className="px-4 py-2 border capitalize"><button
-                        onClick={() => handleDelete(user.id)}
-                        className="text-red-600 hover:text-red-800"
-                        >
-                        Delete
-                        </button></td>
-                  
+                  <td className="px-4 py-2 border">
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))
             )}

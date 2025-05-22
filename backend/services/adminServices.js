@@ -8,12 +8,13 @@ export async function findAdmiByEmail(email) {
     return result.rows[0];
 }
 
-export async function createAdmin(name,email,passwordHash,role) {
-    const result = await pool.query(
-        `insert into admin(name,email,password_hash,role) values ($1,$2,$3,$4) RETURNING *`,
-        [name,email,passwordHash,role]
-    )
-    return result.rows[0];
+export async function createAdmin(name, email, passwordHash, role, permissions) {
+  const result = await pool.query(
+    `INSERT INTO admin(name, email, password_hash, role, permissions)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [name, email, passwordHash, role, permissions]
+  );
+  return result.rows[0];
 }
 
 export async function getAllUsers() {
