@@ -20,3 +20,4 @@ export { default as ReviewTable } from './ReviewTable';
 export { default as CityManager } from './CityManager';
 export { default as KeyFeatureManager } from './KeyFeatureManager';
 export { default as PropertyTable } from '../components/PropertyCard';
+export {default as FaqManager} from './FaqManager';

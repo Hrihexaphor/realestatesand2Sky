@@ -469,7 +469,7 @@ export const getPropertiesByLocality = async (localityName, limit = 10, offset =
 };
 
 // get property by developer name
-export const getPropertiesByDeveloperName = async (developerName, limit = 10, offset = 0) => {
+export const getPropertiesByDeveloperId = async (developerId, limit = 10, offset = 0) => {
   const query = `
     SELECT 
       p.id,
@@ -490,7 +490,6 @@ export const getPropertiesByDeveloperName = async (developerName, limit = 10, of
       d.developer_logo,
       psc.name AS subcategory_name,
 
-      -- Primary image
       (
         SELECT pi.image_url
         FROM property_images pi
@@ -499,13 +498,11 @@ export const getPropertiesByDeveloperName = async (developerName, limit = 10, of
         LIMIT 1
       ) AS primary_image,
 
-      -- Is featured
       EXISTS (
         SELECT 1 FROM featured_properties fp 
         WHERE fp.property_id = p.id
       ) AS is_featured,
 
-      -- Configurations JSON array
       COALESCE(
         json_agg(DISTINCT jsonb_build_object(
           'id', config.id,
@@ -524,7 +521,7 @@ export const getPropertiesByDeveloperName = async (developerName, limit = 10, of
     LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
     LEFT JOIN property_configurations config ON config.property_id = p.id
 
-    WHERE d.name = $3
+    WHERE d.id = $3
 
     GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.built_up_area,
              pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
@@ -534,6 +531,6 @@ export const getPropertiesByDeveloperName = async (developerName, limit = 10, of
     LIMIT $1 OFFSET $2
   `;
 
-  const result = await pool.query(query, [limit, offset, developerName]);
+  const result = await pool.query(query, [limit, offset, developerId]);
   return result.rows;
 };

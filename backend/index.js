@@ -22,6 +22,7 @@ import advertisementRoutes from './routes/advertisementRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import gallaryRoutes from './routes/galleryRoutes.js';
 import keyfeatureRoute from './routes/keyfeatureRoutes.js';
+import generalfaqRouts from './routes/generalfaqRouts.js';
 const app = express();
 
 // ------------------ ✅ FIXED CORS SETUP ------------------
@@ -103,6 +104,7 @@ app.use('/api',advertisementRoutes);
 app.use('/api', reviewRoutes);
 app.use('/api',gallaryRoutes);
 app.use('/api',keyfeatureRoute);
+app.use('/api',generalfaqRouts)
 // Optional test route
 app.get('/api/check-session', (req, res) => {
   console.log(req.session)

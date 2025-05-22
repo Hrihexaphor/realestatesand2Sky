@@ -20,6 +20,7 @@ export const ROUTES = [
   { path: 'property/:id/faqs', label: 'View FAQs', element: 'ViewFAQsPage' },
   { path: 'blogs', label: 'Blogs', element: 'BlogPage' },
   { path: 'blog-category', label: 'Blog Category', element: 'BlogCategoryManager' },
+  { path: 'faqmanager', label: 'FAQ Manager', element: 'FaqManager' },
 ]
 
 export const USER_ROLES = {

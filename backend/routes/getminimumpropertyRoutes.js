@@ -1,7 +1,7 @@
 
 import express from 'express'
 import { getMinimalProperties,getNewProjectsSummary,getResaleProjectsSummary,getReadyToMoveProjectsSummary,getPropertiesInPriceRangeSummaryOnetotwo,getTopProjectsFromTopBuilders,getLatestPropertiesWithImages,
-    getAllLocalitiesWithCount,getPropertiesByLocality,getPropertiesByDeveloperName
+    getAllLocalitiesWithCount,getPropertiesByLocality,getPropertiesByDeveloperId
  } from '../services/minimumPropetyservice.js'
 
 const router = express.Router()
@@ -114,16 +114,17 @@ router.get('/properties/by-locality', async (req, res) => {
   }
 });
 // routes to get the property by developer name
-router.get('/developer-properties/:name', async (req, res) => {
-  const { name } = req.params;
+
+router.get('/developer-properties/:id', async (req, res) => {
+  const { id } = req.params;
   const limit = parseInt(req.query.limit) || 10;
   const offset = parseInt(req.query.offset) || 0;
 
   try {
-    const properties = await getPropertiesByDeveloperName(name, limit, offset);
+    const properties = await getPropertiesByDeveloperId(id, limit, offset);
     res.json(properties);
   } catch (err) {
-    console.error('Error fetching properties by developer name:', err);
+    console.error('Error fetching properties by developer ID:', err);
     res.status(500).json({ error: 'Failed to fetch properties' });
   }
 });

@@ -850,7 +850,7 @@ const renderPropertySocietyDertails = ()=>{
                 />
               </div>
               <div className="form-group">
-                
+
               </div>
             </div>
             <div className="form-row">
@@ -1493,7 +1493,7 @@ const renderPropertySocietyDertails = ()=>{
           </>
         );
   
-      case 'Villa/House':
+      case 'House/Villa':
       
         return (
           <>

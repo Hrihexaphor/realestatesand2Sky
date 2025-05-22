@@ -49,7 +49,9 @@ const NAV_ITEMS = [
         { path: "/dashboard/aboutus", label: "About Us" },
         { path: "/dashboard/privacypolicy", label: "Privacy Policy" },
         { path: "/dashboard/cancelpolicy", label: "Cancellation Policy" },
-        { path: "/dashboard/termandservice", label: "Terms and services" }
+        { path: "/dashboard/termandservice", label: "Terms and services" },
+        { path: "/dashboard/faqmanager", label: "FAQ Manger" }
+
       ]
     },
     { path: "/dashboard/blogs", icon: <FaNewspaper />, label: "Blog", 
