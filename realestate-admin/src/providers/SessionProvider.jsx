@@ -10,18 +10,19 @@ const SessionProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadSession() {
-      const userData = await checkSession();
-      setSession({ user: userData });
-      setLoading(false);
-    }
+   const refreshSession = async () => {
+    setLoading(true);
+    const userData = await checkSession();
+    setSession({ user: userData });
+    setLoading(false);
+  };
 
-    loadSession();
+  useEffect(() => {
+    refreshSession();
   }, []);
 
   return (
-    <SessionContext.Provider value={{ session, loading }}>
+    <SessionContext.Provider value={{ session, loading, refreshSession }}>
       {children}
     </SessionContext.Provider>
   );

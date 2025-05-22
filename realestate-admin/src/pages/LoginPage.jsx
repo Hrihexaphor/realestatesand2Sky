@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { session, loading: sessionLoading } = useSession();
+  const { session, loading: sessionLoading, refreshSession } = useSession();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -34,7 +34,7 @@ const LoginPage = () => {
       });
       console.log('Login successful:', res.data);
       // localStorage.setItem('admin', JSON.stringify(res.data.admin));
-      navigate('/dashboard/property');
+      refreshSession();
     } catch (err) {
       console.error('Login error:', err);
       setError('Invalid email or password');
@@ -43,11 +43,12 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    if (session) {
-      navigate('/dashboard/property');
+    if (session?.user && !sessionLoading) {
+      const navigateTo = session?.user?.role === 'admin' ? '/dashboard/property' : (session?.user?.permissions?.at(0) ?? '/dashboard/property');
+      navigate(navigateTo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session])
+  }, [session, sessionLoading]);
 
   if(sessionLoading) {
     return <LoaderComponent/>
