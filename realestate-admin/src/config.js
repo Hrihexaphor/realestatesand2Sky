@@ -22,7 +22,6 @@ export const ROUTES = [
   { path: 'blog-category', label: 'Blog Category', element: 'BlogCategoryManager' },
   { path: 'faqmanager', label: 'FAQ Manager', element: 'FaqManager' },
   { path: 'usermanager', label: 'User Manager', element: 'UserManager' },
-
 ]
 
 export const USER_ROLES = {

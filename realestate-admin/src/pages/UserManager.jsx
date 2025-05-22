@@ -1,24 +1,15 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { USER_ROLES } from '../config';
+import { BASE_URL, ROUTES, USER_ROLES } from '../config';
 import { useSession } from '../providers/SessionProvider';
 import { toast } from 'react-toastify';
 
-const mockPermissions = [
-  'add_property',
-  'edit_property',
-  'delete_property',
-  'view_leads',
-  'manage_users',
-  'approve_listing'
-];
+const permissions = ROUTES.map(route => ({ label: route.label, value: route.path }));
 
 const UserManager = () => {
   const { session } = useSession();
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: '', permissions: [] });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: null, permissions: [] });
   const [users, setUsers] = useState([]);
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-//   const BASE_URL = 'http://localhost:3001';
 
   useEffect(() => {
     fetchUsers();
@@ -102,27 +93,31 @@ const UserManager = () => {
           value={formData.role}
           onChange={(e) => setFormData({ ...formData, role: e.target.value })}
         >
-          <option value="">Select Role</option>
+          <option value="" disabled selected>Select Role</option>
           {Object.values(USER_ROLES).map((role) => (
             <option key={role} value={role}>{role}</option>
           ))}
         </select>
 
-        <div className="mt-2">
-          <label className="block mb-1 font-medium">Select Permissions</label>
-          <div className="grid grid-cols-2 gap-2">
-            {mockPermissions.map((perm) => (
-              <label key={perm} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={formData.permissions.includes(perm)}
-                  onChange={() => handlePermissionToggle(perm)}
-                />
-                <span className="text-sm">{perm}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        {
+          (formData.role && formData.role !== USER_ROLES.ADMIN) && (
+            <div className="mt-2">
+              <label className="block mb-1 font-medium">Select Permissions</label>
+              <div className="grid grid-cols-2 gap-2">
+                {permissions.map((perm) => (
+                  <label key={perm.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.permissions.includes(perm.value)}
+                      onChange={() => handlePermissionToggle(perm.value)}
+                    />
+                    <span className="text-sm">{perm.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )
+        }
 
         <button
           type="submit"
