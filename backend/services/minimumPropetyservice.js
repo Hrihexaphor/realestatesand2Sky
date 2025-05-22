@@ -400,3 +400,72 @@ export const getPropertiesByLocality = async (localityName, limit = 10, offset =
   }
 };
 
+// get property by developer name
+export const getPropertiesByDeveloperName = async (developerName, limit = 10, offset = 0) => {
+  const query = `
+    SELECT 
+      p.id,
+      p.title,
+      pd.project_name,
+      pd.location,
+      pd.locality,
+      pd.city,
+      p.expected_price,
+      pd.built_up_area,
+      p.price_per_sqft,
+      pd.carpet_area,
+      pd.bedrooms,
+      pd.bathrooms,
+      pd.furnished_status,
+      pd.available_from,
+      d.name AS developer_name,
+      d.developer_logo,
+      psc.name AS subcategory_name,
+
+      -- Primary image
+      (
+        SELECT pi.image_url
+        FROM property_images pi
+        WHERE pi.property_id = p.id
+        ORDER BY pi.id ASC
+        LIMIT 1
+      ) AS primary_image,
+
+      -- Is featured
+      EXISTS (
+        SELECT 1 FROM featured_properties fp 
+        WHERE fp.property_id = p.id
+      ) AS is_featured,
+
+      -- Configurations JSON array
+      COALESCE(
+        json_agg(DISTINCT jsonb_build_object(
+          'id', config.id,
+          'bhk_type', config.bhk_type,
+          'bedrooms', config.bedrooms,
+          'bathrooms', config.bathrooms,
+          'super_built_up_area', config.super_built_up_area,
+          'carpet_area', config.carpet_area,
+          'balconies', config.balconies
+        )) FILTER (WHERE config.id IS NOT NULL), '[]'
+      ) AS configurations
+
+    FROM property p
+    LEFT JOIN property_details pd ON p.id = pd.property_id
+    LEFT JOIN developer d ON p.developer_id = d.id
+    LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+    LEFT JOIN property_configurations config ON config.property_id = p.id
+
+    WHERE d.name = $3
+
+    GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.built_up_area,
+             pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
+             d.name, d.developer_logo, psc.name
+
+    ORDER BY p.id DESC
+    LIMIT $1 OFFSET $2
+  `;
+
+  const result = await pool.query(query, [limit, offset, developerName]);
+  return result.rows;
+};

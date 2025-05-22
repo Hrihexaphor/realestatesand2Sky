@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_URL = 'http://localhost:3001/api/keyfeature';
-
+// const API_URL = 'http://localhost:3001';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const KeyFeatureManager = () => {
   const [features, setFeatures] = useState([]);
   const [name, setName] = useState('');
@@ -15,7 +15,7 @@ const KeyFeatureManager = () => {
 
   const fetchFeatures = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await axios.get(`${BASE_URL}/api/keyfeature`);
       setFeatures(res.data);
     } catch (err) {
       toast.error('Failed to load features');
@@ -31,10 +31,10 @@ const KeyFeatureManager = () => {
 
     try {
       if (editingId) {
-        await axios.put(`${API_URL}/${editingId}`, { name });
+        await axios.put(`${BASE_URL}/api/keyfeature/${editingId}`, { name });
         toast.success('Feature updated');
       } else {
-        await axios.post(API_URL, { name });
+        await axios.post(`${BASE_URL}/api/keyfeature`, { name });
         toast.success('Feature added');
       }
       setName('');
@@ -53,7 +53,7 @@ const KeyFeatureManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this feature?')) return;
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${API_URL}/api/keyfeature/${id}`);
       toast.success('Feature deleted');
       fetchFeatures();
     } catch (err) {
