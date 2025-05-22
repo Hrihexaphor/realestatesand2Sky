@@ -22,25 +22,11 @@ import { useState } from 'react';
 import SingleNavItem from '../components/SingleNavItem';
 import DropdownNavItem from '../components/DropdownNavItem';
 import { logout } from '../helpers/auth';
+import { useSession } from '../providers/SessionProvider';
+import { USER_ROLES } from '../config';
 
 
-const DashboardLayout = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [openDropdown, setOpenDropdown] = useState(null);
-
-  const toggleDropdown = (label) => {
-    setOpenDropdown(openDropdown === label ? null : label);
-  };
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    window.location.reload();
-  }
-  const navItems = [
+const NAV_ITEMS = [
     { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
     { path: "/dashboard/amenities", icon: <FaBath />, label: "Amenities" },
     { path: "/dashboard/keyfeature", icon: <FaKeycdn />, label: "Key Feature" },
@@ -74,6 +60,36 @@ const DashboardLayout = () => {
     },
   ];
 
+const DashboardLayout = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  const { session } = useSession();
+
+  const toggleDropdown = (label) => {
+    setOpenDropdown(openDropdown === label ? null : label);
+  };
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.reload();
+  }
+  const allowedNavItems = NAV_ITEMS.filter((item) => {
+    if(session?.user?.role === USER_ROLES.ADMIN) return true;
+
+    if (item.children) {
+      item.children = item.children.filter((child) => {
+        return session?.user?.permissions?.some((permission) => child.path.startsWith(permission));
+      });
+      return item.children.length > 0;
+    }
+    
+    return session?.user?.permissions?.some((permission) => item.path.startsWith(permission));
+  }); 
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
@@ -95,7 +111,7 @@ const DashboardLayout = () => {
 
         <div className="py-4 overflow-y-auto h-[calc(100%-4rem)]">
           <nav className="px-3 space-y-1">
-            {navItems.map((item) =>
+            {allowedNavItems.map((item) =>
               item.children ? (<DropdownNavItem key={item.label} item={item} isCollapsed={isCollapsed} openDropdown={openDropdown} onClick={toggleDropdown} />) : (<SingleNavItem key={item.label} item={item} isCollapsed={isCollapsed} />)
             )}
           </nav>

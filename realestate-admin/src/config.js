@@ -21,3 +21,9 @@ export const ROUTES = [
   { path: 'blogs', label: 'Blogs', element: 'BlogPage' },
   { path: 'blog-category', label: 'Blog Category', element: 'BlogCategoryManager' },
 ]
+
+export const USER_ROLES = {
+    ADMIN: 'admin',
+    MANAGER: 'manager',
+    SELLER: 'seller',
+}
