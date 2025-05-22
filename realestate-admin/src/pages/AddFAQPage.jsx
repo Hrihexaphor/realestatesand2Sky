@@ -30,7 +30,7 @@ const AddFAQPage = () => {
         property_id: id,
         question: formData.question,
         answer: formData.answer
-      });
+      }, { withCredentials: true });
       toast.success('FAQ added successfully!');
       resetForm(); // Clear the form fields after successful submission
       // Stay on the same page

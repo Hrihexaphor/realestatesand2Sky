@@ -3,7 +3,7 @@ import { BASE_URL } from "../config";
 
 export async function checkSession() {
   try {
-    const res = await axios.get(`${BASE_URL}/api/check-session`, {
+    const res = await axios.get(`${BASE_URL}/api/auth/me`, {
       withCredentials: true,
     });
 
@@ -20,7 +20,7 @@ export async function checkSession() {
 
 export async function logout() {
    try {
-    await axios.post(`${BASE_URL}/api/admin/logout`, null, {
+    await axios.post(`${BASE_URL}/api/auth/logout`, null, {
       withCredentials: true,
     });
   } catch (err) {

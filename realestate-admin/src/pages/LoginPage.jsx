@@ -29,7 +29,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/admin/login`, form, {
+      const res = await axios.post(`${BASE_URL}/api/auth/login`, form, {
         withCredentials: true,
       });
       console.log('Login successful:', res.data);

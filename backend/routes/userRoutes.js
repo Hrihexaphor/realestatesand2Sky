@@ -2,9 +2,9 @@ import express from 'express';
 import { createUser, getAllUsers, deleteUserById, updateUserById } from '../services/adminServices.js';
 import { ROLES_ARRAY } from '../constants/roles.js';
 
-const router = express.Router();
+const userRouter = express.Router();
 
-router.get('/users', async (req, res) => {
+userRouter.get('/', async (req, res) => {
     try {
         const users = await getAllUsers();
         res.json(users);
@@ -14,7 +14,7 @@ router.get('/users', async (req, res) => {
     }
 });
 
-router.post('/users', async (req, res) => {
+userRouter.post('/', async (req, res) => {
     const { name, email, password, role, permissions } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ error: "All fields are required" });
@@ -41,7 +41,7 @@ router.post('/users', async (req, res) => {
     }
 });
 
-router.put('/users/:id', async (req, res) => {
+userRouter.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, email, password, role, permissions } = req.body;
     if (!name || !email || !role) {
@@ -77,7 +77,7 @@ router.put('/users/:id', async (req, res) => {
     }
 });
 
-router.delete('/users/:id', async (req, res) => {
+userRouter.delete('/:id', async (req, res) => {
   try {
     const deleted = await deleteUserById(req.params.id);
     if (deleted) {
@@ -91,4 +91,4 @@ router.delete('/users/:id', async (req, res) => {
   }
 });
 
-export default router;
+export default userRouter;

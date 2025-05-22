@@ -3,26 +3,8 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
+import apiRouter from './routes/index.js';
 
-import aminitiesRoutes from './routes/aminitiesRoutes.js';
-import authRoutes from './routes/authRoutes.js';
-import developerRoutes from './routes/developerRoutes.js';
-import nearesttoRoutes from './routes/nearesttoRoutes.js';
-import propertyRoutes from './routes/propertyRoutes.js';
-import blogRoutes from './routes/blogRoutes.js';
-import categoryRoutes from './routes/categoryRoutes.js';
-import subcategoryRoutes from './routes/subcategoryRoutes.js';
-import citiesRoutes from './routes/citiesRoutes.js';
-import featuredPropertyRoutes from './routes/featuredPropertyRoutes.js';
-import faqRoutes from './routes/faqRoutes.js';
-import minimumdetails from './routes/getminimumpropertyRoutes.js';
-import pagesRoutes from './routes/pagesRoutes.js';
-import leadsRoutes from './routes/leadeGenaraterRoutes.js';
-import advertisementRoutes from './routes/advertisementRoutes.js';
-import reviewRoutes from './routes/reviewRoutes.js';
-import gallaryRoutes from './routes/galleryRoutes.js';
-import keyfeatureRoute from './routes/keyfeatureRoutes.js';
-import generalfaqRouts from './routes/generalfaqRouts.js';
 const app = express();
 
 // ------------------ ✅ FIXED CORS SETUP ------------------
@@ -86,35 +68,7 @@ app.use((req, res, next) => {
 });
 
 // ------------------ ✅ ROUTES ------------------
-app.use('/api', aminitiesRoutes);
-app.use('/api/admin', authRoutes);
-app.use('/api', developerRoutes);
-app.use('/api', nearesttoRoutes);
-app.use('/api', propertyRoutes);
-app.use('/api', categoryRoutes);
-app.use('/api', subcategoryRoutes);
-app.use('/api', blogRoutes);
-app.use('/api',leadsRoutes)
-app.use('/api', featuredPropertyRoutes);
-app.use('/api', citiesRoutes);
-app.use('/api', faqRoutes);
-app.use('/api',pagesRoutes)
-app.use('/api', minimumdetails);
-app.use('/api',advertisementRoutes);
-app.use('/api', reviewRoutes);
-app.use('/api',gallaryRoutes);
-app.use('/api',keyfeatureRoute);
-app.use('/api',generalfaqRouts)
-// Optional test route
-app.get('/api/check-session', (req, res) => {
-  console.log(req.session)
-  if(!req.session && !req.session.user) {
-    res.status(401).send();
-    return;
-  }
-
-  res.json(req.session?.user || null);
-});
+app.use('/api', apiRouter);
 
 app.use('/test', (req, res) => {
   res.json({ message: 'hello hritesh', environment: process.env.NODE_ENV });

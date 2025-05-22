@@ -74,21 +74,19 @@ router.post('/logout', (req, res) => {
   });
 });
 
-router.get('/auth/me', (req, res) => {
-  console.log('Auth/me request received, session data:', {
+router.get('/me', (req, res) => {
+  console.log('Session check:', {
     hasSession: !!req.session,
     sessionID: req.sessionID,
-    user: req.session?.user || null
+    user: req.session?.user,
   });
-
-  // This checks for req.session.user as you're storing in your login route
-  if (!req.session || !req.session.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  
+  if (!req.session && !req.session.user) {
+    res.status(401).send();
+    return;
   }
 
-  // Return the user data from the session
-  const userData = req.session.user;
-  return res.json(userData);
+  res.json(req.session?.user || null);
 });
 
 export default router;

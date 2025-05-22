@@ -1,0 +1,50 @@
+import express from 'express';
+import aminitiesRoutes from './aminitiesRoutes.js';
+import developerRoutes from './developerRoutes.js';
+import nearesttoRoutes from './nearesttoRoutes.js';
+import propertyRoutes from './propertyRoutes.js';
+import blogRoutes from './blogRoutes.js';
+import categoryRoutes from './categoryRoutes.js';
+import subcategoryRoutes from './subcategoryRoutes.js';
+import citiesRoutes from './citiesRoutes.js';
+import featuredPropertyRoutes from './featuredPropertyRoutes.js';
+import faqRoutes from './faqRoutes.js';
+import minimumdetails from './getminimumpropertyRoutes.js';
+import pagesRoutes from './pagesRoutes.js';
+import leadsRoutes from './leadeGenaraterRoutes.js';
+import advertisementRoutes from './advertisementRoutes.js';
+import reviewRoutes from './reviewRoutes.js';
+import gallaryRoutes from './galleryRoutes.js';
+import keyfeatureRoute from './keyfeatureRoutes.js';
+import generalfaqRouts from './generalfaqRouts.js';
+import userRoutes from './userRoutes.js';
+import authRoutes from './authRoutes.js';
+import { isAuthenticated } from '../middleware/auth.js';
+import { ROLES } from '../constants/roles.js';
+
+
+const apiRouter = express.Router();
+
+apiRouter.use('/auth', authRoutes); 
+
+apiRouter.use('/users', isAuthenticated(ROLES.ADMIN), userRoutes);
+apiRouter.use('/', aminitiesRoutes);
+apiRouter.use('/', developerRoutes);
+apiRouter.use('/', nearesttoRoutes);
+apiRouter.use('/', propertyRoutes);
+apiRouter.use('/', categoryRoutes);
+apiRouter.use('/', subcategoryRoutes);
+apiRouter.use('/', blogRoutes);
+apiRouter.use('/', leadsRoutes)
+apiRouter.use('/', featuredPropertyRoutes);
+apiRouter.use('/', citiesRoutes);
+apiRouter.use('/', faqRoutes);
+apiRouter.use('/', pagesRoutes)
+apiRouter.use('/', minimumdetails);
+apiRouter.use('/', advertisementRoutes);
+apiRouter.use('/', reviewRoutes);
+apiRouter.use('/', gallaryRoutes);
+apiRouter.use('/', keyfeatureRoute);
+apiRouter.use('/', generalfaqRouts)
+
+export default apiRouter;

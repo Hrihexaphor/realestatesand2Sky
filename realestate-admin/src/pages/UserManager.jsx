@@ -21,7 +21,7 @@ const UserManager = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/users`);
+      const res = await axios.get(`${BASE_URL}/api/users`, { withCredentials: true });
       setUsers(res.data);
     } catch (err) {
       console.error(err);
@@ -42,11 +42,11 @@ const UserManager = () => {
     try {
       if (editingUserId) {
         // Update user
-        await axios.put(`${BASE_URL}/api/users/${editingUserId}`, formData);
+        await axios.put(`${BASE_URL}/api/users/${editingUserId}`, formData, { withCredentials: true });
         toast.success('User updated successfully');
       } else {
         // Create user
-        await axios.post(`${BASE_URL}/api/admin/signup`, formData);
+        await axios.post(`${BASE_URL}/api/admin/signup`, formData, { withCredentials: true });
         toast.success('User added successfully');
       }
       resetForm();

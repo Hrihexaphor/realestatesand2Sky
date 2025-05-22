@@ -73,7 +73,7 @@ const AboutUsPage = () => {
     data.append('aboutImage', formData.aboutImage);
 
     try {
-      await axios.post(`${BASE_URL}/api/addAbout`, data);
+      await axios.post(`${BASE_URL}/api/addAbout`, data, { withCredentials: true });
       toast.success('About Us content added!');
       setFormData({ title: '', description: '', aboutImage: null });
       setImagePreview(null);
@@ -87,7 +87,7 @@ const AboutUsPage = () => {
     if (!window.confirm('Are you sure you want to delete this entry?')) return;
 
     try {
-      await axios.delete(`${BASE_URL}/api/aboutus/${id}`);
+      await axios.delete(`${BASE_URL}/api/aboutus/${id}`, { withCredentials: true });
       toast.success('Deleted successfully');
       fetchAboutUs();
     } catch (error) {

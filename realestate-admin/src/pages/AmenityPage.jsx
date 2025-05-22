@@ -255,7 +255,7 @@ const AmenityPage = () => {
   const fetchAmenities = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/api/amenities`);
+      const res = await axios.get(`${BASE_URL}/api/amenities`, { withCredentials: true });
       setAmenities(res.data);
     } catch (err) {
       // If API fails, use predefined amenities for demo purposes
