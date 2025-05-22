@@ -1,12 +1,13 @@
 import pool from '../config/db.js';
 import nodemailer from 'nodemailer';
-
+import dotenv from 'dotenv';
+dotenv.config();
 /**
  * Insert a new lead into the database and send confirmation email
  */
 export const insertLead = async (data) => {
     const {
-      name, email, phone_number, city, budget,
+      name, email, phone_number, city, budget,inquiry_for,
       property_category, construction_status, profession_type,
       interested_in_loan, know_credit_score,
       ready_to_pay_brokerage, onsite_explanation
@@ -14,17 +15,17 @@ export const insertLead = async (data) => {
   
     const query = `
       INSERT INTO postinquiry_leads (
-        name, email, phone_number, city, budget,
+        name, email, phone_number, city, budget,inquiry_for,
         property_category, construction_status, profession_type,
         interested_in_loan, know_credit_score,
         ready_to_pay_brokerage, onsite_explanation
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING *;
     `;
   
     const values = [
-      name, email, phone_number, city, budget,
+      name, email, phone_number, city, budget,inquiry_for,
       property_category, construction_status, profession_type,
       interested_in_loan, know_credit_score,
       ready_to_pay_brokerage, onsite_explanation
@@ -34,6 +35,7 @@ export const insertLead = async (data) => {
       const result = await pool.query(query, values);
       // Pass the complete data object to sendConfirmationEmail for better personalization
       await sendConfirmationEmail(email, name, data);
+      //  await sendAdminNotificationEmail(Lead);
       return result.rows[0];
     } catch (error) {
       console.error('Error inserting lead:', error);
@@ -226,3 +228,56 @@ export const sendConfirmationEmail = async (email, name, data) => {
       throw error;
     }
   };
+
+  // also get the mail admin
+//   export const sendAdminNotificationEmail = async (lead) => {
+//   const {
+//     name, email, phone_number, city, budget, inquiry_for, property_category
+//   } = lead;
+
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: process.env.EMAIL_USER,
+//       pass: process.env.EMAIL_PASS
+//     },
+//   });
+
+//   const mailOptions = {
+//     from: {
+//       name: 'Lead Alert System',
+//       address: process.env.EMAIL_USER
+//     },
+//     to: process.env.ADMIN_EMAIL,
+//     subject: `🚀 New Property Inquiry from ${name}`,
+//     html: `
+//       <h2>New Lead Received</h2>
+//       <p><strong>Name:</strong> ${name}</p>
+//       <p><strong>Email:</strong> ${email}</p>
+//       <p><strong>Phone:</strong> ${phone_number}</p>
+//       <p><strong>City:</strong> ${city}</p>
+//       <p><strong>Inquiry For:</strong> ${inquiry_for}</p>
+//       <p><strong>Budget:</strong> ${budget}</p>
+//       <p><strong>Property Type:</strong> ${property_category}</p>
+//       <hr>
+//       <p><em>This is an automated message. Please follow up via CRM or phone.</em></p>
+//     `,
+//     text: `New Lead:
+//       Name: ${name}
+//       Email: ${email}
+//       Phone: ${phone_number}
+//       City: ${city}
+//       Inquiry For: ${inquiry_for}
+//       Budget: ${budget}
+//       Property Type: ${property_category}
+//     `
+//   };
+
+//   try {
+//     await transporter.sendMail(mailOptions);
+//     console.log(`Admin notified of new lead from ${name}`);
+//   } catch (error) {
+//     console.error('Error sending admin notification email:', error);
+//     // Optionally don’t throw here so user experience is not affected
+//   }
+// };

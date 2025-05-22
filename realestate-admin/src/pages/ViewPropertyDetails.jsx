@@ -6,24 +6,26 @@ import { FaArrowLeft, FaRuler, FaHome, FaBed, FaBath, FaMapMarkerAlt, FaBuilding
 import { CloudCog } from 'lucide-react';
 
 export default function ViewPropertyDetails() {
-  const [property, setProperty] = useState(null);
+ const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+  const [changingMainImage, setChangingMainImage] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
-  useEffect(() => {
+    useEffect(() => {
     const fetchPropertyDetails = async () => {
       try {
         setLoading(true);
         const res = await axios.get(`${BASE_URL}/api/property/${id}`);
         console.log(res.data);
         setProperty(res.data);
-        // Set active image to primary image if exists
+        // Set active image to main image first, fallback to primary, then to first image
         if (res.data.images && res.data.images.length > 0) {
+          const mainIndex = res.data.images.findIndex(img => img.is_main);
           const primaryIndex = res.data.images.findIndex(img => img.is_primary);
-          setActiveImage(primaryIndex >= 0 ? primaryIndex : 0);
+          setActiveImage(mainIndex >= 0 ? mainIndex : (primaryIndex >= 0 ? primaryIndex : 0));
         }
       } catch (err) {
         console.error(err);
@@ -35,6 +37,26 @@ export default function ViewPropertyDetails() {
 
     fetchPropertyDetails();
   }, [id]);
+    // Function to set an image as the main image
+  const setImageAsMain = async (imageId) => {
+    try {
+      setChangingMainImage(true);
+      const res = await axios.put(`${BASE_URL}/api/property/${id}/image/${imageId}/main`);
+      
+      // Update property state with the new image data
+      setProperty(prev => ({
+        ...prev,
+        images: res.data.images
+      }));
+      
+      toast.success('Main image updated successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update main image');
+    } finally {
+      setChangingMainImage(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -75,7 +97,7 @@ export default function ViewPropertyDetails() {
         
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Hero Section with Main Image */}
-          {property.images && property.images.length > 0 && (
+           {property.images && property.images.length > 0 && (
             <div className="relative h-96 overflow-hidden bg-gray-100">
               <img 
                 src={property.images[activeImage].image_url} 
@@ -91,7 +113,6 @@ export default function ViewPropertyDetails() {
               </div>
             </div>
           )}
-
           {/* Content Area */}
           <div className="p-6 md:p-8">
             {/* Price and Key Details Bar */}
@@ -178,10 +199,31 @@ export default function ViewPropertyDetails() {
                         alt={`Property view ${index + 1}`}
                         className="h-16 w-full object-cover"
                       />
-                      {img.is_primary && (
+                      {/* Show badge if image is main */}
+                      {img.is_main && (
+                        <span className="absolute bottom-0 right-0 bg-green-500 text-white px-1 text-xs">
+                          Main
+                        </span>
+                      )}
+                      {/* Show badge if image is primary but not main */}
+                      {img.is_primary && !img.is_main && (
                         <span className="absolute bottom-0 right-0 bg-blue-500 text-white px-1 text-xs">
                           Primary
                         </span>
+                      )}
+                      
+                      {/* Add "Set as Main" button for admin */}
+                      {property.isOwner && !img.is_main && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the parent onClick
+                            setImageAsMain(img.id);
+                          }}
+                          disabled={changingMainImage}
+                          className="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white text-xs px-1 py-0.5 rounded opacity-0 transition-opacity group-hover:opacity-100"
+                        >
+                          {changingMainImage ? '...' : 'Set Main'}
+                        </button>
                       )}
                     </div>
                   ))}

@@ -54,4 +54,16 @@ const aboutStorage = new CloudinaryStorage({
   },
 });
 
-export default { cloudinary, blogStorage,aboutStorage,advertisementStorage };
+ const developerLogoStorage = new CloudinaryStorage({
+  cloudinary,
+  params: (req, file) => {
+    const filename = file.originalname.split('.')[0]; // get name without extension
+    return {
+      folder: 'realestate/developer',
+      allowed_formats: ['jpg', 'jpeg', 'png'],
+      public_id: `${filename}-${uuidv4()}`, // e.g., "banner-1-2f3e4g"
+      transformation: [{ width: 100, height: 100, crop: 'limit' }]
+    };
+  },
+});
+export default { cloudinary, blogStorage,aboutStorage,advertisementStorage,developerLogoStorage };

@@ -14,7 +14,8 @@ import {
   FaArrowLeft,
   FaRegFileAlt,
   FaHive,
-  FaCity
+  FaCity,
+  FaKeycdn
 
 } from 'react-icons/fa';
 import { useState } from 'react';
@@ -42,6 +43,7 @@ const DashboardLayout = () => {
   const navItems = [
     { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
     { path: "/dashboard/amenities", icon: <FaBath />, label: "Amenities" },
+    { path: "/dashboard/keyfeature", icon: <FaKeycdn />, label: "Key Feature" },
     { path: "/dashboard/developer", icon: <FaHardHat />, label: "Developer" },
     { path: "/dashboard/nearest", icon: <FaMapMarkerAlt />, label: "Nearest To" },
     { path: "/dashboard/category", icon: <FaBuilding />, label: "Property Category" },

@@ -1,7 +1,7 @@
 import express from 'express';
 import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
-import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments,insertPropertyConfigurations } from '../services/propertyService.js';
+import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments,insertPropertyConfigurations,insertKeyfeature } from '../services/propertyService.js';
 import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties } from '../services/propertyService.js';
 import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
 const router = express.Router();
@@ -9,9 +9,10 @@ const propertyCache = new NodeCache({ stdTTL: 300 });
 
 router.post('/property', upload.fields([
   { name: 'images', maxCount: 8 },
-  { name: 'documents', maxCount: 10 }
+  { name: 'documents', maxCount: 10 },
+  { name: 'configFiles', maxCount: 10 }  // Add this line
 ]), async (req, res) => {
-  try {
+  try { 
     if (!req.body.data) {
       return res.status(400).json({ error: 'Missing property data' });
     }
@@ -24,7 +25,7 @@ router.post('/property', upload.fields([
       return res.status(400).json({ error: 'Invalid JSON format' });
     }
 
-    const { basic, details, location, nearest_to, amenities, configurations } = parsedData;
+    let { basic, details, location, nearest_to, amenities, configurations, keyfeature } = parsedData;
     
     // Validate required fields
     if (!basic || !basic.title) {
@@ -75,9 +76,49 @@ router.post('/property', upload.fields([
     if (amenities && amenities.length > 0) {
       await insertAmenities(property.id, amenities);
     }
-     if (configurations && configurations.length > 0) {
-      await insertPropertyConfigurations(property.id, configurations);
+    
+    if (keyfeature && keyfeature.length > 0) {
+      await insertKeyfeature(property.id, keyfeature);
     }
+    
+    // Handle configuration files
+    if (configurations && configurations.length > 0) {
+      // Parse configuration file metadata if available
+      let configFileMeta;
+      try {
+        configFileMeta = req.body.configFileMeta ? JSON.parse(req.body.configFileMeta) : [];
+      } catch (err) {
+        console.warn('Invalid configFileMeta format, treating as empty array:', err);
+        configFileMeta = [];
+      }
+
+      // Process uploaded configuration files
+      const configFiles = req.files?.configFiles || [];
+      
+      // Map each configuration with its corresponding file (if any)
+      const processedConfigurations = configurations.map(config => {
+        // Find metadata for this configuration by bhk_type
+        const meta = configFileMeta.find(m => m.bhk_type === config.bhk_type);
+        
+        if (meta && meta.file_name) {
+          // Find the uploaded file matching this metadata
+          const uploadedFile = configFiles.find(f => f.originalname === meta.file_name);
+          
+          if (uploadedFile) {
+            // Add the file URL to the configuration
+            return { 
+              ...config, 
+              file_url: uploadedFile.path // This should be the Cloudinary URL
+            };
+          }
+        }
+        return config;
+      });
+
+      // Save configurations to database
+      await insertPropertyConfigurations(property.id, processedConfigurations);
+    }
+    
     // Process images
     if (req.files?.images?.length > 0) {
       const imageLinks = req.files.images.map((file, index) => ({
@@ -86,7 +127,7 @@ router.post('/property', upload.fields([
       }));
       await insertImages(property.id, imageLinks);
     }
-    
+    // process document
     if (req.files?.documents?.length > 0) {
       let documents_metadata = [];
     

@@ -66,7 +66,7 @@ export async function insertPropertyDetails(property_id, details) {
      'about_location', 'plot_breadth', 'project_name','floor',
      'no_of_flat','overlooking','booking_amount','no_of_tower',
      'maintenance_charge','transaction_types','available_from','youtube_link',
-     'no_of_house','super_built_up_area','corner_plot'
+     'no_of_house','super_built_up_area','corner_plot','other_rooms'
    ];
    
    // Filter out undefined fields
@@ -92,26 +92,24 @@ export async function insertPropertyConfigurations(property_id, configurations) 
     if (!configurations || configurations.length === 0) {
       return;
     }
-    
+
     for (let config of configurations) {
-      // Insert each configuration
       await pool.query(`
         INSERT INTO property_configurations (
           property_id, bhk_type, bedrooms, bathrooms, 
-          super_built_up_area, carpet_area, 
-          balconies 
+          super_built_up_area, carpet_area, balconies, file_url
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          property_id, 
-          config.bhk_type,
-          config.bedrooms,
-          config.bathrooms,
-          config.super_built_up_area,
-          config.carpet_area,
-          config.balconies
-        ]
-      );
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, [
+        property_id,
+        config.bhk_type,
+        config.bedrooms,
+        config.bathrooms,
+        config.super_built_up_area,
+        config.carpet_area,
+        config.balconies,
+        config.file_url || null  // Optional: pass null if not provided
+      ]);
     }
   } catch (error) {
     console.error("Error inserting property configurations:", error);
@@ -244,7 +242,25 @@ export async function insertAmenities(property_id, amenities) {
    throw new Error(`Failed to insert amenities: ${error.message}`);
  }
 }
-
+// keyfeature services
+export async function insertKeyfeature(property_id, keyfeature) {
+ try {
+   if (!keyfeature || keyfeature.length === 0) {
+     return;
+   }
+   
+   for (let key_feature_id of keyfeature) {
+     await pool.query(`
+       INSERT INTO property_key_feature(property_id, key_feature_id)
+       VALUES ($1, $2)`,
+       [property_id, key_feature_id]
+     );
+   }
+ } catch (error) {
+   console.error("Error inserting keyfeature:", error);
+   throw new Error(`Failed to insert keyfeature: ${error.message}`);
+ }
+}
 /**
 * Get all properties from the database
 * @returns {Array} - List of properties
@@ -312,7 +328,7 @@ ORDER BY p.id DESC
 */
 export async function updatePropertyById(id, data) {
  try {
-   const { basic, details, location, nearest_to, amenities } = data;
+   const { basic, details, location, nearest_to, amenities,keyfeature } = data;
    
    // Update basic property info
    if (basic) {
@@ -358,7 +374,13 @@ export async function updatePropertyById(id, data) {
      // Insert new amenities
      await insertAmenities(id, amenities);
    }
-   
+      if (keyfeature) {
+     // Delete existing keyfeature
+     await pool.query(`DELETE FROM property_key_feature WHERE property_id = $1`, [id]);
+     
+     // Insert new amenities
+     await insertKeyfeature(id, keyfeature);
+   }
    // Update nearest places
    if (nearest_to) {
      // Delete existing nearest places
@@ -393,6 +415,7 @@ export async function deletePropertyById(id) {
    
    // Delete related records in this specific order to avoid foreign key constraint errors
    await pool.query(`DELETE FROM property_amenity WHERE property_id = $1`, [id]);
+   await pool.query(`DELETE FROM property_key_feature WHERE property_id = $1`, [id]);
    await pool.query(`DELETE FROM property_nearest_to WHERE property_id = $1`, [id]);
    await pool.query(`DELETE FROM property_images WHERE property_id = $1`, [id]);
    await pool.query(`DELETE FROM property_location WHERE property_id = $1`, [id]);
@@ -565,7 +588,7 @@ export const searchProperty = async (filters) => {
       
       // property configurtion
       const { rows: bhkRows } = await pool.query(
-        `SELECT id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies
+        `SELECT id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies,file_url
         FROM property_configurations
         WHERE property_id = $1`,
         [propertyId]
@@ -596,8 +619,15 @@ export const searchProperty = async (filters) => {
          WHERE pa.property_id = $1`,
         [propertyId]
       );
-  
-      // 7. Nearest To
+      // 7.key feature
+       const { rows: keyfeatureRows } = await pool.query(
+        `SELECT kf.id, kf.name
+         FROM property_key_feature pk
+         JOIN key_feature kf ON pk.key_feature_id = kf.id
+         WHERE pk.property_id = $1`,
+        [propertyId]
+      );
+      // 8. Nearest To
       const { rows: nearestRows } = await pool.query(
         `SELECT nt.id, nt.name, pnt.distance_km
          FROM property_nearest_to pnt
@@ -606,7 +636,7 @@ export const searchProperty = async (filters) => {
         [propertyId]
       );
   
-      // 8. FAQs
+      // 9. FAQs
       const { rows: faqRows } = await pool.query(
         `SELECT id, question, answer FROM faqs WHERE property_id = $1 ORDER BY created_at ASC`,
         [propertyId]
@@ -619,6 +649,7 @@ export const searchProperty = async (filters) => {
         images: imageRows,
         documents: documentRows,
         amenities: amenitiesRows,
+        keyfeature: keyfeatureRows,
         nearest_to: nearestRows,
         faqs: faqRows,
         bhk_configurations: bhkRows

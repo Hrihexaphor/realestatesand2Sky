@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Map, Building, Home, MapPin } from 'lucide-react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
+import { convertToIndianWords } from '../utils.js';
 import './propertyForm.css';
 
 const PropertyForm = ({editData,onClose}) => {
@@ -24,13 +24,16 @@ const PropertyForm = ({editData,onClose}) => {
     facing:[]
   });
   const [configurations, setConfigurations] = useState([]);
+   const [configFileMeta, setConfigFileMeta] = useState([]);
   const [location, setLocation] = useState({ latitude: '', longitude: '', address: '' });
   const [amenities, setAmenities] = useState([]);
+  const [keyfeature, setKeyfeature] = useState([]);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
-  
+  const [selectedKeyfeature, setSelectedKeyfeature] = useState([]);
   const overlookingOptions = [
     'Pool', 'Park', 'Road', 'Garden', 'Sea', 'River', 'Club', 'Temple'
   ];
+  const otherroomsOptions = ['Pooja Room','Study Room','Guest Room','Servent Room','Store Room'];
   const facingOptions = ['East','West','North','South','North-East','North-West','South-East','South-West'];
   const [developers, setDevelopers] = useState([]);
   const [nearestOptions, setNearestOptions] = useState([]);
@@ -83,7 +86,7 @@ const PropertyForm = ({editData,onClose}) => {
      'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
      'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
             'carpet_area', 'furnished_status', 'covered_parking','project_name','no_of_tower',
-          'super_built_up_area','youtube_link','about_location','available_from'].forEach(field => {
+          'super_built_up_area','youtube_link','about_location','available_from','other_rooms'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Villa/House') {
@@ -91,7 +94,7 @@ const PropertyForm = ({editData,onClose}) => {
      'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
      'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
             'carpet_area', 'furnished_status', 'covered_parking','project_name','no_of_tower',
-          'super_built_up_area','youtube_link','about_location','available_from','no_of_house','plot_area','plot_breadth','plot_length','corner_plot'].forEach(field => {
+          'super_built_up_area','youtube_link','about_location','available_from','no_of_house','plot_area','plot_breadth','plot_length','corner_plot','other_rooms'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
           } else if (categoryName === 'Project Apartment' || categoryName === 'Project Flat') {
@@ -173,17 +176,19 @@ const PropertyForm = ({editData,onClose}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [amenityRes, developerRes, nearestRes, categoryRes] = await Promise.all([
+        const [amenityRes, developerRes, nearestRes, categoryRes,keyfeatureRes] = await Promise.all([
           axios.get(`${BASE_URL}/api/amenities`),
           axios.get(`${BASE_URL}/api/developer`),
           axios.get(`${BASE_URL}/api/nearest`),
-          axios.get(`${BASE_URL}/api/category`)
+          axios.get(`${BASE_URL}/api/category`),
+          axios.get('http://localhost:3001/api/keyfeature')
         ]);
         
         setAmenities(amenityRes.data);
         setDevelopers(developerRes.data);
         setNearestOptions(nearestRes.data);
         setCategories(categoryRes.data);
+        setKeyfeature(keyfeatureRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -359,8 +364,17 @@ const PropertyForm = ({editData,onClose}) => {
       setDetails({});
     }
   };
-   const handleAddConfigurations = (configList) => {
+    const handleAddConfigurations = (configList) => {
+    // Extract file metadata for API call
+    const fileMeta = configList
+      .filter(config => config.file && config.file_name)
+      .map(config => ({
+        bhk_type: config.bhk_type,
+        file_name: config.file_name
+      }));
+    
     setConfigurations(configList);
+    setConfigFileMeta(fileMeta);
   };
   const handleDetailsChange = (e) => {
     const { name, value } = e.target;
@@ -382,6 +396,16 @@ const PropertyForm = ({editData,onClose}) => {
       overlooking: newOverlooking
     }));
   };
+  const handleOtherroomsChange = (option,isChecked) =>{
+    const currentOtherrooms = details.other_rooms || [];
+    let newOtherrooms;
+    if (isChecked) {
+      newOtherrooms = [...currentOtherrooms, option];
+      } else {
+        newOtherrooms = currentOtherrooms.filter(item => item !== option);
+        }
+        setDetails(prev => ({...prev,other_rooms:newOtherrooms}))
+  }
   const handleFacingChange = (option, isChecked) =>{
     const currentFacing = details.facing || [];
     let newFacing;
@@ -416,7 +440,11 @@ const PropertyForm = ({editData,onClose}) => {
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
-
+  const handleKeyfeatureToggle = (id) => {
+    setSelectedKeyfeature(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
   const handleNearestAdd = () => {
     setNearestTo([...nearestTo, { nearest_to_id: '', distance_km: '' }]);
   };
@@ -508,12 +536,13 @@ const handleSubmit = async (e) => {
     // }
     const propertyData = {
       basic: correctedBasic,
-       configurations: configurations,
+      configurations: configurations,
       details,
       location,
       
       nearest_to: nearestTo,
-      amenities: selectedAmenities
+      amenities: selectedAmenities,
+      keyfeature:selectedKeyfeature
     };
     if (editData) {
       // For update (PUT) requests - send direct JSON data
@@ -545,7 +574,13 @@ const handleSubmit = async (e) => {
       }));
       console.log("Final documentMeta being sent:", meta);
       formData.append('documentMeta', JSON.stringify(meta));
-      
+      formData.append('configFileMeta', JSON.stringify(configFileMeta));
+       // Add configuration files to FormData
+    configurations.forEach(config => {
+      if (config.file) {
+        formData.append('configFiles', config.file);
+      }
+    });
       // Images are required for new properties
       if (images.length === 0) {
         alert('Please upload at least one image for new properties');
@@ -558,7 +593,7 @@ const handleSubmit = async (e) => {
       });
       
       await axios.post(
-        `${BASE_URL}/api/property`,
+        `http://localhost:3001/api/property`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -625,7 +660,7 @@ const renderPropertySocietyDertails = ()=>{
               />
               </div>
               <div className="form-group">
-              <label>Project RERE Id</label>
+              <label>Project RERA Id</label>
               <input 
                 name="project_rera_id" 
                 value={details.project_rera_id}
@@ -669,7 +704,7 @@ const renderPropertySocietyDertails = ()=>{
           </div>
           <div className="form-row">
           <div className="form-group">
-              <label>Project RERE Id</label>
+              <label>Project RERA Id</label>
               <input 
                 name="project_rera_id" 
                 value={details.project_rera_id}
@@ -776,7 +811,6 @@ const renderPropertySocietyDertails = ()=>{
   
     switch (categoryName) {
        case 'Project Apartment':
-        case 'Project Flat':
           return(
             <>
                    <section className="form-section">
@@ -952,64 +986,115 @@ const renderPropertySocietyDertails = ()=>{
         return (
           <>
        
-            <div className="form-row">
-              <div className="form-group">
-              <label>Bedrooms</label>
-                  <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[1, 2, 3, 4, 5,6,7,8].map((num) => (
-                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="bedrooms"
-                          value={num}
-                          checked={parseInt(details.bedrooms) === num}
-                          onChange={handleDetailsChange}
-                          style={{ accentColor: '#4a90e2' }}
-                        />
-                        <span style={{ marginLeft: '4px' }}>{num}</span>
-                      </label>
-                    ))}
-                  </div>
+          <div className="form-row">
+            <div className="form-group">
+                <label>Bedrooms</label>
+                <input
+                  type="number"
+                  name="bedrooms"
+                  value={details.bedrooms || ''}
+                  onChange={handleDetailsChange}
+                  min={0}
+                  className="form-control"
+                  placeholder="Enter number of bedrooms"
+                />
               </div>
               <div className="form-group">
                 <label>Bathrooms</label>
-                <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[1, 2, 3,4,5,6].map((num) => (
-                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="bathrooms"
-                          value={num}
-                          checked={parseInt(details.bathrooms) === num}
-                          onChange={handleDetailsChange}
-                          style={{ accentColor: '#4a90e2' }}
-                        />
-                        <span style={{ marginLeft: '4px' }}>{num}</span>
-                      </label>
-                    ))}
-                  </div>
+                <input
+                  type="number"
+                  name="bathrooms"
+                  value={details.bathrooms || ''}
+                  onChange={handleDetailsChange}
+                  min={0}
+                  className="form-control"
+                  placeholder="Enter number of bathrooms"
+                />
               </div>
             </div>
+                <div className="form-row">
+                    <div className="form-group">
+                      <label>Other rooms</label>
+                      <div className="flex flex-row flex-wrap gap-4"> {/* Changed to flex-row with flex-wrap and increased gap */}
+                        {otherroomsOptions.map(option => (
+                          <label key={option} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              value={option}
+                              className="mr-1"
+                              checked={details.other_rooms?.includes(option)}
+                              onChange={(e) => handleOtherroomsChange(option, e.target.checked)}
+                            />
+                            {option}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
             <div className="form-row">
               <div className="form-group">
               <label>Balconies</label>
-              <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
-                    {[0,1, 2, 3,4,5].map((num) => (
-                      <label key={num} className="radio-label" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="balconies"
-                          value={num}
-                          checked={parseInt(details.balconies) === num}
-                          onChange={handleDetailsChange}
-                          style={{ accentColor: '#4a90e2' }}
-                        />
-                        <span style={{ marginLeft: '4px' }}>{num}</span>
-                      </label>
-                    ))}
-                  </div>
+              <input
+                  type="number"
+                  name="balconies"
+                  value={details.balconies || ''}
+                  onChange={handleDetailsChange}
+                  min={0}
+                  className="form-control"
+                  placeholder="Enter number of bathrooms"
+                />
               </div>
-              <div className="form-group">
+               <div className="form-group">
+                <label>Total Floors</label>
+                <input
+                  type="number"
+                  name="total_floors"
+                  value={details.total_floors || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
+              </div>
+                
+              
+            </div>
+            <div className="form-row">
+             <div className="form-group">
+                  <label>Floor Number</label>
+                  <input
+                    type="text"
+                    name="floor"
+                    value={details.floor || ''}
+                    onChange={handleDetailsChange}
+                    className="form-control"
+                    placeholder='e.g., "Ground", "1", "3+", "Upper Basement"'
+                  />
+                </div>
+               <div className="form-group">
+                <label>Number of Covered Parking</label>
+                <input
+                  type="number"
+                  name="covered_parking"
+                  value={details.covered_parking || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>              
+            </div>              
+            <div className="form-row">
+               <div className="form-group">
+                <label>Furnished Status</label>
+                <select
+                  name="furnished_status"
+                  value={details.furnished_status || ''}
+                  onChange={handleDetailsChange}
+                >
+                  <option value="">Select</option>
+                  <option value="Unfurnished">Unfurnished</option>
+                  <option value="Semi-Furnished">Semi-Furnished</option>
+                  <option value="Fully-Furnished">Fully-Furnished</option>
+                </select>
+              </div>
+            <div className="form-group">
                 <label>Facing</label>
                 <div className="grid grid-cols-2 gap-2">
                 {facingOptions.map(option => (
@@ -1026,61 +1111,7 @@ const renderPropertySocietyDertails = ()=>{
                 ))}
               </div>
               </div>
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-              <label>Floor Number</label>
-                <div className="floor-options ">
-                  {["Lower Basement", "Upper Basement", "Ground", "1", "2", "3+"].map((option) => (
-                    <label key={option} className={`radio-button ${details.floor === option ? "selected" : ""}`}>
-                      <input
-                        type="radio"
-                        name="floor"
-                        value={option}
-                        checked={details.floor === option}
-                        onChange={handleDetailsChange}
-                      />
-                      {option}
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Total Floors</label>
-                <input
-                  type="number"
-                  name="total_floors"
-                  value={details.total_floors || ''}
-                  onChange={handleDetailsChange}
-                  min="1"
-                />
-              </div>
-            </div>
-              
-            <div className="form-row">
-              <div className="form-group">
-                <label>Furnished Status</label>
-                <select
-                  name="furnished_status"
-                  value={details.furnished_status || ''}
-                  onChange={handleDetailsChange}
-                >
-                  <option value="">Select</option>
-                  <option value="Unfurnished">Unfurnished</option>
-                  <option value="Semi-Furnished">Semi-Furnished</option>
-                  <option value="Fully-Furnished">Fully-Furnished</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Number of Covered Parking</label>
-                <input
-                  type="number"
-                  name="covered_parking"
-                  value={details.covered_parking || ''}
-                  onChange={handleDetailsChange}
-                  min="0"
-                />
-              </div>
+             
             </div>
             <div className="form-row">
                   <div className="form-group">
@@ -1172,6 +1203,11 @@ const renderPropertySocietyDertails = ()=>{
                 min="0"
                 placeholder="Enter price in ₹"
               />
+              {basic.expected_price && (
+            <small className="text-sm text-gray-600 block mt-1">
+              {convertToIndianWords(parseInt(basic.expected_price))}
+            </small>
+          )}
             </div>
             <div className="form-group">
               <label>Price per Sqft</label>
@@ -1239,6 +1275,25 @@ const renderPropertySocietyDertails = ()=>{
                 />
               </div>
             </div>
+              <div className="form-row">
+                    <div className="form-group">
+                      <label>Other rooms</label>
+                      <div className="flex flex-row flex-wrap gap-4"> {/* Changed to flex-row with flex-wrap and increased gap */}
+                        {otherroomsOptions.map(option => (
+                          <label key={option} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              value={option}
+                              className="mr-1"
+                              checked={details.other_rooms?.includes(option)}
+                              onChange={(e) => handleOtherroomsChange(option, e.target.checked)}
+                            />
+                            {option}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
             <div className="form-row">
                <div className="form-group">
                 <label>Balconies</label>
@@ -1697,7 +1752,7 @@ const renderPropertySocietyDertails = ()=>{
                   name="project_name" 
                   value={details.project_name || ''}
                   onChange={handleDetailsChange}
-                  placeholder="Enter locality or area"
+                  placeholder="Enter project name"
                 />
               </div>
               <div className="form-group">
@@ -1815,6 +1870,28 @@ const renderPropertySocietyDertails = ()=>{
           </div>
         </div>
 
+            
+        {/* keyfeatures */}
+        <div className="form-section">
+          <div className="section-header">
+            <h3>Key Feature</h3>
+          </div>
+          
+          <div className="amenities-container">
+            {keyfeature.map(a => (
+              <div key={a.id} className="amenity-item">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={selectedKeyfeature.includes(a.id)}
+                    onChange={() => handleKeyfeatureToggle(a.id)}
+                  />
+                  <span>{a.name}</span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
         {/* Nearest To */}
         <div className="form-section">
           <div className="section-header">
@@ -1841,7 +1918,7 @@ const renderPropertySocietyDertails = ()=>{
                   </div>
                   <div className="form-group">
                     <input
-                      type="number"
+                      type="text"
                       placeholder="Distance (km)"
                       value={n.distance_km}
                       onChange={(e) => handleNearestChange(index, 'distance_km', e.target.value)}
@@ -1963,16 +2040,10 @@ const renderPropertySocietyDertails = ()=>{
     {docObj.file.name}
     <select value={docObj.type} onChange={(e) => updateDocumentType(idx, e.target.value)}>
       <option value="brochure">Brochure</option>
-      <option value="1BHK">1BHK</option>
-      <option value="2BHK">2BHK</option>
-      <option value="3BHK">3BHK</option>
-      <option value="4BHK">4BHK</option>
-      <option value="5BHK">5BHK</option>
-      <option value="6BHK">6BHK</option>
-      <option value="6BHK">7BHK</option>
-      <option value="6BHK">8BHK</option>
-      <option value="6BHK">9BHK</option>
-      <option value="6BHK">10BHK</option>
+      <option value="floorplan">Floor Plan</option>
+      <option value="Masterplan">Master Plan</option>
+      <option value="Approval">3BHK</option>
+      <option value="rerecirtificate">RERA Cirtificate</option>
     </select>
     <button type="button" className="remove-btn" onClick={() => removeDocument(idx)}>❌</button>
   </li>
@@ -2035,9 +2106,9 @@ const renderPropertySocietyDertails = ()=>{
                 }}
               />
             </div>
-</div>
+      </div>
 
-    </div>
+      </div>
 
         <div className="form-actions">
         <button type="button" className="cancel-btn" onClick={onClose} disabled={isSubmitting}>

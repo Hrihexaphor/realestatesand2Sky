@@ -1,18 +1,33 @@
 import express from 'express';
+import uploadDeveloperLogo from '../middleware/developer.js';
 import { createDevloper,getAllDeveloper,updateDeveloper,deleteDeveloper } from '../services/developerServices.js';
+import multer from 'multer';
 const router = express.Router();
 
 // create developer
 
-router.post('/developer',async(req,res)=>{
-    try {
-        const developer = await createDevloper(req.body);
-        res.status(201).json(developer);
-    } catch (err) {
-        console.error('Create developer error:', err);
-        res.status(500).json({ error: 'Failed to create developer' });
+router.post('/developer', (req, res) => {
+  uploadDeveloperLogo.single('developerImage')(req, res, async function (err) {
+    if (err instanceof multer.MulterError || err) {
+      return res.status(400).json({ error: err.message });
     }
-})
+
+    try {
+      const image_url = req.file ? req.file.path : null; // image path from multer
+      const developerData = {
+        ...req.body,
+        developer_logo: image_url,
+      };
+
+      const developer = await createDevloper(developerData);
+      res.status(201).json(developer);
+    } catch (err) {
+      console.error('Create developer error:', err);
+      res.status(500).json({ error: 'Failed to create developer' });
+    }
+  });
+});
+
 //  get  developer
 router.get('/developer', async (req, res) => {
     try {

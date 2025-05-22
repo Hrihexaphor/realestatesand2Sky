@@ -1,11 +1,27 @@
 import pool from '../config/db.js';
 
-export async function createDevloper(data){
-    const {name,company_name,contact_email,phone_number,address,city,state,partial_amount} = data;
-    const result = await pool.query(`INSERT INTO developer (name,company_name,contact_email,phone_number,address,city,state,partial_amount)
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,[name,company_name,contact_email,phone_number,address,city,state,partial_amount]);
-        return result.rows[0];
-    }
+export async function createDevloper(data) {
+  const {
+    name,
+    company_name,
+    contact_email,
+    phone_number,
+    address,
+    city,
+    state,
+    partial_amount,
+    developer_logo, // new field
+  } = data;
+
+  const result = await pool.query(
+    `INSERT INTO developer (name, company_name, contact_email, phone_number, address, city, state, partial_amount, developer_logo)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING *`,
+    [name, company_name, contact_email, phone_number, address, city, state, partial_amount, developer_logo]
+  );
+
+  return result.rows[0];
+}
 export async function getAllDeveloper(){
     const result = await pool.query(`select * from developer order by id asc`);
     return result.rows;

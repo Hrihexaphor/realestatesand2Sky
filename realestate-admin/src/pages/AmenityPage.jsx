@@ -34,7 +34,7 @@ const AmenityPage = () => {
   const [showIconModal, setShowIconModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
   // Icon mapping object
   const iconComponents = {
@@ -295,7 +295,7 @@ const AmenityPage = () => {
     setSubmitting(true);
     try {
       // In a real implementation, this would be an API call
-      // await axios.post(`${BASE_URL}/api/amenities`, form);
+      await axios.post(`${BASE_URL}/api/amenities`, form);
       
       // For demo, just add to local state
       const newAmenity = {
@@ -339,7 +339,7 @@ const AmenityPage = () => {
     
     try {
       // In a real implementation, this would be an API call
-      // await axios.delete(`${BASE_URL}/api/amenities/${deleteModal.id}`);
+      await axios.delete(`${BASE_URL}/api/amenities/${deleteModal.id}`);
       
       // For demo, just remove from local state
       setAmenities(amenities.filter(amenity => amenity.id !== deleteModal.id));
