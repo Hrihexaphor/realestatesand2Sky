@@ -673,7 +673,8 @@ const renderPropertySocietyDertails = ()=>{
         </div>
             </>
           )
-    case 'Villa/House':
+    case 'House/Villa':
+      case 'Project House/Villa':
     return(
       <>
          <div className="form-section">
@@ -810,6 +811,249 @@ const renderPropertySocietyDertails = ()=>{
     );
   
     switch (categoryName) {
+      case 'Project House/Villa':
+        return(
+          <>
+              <section className="form-section">
+                 <PropertyConfiguration 
+                onAddConfiguration={handleAddConfigurations} 
+              />
+              </section>
+              <div className="form-row">
+                    <div className="form-group">
+                      <label>Other rooms</label>
+                      <div className="flex flex-row flex-wrap gap-4"> {/* Changed to flex-row with flex-wrap and increased gap */}
+                        {otherroomsOptions.map(option => (
+                          <label key={option} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              value={option}
+                              className="mr-1"
+                              checked={details.other_rooms?.includes(option)}
+                              onChange={(e) => handleOtherroomsChange(option, e.target.checked)}
+                            />
+                            {option}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+            <div className="form-row">
+               <div className="form-group">
+                <label>Total Floors</label>
+                <input
+                  type="number"
+                  name="total_floors"
+                  value={details.total_floors || ''}
+                  onChange={handleDetailsChange}
+                  min="1"
+                />
+              </div>
+              <div className="form-group">
+                
+              </div>
+            </div>
+            <div className="form-row">
+             <div className="form-group">
+                <label>Facing</label>
+                <div className="grid grid-cols-2 gap-2">
+                {facingOptions.map(option => (
+                  <label key={option} className="flex items-center gap-4">
+                    <input
+                      type="checkbox"
+                      value={option}
+                      className='mr-2'
+                      checked={details.facing?.includes(option)}
+                      onChange={(e) => handleFacingChange(option, e.target.checked)}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+              </div>
+            
+              
+            </div>
+              
+            <div className="form-row">
+              <div className="form-group">
+                <label>Furnished Status</label>
+                <select
+                  name="furnished_status"
+                  value={details.furnished_status || ''}
+                  onChange={handleDetailsChange}
+                >
+                  <option value="">Select</option>
+                  <option value="Unfurnished">Unfurnished</option>
+                  <option value="Semi-Furnished">Semi-Furnished</option>
+                  <option value="Fully-Furnished">Fully-Furnished</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Covered Parking</label>
+                <input
+                  type="number"
+                  name="covered_parking"
+                  value={details.covered_parking || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+        <label>Overlooking</label>
+        <div className="grid grid-cols-2 gap-2">
+          {overlookingOptions.map(option => (
+            <label key={option} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                value={option}
+                className='mr-2'
+                checked={details.overlooking?.includes(option)}
+                onChange={(e) => handleOverlookingChange(option, e.target.checked)}
+              />
+              {option}
+            </label>
+          ))}
+        </div>
+      </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Plot Area</label>
+                  <input type="number" name="plot_area" value={details.plot_area || ''} onChange={handleDetailsChange} min="0"/>
+              </div>
+             <div className="form-group">
+                <label>is this a corner Plot</label>
+                <div className="radio-group" style={{ display: 'flex', gap: '10px' }}>
+                  {["Yes", "No"].map((value) => (
+                    <label 
+                      key={value} 
+                      className="radio-label" 
+                      style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                    >
+                      <input
+                        type="radio"
+                        name="corner_plot"
+                        value={value}
+                        checked={details.corner_plot === value}
+                        onChange={handleDetailsChange}
+                        style={{ accentColor: '#4a90e2' }}
+                      />
+                      <span style={{ marginLeft: '4px' }}>{value}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+                <label>Plot Width (ft)</label>
+                <input
+                  type="number"
+                  name="plot_breadth"
+                  value={details.plot_breadth || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>Plot Length (ft)</label>
+                <input
+                  type="number"
+                  name="plot_length"
+                  value={details.plot_length || ''}
+                  onChange={handleDetailsChange}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Transaction Type</label>
+                <select name='transaction_types' value={details.transaction_types || ''} onChange={handleDetailsChange}>
+                  <option value="Resale">Resale</option>
+                  <option value="New property">New Property</option>
+                </select>
+              </div>
+              <div className="form-group">
+              <label>Possession Status</label>
+              <select 
+                name="possession_status" 
+                value={basic.possession_status}
+                onChange={handleBasicChange}
+              >
+                <option value="">Select Status</option>
+                <option value="Ready to Move">Ready to Move</option>
+                <option value="Under Construction">Under Construction</option>
+                
+              </select>
+            </div>
+            <div className="form-group">
+                <label htmlFor="available-from" className="block mb-2 font-medium">Available From</label>
+                <input 
+                  type="date" 
+                  id="available-from"
+                  name="available_from" 
+                  value={details.available_from || ''} 
+                  onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+            <div className="form-group">
+              <label>Expected Price*</label>
+              <input 
+                type="number" 
+                name="expected_price" 
+                value={basic.expected_price}
+                onChange={handleBasicChange}
+                required
+                min="0"
+                placeholder="Enter price in ₹"
+              />
+            </div>
+            <div className="form-group">
+              <label>Price per Sqft</label>
+              <input 
+                type="number" 
+                name="price_per_sqft" 
+                value={basic.price_per_sqft}
+                onChange={handleBasicChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Booking Amount</label>
+              <input 
+                type="number" 
+                name="booking_amount" 
+                value={details.booking_amount}
+                onChange={handleDetailsChange}
+                required
+                min="0"
+                placeholder="Enter booking amount"
+              />
+            </div>
+            <div className="form-group">
+              <label>Maintenance Charges</label>
+              <input 
+                type="number" 
+                name="maintenance_charge" 
+                value={details.maintenance_charge}
+                onChange={handleDetailsChange}
+                min="0"
+                placeholder="Enter price per sqft"
+              />
+            </div>
+          </div>
+          </>
+        )
        case 'Project Apartment':
           return(
             <>

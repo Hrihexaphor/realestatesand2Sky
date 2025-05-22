@@ -24,6 +24,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         pd.available_from,
         d.name AS developer_name,
         psc.name AS subcategory_name,
+
         (
           SELECT pi.image_url
           FROM property_images pi
@@ -32,16 +33,35 @@ export async function getMinimalProperties(page = 1, limit = 10) {
           LIMIT 1
         ) AS primary_image,
 
-        -- ✅ Add is_featured using EXISTS
         EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
-        ) AS is_featured
+        ) AS is_featured,
+
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'id', config.id,
+              'bhk_type', config.bhk_type,
+              'bedrooms', config.bedrooms,
+              'bathrooms', config.bathrooms,
+              'super_built_up_area', config.super_built_up_area,
+              'carpet_area', config.carpet_area,
+              'balconies', config.balconies
+            )
+          ) FILTER (WHERE config.id IS NOT NULL), '[]'
+        ) AS configurations
 
       FROM property p
-      LEFT JOIN property_details pd ON p.id = pd.property_id
+      LEFT JOIN property_details pd ON pd.property_id = p.id
       LEFT JOIN developer d ON p.developer_id = d.id
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      LEFT JOIN property_configurations config ON config.property_id = p.id
+
+      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.built_up_area,
+               pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
+               d.name, psc.name, p.price_per_sqft
+
       ORDER BY p.id DESC
       LIMIT $1 OFFSET $2
     `, [limit, offset]);
@@ -56,90 +76,138 @@ export async function getMinimalProperties(page = 1, limit = 10) {
   // new project minimum details services
 
   export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
-    try {
-      const { rows } = await pool.query(`
-        SELECT 
-          p.id,
-          p.title,
-          pd.project_name,
-          pd.city,
-          pd.locality,
-          p.expected_price AS price,
-          pd.built_up_area,
-          d.name AS developer_name,
-          pc.name AS category_name,
-          psc.name AS subcategory_name,
-          (
-            SELECT pi.image_url
-            FROM property_images pi
-            WHERE pi.property_id = p.id
-            ORDER BY pi.id ASC
-            LIMIT 1
-          ) AS primary_image,
-             EXISTS (
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        p.id,
+        p.title,
+        pd.project_name,
+        pd.city,
+        pd.locality,
+        p.expected_price AS price,
+        pd.built_up_area,
+        d.name AS developer_name,
+        pc.name AS category_name,
+        psc.name AS subcategory_name,
+
+        (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id
+          ORDER BY pi.id ASC
+          LIMIT 1
+        ) AS primary_image,
+
+        EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
-        ) AS is_featured
-        FROM property p
-        LEFT JOIN property_details pd ON pd.property_id = p.id
-        LEFT JOIN developer d ON p.developer_id = d.id
-        LEFT JOIN property_category pc ON p.category_id = pc.id
-        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-        WHERE pd.transaction_types = $1
-        ORDER BY p.id DESC
-        LIMIT $2 OFFSET $3
-      `, ['New property', limit, offset]);
-  
-      return rows;
-    } catch (error) {
-      console.error('Failed to fetch new project summaries:', error);
-      throw new Error(`Failed to fetch new project summaries: ${error.message}`);
-    }
-  };
+        ) AS is_featured,
+
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'id', config.id,
+              'bhk_type', config.bhk_type,
+              'bedrooms', config.bedrooms,
+              'bathrooms', config.bathrooms,
+              'super_built_up_area', config.super_built_up_area,
+              'carpet_area', config.carpet_area,
+              'balconies', config.balconies
+            )
+          ) FILTER (WHERE config.id IS NOT NULL), '[]'
+        ) AS configurations
+
+      FROM property p
+      LEFT JOIN property_details pd ON pd.property_id = p.id
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      LEFT JOIN property_configurations config ON config.property_id = p.id
+
+      WHERE pd.transaction_types = $1
+
+      GROUP BY p.id, pd.project_name, pd.city, pd.locality, pd.built_up_area,
+               d.name, pc.name, psc.name
+
+      ORDER BY p.id DESC
+      LIMIT $2 OFFSET $3
+    `, ['New property', limit, offset]);
+
+    return rows;
+  } catch (error) {
+    console.error('Failed to fetch new project summaries:', error);
+    throw new Error(`Failed to fetch new project summaries: ${error.message}`);
+  }
+};
+
   
   // get minimun details for Resale property 
 
   export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
-    try {
-      const { rows } = await pool.query(`
-        SELECT 
-          p.id,
-          p.title,
-          pd.project_name,
-          pd.city,
-          pd.locality,
-          p.expected_price AS price,
-          pd.built_up_area,
-          d.name AS developer_name,
-          pc.name AS category_name,
-          psc.name AS subcategory_name,
-          (
-            SELECT pi.image_url
-            FROM property_images pi
-            WHERE pi.property_id = p.id
-            ORDER BY pi.id ASC
-            LIMIT 1
-          ) AS primary_image,
-             EXISTS (
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        p.id,
+        p.title,
+        pd.project_name,
+        pd.city,
+        pd.locality,
+        p.expected_price AS price,
+        pd.built_up_area,
+        d.name AS developer_name,
+        pc.name AS category_name,
+        psc.name AS subcategory_name,
+
+        (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id
+          ORDER BY pi.id ASC
+          LIMIT 1
+        ) AS primary_image,
+
+        EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
-        ) AS is_featured
-        FROM property p
-        LEFT JOIN property_details pd ON pd.property_id = p.id
-        LEFT JOIN developer d ON p.developer_id = d.id
-        LEFT JOIN property_category pc ON p.category_id = pc.id
-        LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-        WHERE pd.transaction_types = $1
-        ORDER BY p.id DESC
-        LIMIT $2 OFFSET $3
-      `, ['Resale', limit, offset]);
-  
-      return rows;
-    } catch (error) {
-      console.error('Failed to fetch resale property summaries:', error);
-      throw new Error(`Failed to fetch resale property summaries: ${error.message}`);
-    }
-  };
+        ) AS is_featured,
+
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'id', config.id,
+              'bhk_type', config.bhk_type,
+              'bedrooms', config.bedrooms,
+              'bathrooms', config.bathrooms,
+              'super_built_up_area', config.super_built_up_area,
+              'carpet_area', config.carpet_area,
+              'balconies', config.balconies
+            )
+          ) FILTER (WHERE config.id IS NOT NULL), '[]'
+        ) AS configurations
+
+      FROM property p
+      LEFT JOIN property_details pd ON pd.property_id = p.id
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      LEFT JOIN property_configurations config ON config.property_id = p.id
+
+      WHERE pd.transaction_types = $1
+
+      GROUP BY p.id, pd.project_name, pd.city, pd.locality, pd.built_up_area,
+               d.name, pc.name, psc.name
+
+      ORDER BY p.id DESC
+      LIMIT $2 OFFSET $3
+    `, ['Resale', limit, offset]);
+
+    return rows;
+  } catch (error) {
+    console.error('Failed to fetch resale property summaries:', error);
+    throw new Error(`Failed to fetch resale property summaries: ${error.message}`);
+  }
+};
+
   
   // ready to move property with minimum details
   export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
