@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { findUserByEmail } from '../services/adminServices.js';
+import { ROLES } from '../constants/roles.js';
 
 const router = express.Router();
 
@@ -26,6 +27,12 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password_hash);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isAllowed = admin.role !== ROLES.ADMIN && (admin.permissions && admin.permissions.length > 0);
+
+    if (!isAllowed) {
+      return res.status(403).json({ error: "You don't have permission to access" });
     }
 
     // Set session data
