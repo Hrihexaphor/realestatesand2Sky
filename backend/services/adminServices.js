@@ -2,17 +2,12 @@ import pool from '../config/db.js';
 import bcrypt from 'bcryptjs';
 
 export async function findUserByEmail(email) {
-  const result = await pool.query(
-    `SELECT id, name, email, role, password_hash, permission FROM admin WHERE email = $1 LIMIT 1`,
-    [email]
-  );
-  const user = result.rows[0];
-  if (user?.permission) {
-    user.permission = user.permission.replace(/^{|}$/g, '').split(',');
-  }
-  return user;
+    const result = await pool.query(
+        `SELECT id, name, email, role, password_hash, permissions FROM admin WHERE email = $1 LIMIT 1`,
+        [email]
+    );
+    return result.rows[0];
 }
-
 
 export async function getAllUsers() {
   const result = await pool.query(
