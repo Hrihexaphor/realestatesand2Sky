@@ -19,7 +19,9 @@ import keyfeatureRoute from './keyfeatureRoutes.js';
 import generalfaqRouts from './generalfaqRouts.js';
 import userRoutes from './userRoutes.js';
 import authRoutes from './authRoutes.js';
+import contactRoutes from './contactusRoutes.js';
 import { isAuthenticated } from '../middleware/auth.js';
+
 import { ROLES } from '../constants/roles.js';
 
 
@@ -45,6 +47,7 @@ apiRouter.use('/', advertisementRoutes);
 apiRouter.use('/', reviewRoutes);
 apiRouter.use('/', gallaryRoutes);
 apiRouter.use('/', keyfeatureRoute);
-apiRouter.use('/', generalfaqRouts)
+apiRouter.use('/', generalfaqRouts);
+apiRouter.use('/', contactRoutes);
 
 export default apiRouter;

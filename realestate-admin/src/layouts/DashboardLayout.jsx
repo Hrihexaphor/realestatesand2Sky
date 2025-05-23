@@ -51,8 +51,8 @@ const NAV_ITEMS = [
         { path: "/dashboard/privacypolicy", label: "Privacy Policy" },
         { path: "/dashboard/cancelpolicy", label: "Cancellation Policy" },
         { path: "/dashboard/termandservice", label: "Terms and services" },
-        { path: "/dashboard/faqmanager", label: "FAQ Manger" }
-
+        { path: "/dashboard/faqmanager", label: "FAQ Manger" },
+        { path: "/dashboard/contatmanager", label: "Contact Page" }
       ]
     },
     { path: "/dashboard/blogs", icon: <FaNewspaper />, label: "Blog", 
