@@ -29,11 +29,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const isAllowed = admin.role !== ROLES.ADMIN && (admin.permissions && admin.permissions.length > 0);
+    const isAllowed = admin.role === ROLES.ADMIN || (Array.isArray(admin.permissions) && admin.permissions.length > 0);
 
     if (!isAllowed) {
       return res.status(403).json({ error: "You don't have permission to access" });
     }
+
 
     // Set session data
     req.session.user = {
@@ -87,7 +88,7 @@ router.get('/me', (req, res) => {
     sessionID: req.sessionID,
     user: req.session?.user,
   });
-  
+
   if (!req.session && !req.session.user) {
     res.status(401).send();
     return;
