@@ -1,6 +1,6 @@
 import express from 'express';
 import uploadBlogImage from '../middleware/blogUpload.js';
-import { addBlog, getAllBlogs, updateBlog, deleteBlog,  getAllBlogCategories, 
+import { addBlog, getAllBlogs, updateBlog, deleteBlog,  getAllBlogCategories,getBlogById, 
   getBlogCategoryById, 
   createBlogCategory, 
   updateBlogCategory, 
@@ -95,6 +95,17 @@ router.put('/blogs/:id', (req, res) => {
   });
 });
 
+// GET blog by ID
+router.get('/blog/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const blog = await getBlogById(id);
+    res.status(200).json(blog);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
 
 // Route to delete a blog post
 router.delete('/blogs/:id', async (req, res) => {

@@ -56,6 +56,29 @@ export async function deleteBlog(id) {
   const result = await pool.query('DELETE FROM blogs WHERE id = $1 RETURNING *', [id]);
   return result.rows[0];
 }
+// 
+export async function getBlogById(id) {
+  try {
+    const result = await pool.query(
+      `SELECT b.*, 
+              c.name AS category_name, 
+              c.slug AS category_slug
+       FROM blogs b
+       LEFT JOIN blog_category c ON b.blog_category_id = c.id
+       WHERE b.id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('Blog not found');
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error fetching blog by ID:', error);
+    throw new Error(`Failed to fetch blog by ID: ${error.message}`);
+  }
+}
 
 // blog category services
 // Get all categories
