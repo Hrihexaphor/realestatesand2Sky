@@ -1,6 +1,6 @@
 import express from 'express';
 import { createUser, getAllUsers, deleteUserById, updateUserById } from '../services/adminServices.js';
-import { ROLES_ARRAY } from '../constants/roles.js';
+import { ROLES, ROLES_ARRAY } from '../constants/roles.js';
 
 const userRouter = express.Router();
 
@@ -14,7 +14,7 @@ userRouter.get('/', async (req, res) => {
     }
 });
 
-userRouter.post('/signup', async (req, res) => {
+userRouter.post('/', async (req, res) => {
     const { name, email, password, role, permissions } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ error: "All fields are required" });
@@ -28,7 +28,7 @@ userRouter.post('/signup', async (req, res) => {
         return res.status(400).json({ error: "Permissions must be an array" });
     }
 
-    if (role === 'admin' && permissions.length > 0) {
+    if (role === ROLES.ADMIN && permissions.length > 0) {
         return res.status(400).json({ error: "Admin role should not have permissions" });
     }
 
@@ -58,7 +58,7 @@ userRouter.put('/:id', async (req, res) => {
         return res.status(400).json({ error: "Permissions must be an array" });
     }
 
-    if (role === 'admin' && permissions.length > 0) {
+    if (role === ROLES.ADMIN && permissions.length > 0) {
         return res.status(400).json({ error: "Admin role should not have permissions" });
     }
 
