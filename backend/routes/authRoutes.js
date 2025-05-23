@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
       name: admin.name,
       email: admin.email,
       role: admin.role,
-      permissions: admin.permissions
+      permissions: admin.permission
     };
 
     // THIS IS IMPORTANT: Explicitly save the session
