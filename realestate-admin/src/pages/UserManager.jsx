@@ -46,7 +46,7 @@ const UserManager = () => {
         toast.success('User updated successfully');
       } else {
         // Create user
-        await axios.post(`${BASE_URL}/api/admin/signup`, formData, { withCredentials: true });
+        await axios.post(`${BASE_URL}/api/users/signup`, formData, { withCredentials: true });
         toast.success('User added successfully');
       }
       resetForm();

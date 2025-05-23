@@ -14,7 +14,7 @@ userRouter.get('/', async (req, res) => {
     }
 });
 
-userRouter.post('/', async (req, res) => {
+userRouter.post('/signup', async (req, res) => {
     const { name, email, password, role, permissions } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ error: "All fields are required" });
