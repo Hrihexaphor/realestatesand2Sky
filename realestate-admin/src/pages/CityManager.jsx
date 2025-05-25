@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
- const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function CityManager() {
-  const [cityName, setCityName] = useState('');
+  const [cityName, setCityName] = useState("");
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [editingCityId, setEditingCityId] = useState(null);
 
   const fetchCities = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/cities`);
+      const res = await axios.get(`${BASE_URL}/api/cities`);
       setCities(res.data);
     } catch (err) {
-      console.error('Failed to fetch cities:', err);
+      console.error("Failed to fetch cities:", err);
     }
   };
 
@@ -26,26 +26,32 @@ export default function CityManager() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!cityName.trim()) {
-      setError('City name is required');
+      setError("City name is required");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       if (editingCityId) {
-        const res = await axios.put(`${BASE_URL}/cities/${editingCityId}`, { name: cityName });
-        setCities(cities.map(city => city.id === editingCityId ? res.data : city));
+        const res = await axios.put(`${BASE_URL}/api/cities/${editingCityId}`, {
+          name: cityName,
+        });
+        setCities(
+          cities.map((city) => (city.id === editingCityId ? res.data : city))
+        );
         setEditingCityId(null);
       } else {
-        const res = await axios.post(`${BASE_URL}/cities`, { name: cityName });
+        const res = await axios.post(`${BASE_URL}/api/cities`, {
+          name: cityName,
+        });
         setCities([...cities, res.data]);
       }
-      setCityName('');
+      setCityName("");
     } catch (err) {
-      console.error('Error saving city:', err);
-      setError(err.response?.data?.message || 'Failed to save city');
+      console.error("Error saving city:", err);
+      setError(err.response?.data?.message || "Failed to save city");
     } finally {
       setLoading(false);
     }
@@ -57,14 +63,14 @@ export default function CityManager() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this city?')) return;
+    if (!window.confirm("Are you sure you want to delete this city?")) return;
 
     try {
-      await axios.delete(`${BASE_URL}/cities/${id}`);
-      setCities(cities.filter(city => city.id !== id));
+      await axios.delete(`${BASE_URL}/api/cities/${id}`);
+      setCities(cities.filter((city) => city.id !== id));
     } catch (err) {
-      console.error('Error deleting city:', err);
-      alert('Failed to delete city');
+      console.error("Error deleting city:", err);
+      alert("Failed to delete city");
     }
   };
 
@@ -88,7 +94,7 @@ export default function CityManager() {
           disabled={loading}
           className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
         >
-          {loading ? 'Saving...' : editingCityId ? 'Update City' : 'Add City'}
+          {loading ? "Saving..." : editingCityId ? "Update City" : "Add City"}
         </button>
       </form>
 
@@ -103,7 +109,9 @@ export default function CityManager() {
                 key={city.id}
                 className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md"
               >
-                <span>{index + 1}. {city.name}</span>
+                <span>
+                  {index + 1}. {city.name}
+                </span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(city)}
