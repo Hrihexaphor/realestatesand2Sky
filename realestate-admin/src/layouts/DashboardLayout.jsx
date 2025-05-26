@@ -51,7 +51,7 @@ const NAV_ITEMS = [
     label: "Leads",
     children: [
       { path: "/dashboard/inquiryleads", label: "Post Requirement" },
-      { path: "/dashboard/privacypolicy", label: "Property Inquiry" },
+      { path: "/dashboard/generatelead", label: "Property Inquiry" },
     ],
   },
   {

@@ -23,3 +23,4 @@ export { default as PropertyTable } from '../components/PropertyCard';
 export {default as FaqManager} from './FaqManager';
 export { default as UserManager} from './UserManager';
 export {default as ContactManager} from './ContactManager';
+export {default as LeadInquiriesPage} from './LeadInquiriesPage';

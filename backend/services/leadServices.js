@@ -281,3 +281,66 @@ export const sendConfirmationEmail = async (email, name, data) => {
     // Optionally don’t throw here so user experience is not affected
   }
 };
+
+// this is the services for the property inquiry leads
+
+export  async function createInquiry(data){
+    const {
+    property_id, visitor_id, phone, project_name,
+    title, name, email
+  } = data;
+
+  const inquiry_time = new Date();
+  const contacted = false;
+
+  const result = await pool.query(
+    `INSERT INTO property_inquiries 
+     (property_id, visitor_id, phone, project_name, title, name, email, inquiry_time, contacted) 
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    [property_id, visitor_id, phone, project_name, title, name, email, inquiry_time, contacted]
+  );
+
+  await sendAdminEmail({ title, project_name, name, phone, email });
+  return result.rows[0];
+}
+
+export  async function getAllInquiries(){
+  const result = await pool.query(`SELECT * FROM property_inquiries ORDER BY inquiry_time DESC`);
+  return result.rows;
+}
+export  async function markAsContacted(id){
+   const result = await pool.query(
+    `UPDATE property_inquiries SET contacted = true WHERE id = $1 RETURNING *`,
+    [id]
+  );
+  return result.rows[0];
+}
+
+const sendAdminEmail = async ({ title, project_name, name, phone, email }) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.ADMIN_EMAIL,
+    subject: 'New Property Inquiry',
+    html: `
+      <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
+        <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
+        <p>Dear Truptikanta Swain,</p>
+        <p>A user is interested in your property: <strong>${title} (${project_name})</strong></p>
+        <p><strong>Sender Name:</strong> ${name}</p>
+        <p><strong>Visitor Phone:</strong> ${phone}</p>
+        <p><strong>Visitor Email:</strong> ${email}</p>
+        <p><strong>Message:</strong> I am interested in your property. Please get in touch with me.</p>
+      </div>
+    `
+  };
+
+  await transporter.sendMail(mailOptions);
+};

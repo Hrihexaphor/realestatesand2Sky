@@ -51,12 +51,18 @@ export const ROUTES = [
     element: "ContactManager",
   },
   { path: "citymanager", label: "City Manager", element: "CityManager" },
+   {
+    path: "generatelead",
+    label: "Property Inquiry",
+    element: "LeadInquiriesPage",
+  },
   {
     path: "usermanager",
     label: "User Manager",
     element: "UserManager",
     adminOnly: true,
   },
+  
 ];
 
 export const USER_ROLES = {

@@ -1,5 +1,5 @@
 import express from 'express';
-import {insertLead,getAllLeads,updateContactedStatus} from '../services/leadServices.js'
+import {insertLead,getAllLeads,updateContactedStatus,createInquiry,getAllInquiries,markAsContacted} from '../services/leadServices.js'
 
 const router = express.Router();
 
@@ -33,5 +33,36 @@ router.post('/inquiryleads', async (req, res) => {
       res.status(500).json({ message: 'Error updating contacted status' });
     }
   });
-  
+  // property inquiry leads generates Routes
+  // POST: New inquiry
+router.post('/propinquiry', async (req, res) => {
+  try {
+    const result = await createInquiry(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Create Inquiry Error:', error);
+    res.status(500).json({ error: 'Failed to create inquiry' });
+  }
+});
+
+// GET: All inquiries
+router.get('/propinquiry', async (req, res) => {
+  try {
+    const inquiries = await getAllInquiries();
+    res.json(inquiries);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch inquiries' });
+  }
+});
+
+// PATCH: Mark as contacted
+router.patch('/propinquiry/:id/contacted', async (req, res) => {
+  try {
+    const updated = await markAsContacted(req.params.id);
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update contacted status' });
+  }
+});
+
   export default router;
