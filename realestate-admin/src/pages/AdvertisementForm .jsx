@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
-
 const AdvertisementForm = () => {
   const [formData, setFormData] = useState({
     link: "",
@@ -10,7 +8,7 @@ const AdvertisementForm = () => {
     start_date: "",
     end_date: "",
     cityIds: [],
-    image_size: "", // ✅ new field added
+    image_size: "",
   });
 
   const [cities, setCities] = useState([]);
@@ -113,215 +111,572 @@ const AdvertisementForm = () => {
     }
   };
 
-  return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Advertisement Management</h2>
+  const LoadingSpinner = () => (
+    <div className="flex items-center justify-center">
+      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+      <span>Processing...</span>
+    </div>
+  );
 
-      <div className="bg-white p-6 shadow rounded-lg">
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Link */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">Advertisement Link *</label>
-            <input
-              type="text"
-              name="link"
-              value={formData.link}
-              onChange={handleChange}
-              required
-              className="w-full mt-1 p-2 border rounded"
-              placeholder="https://example.com"
-            />
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Advertisement Management
+          </h1>
+          <p className="text-lg text-gray-600">
+            Create and manage your advertisement campaigns
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-10">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+            <h2 className="text-2xl font-bold text-white flex items-center">
+              <svg
+                className="w-8 h-8 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Create New Advertisement
+            </h2>
           </div>
 
-          {/* Image */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">Advertisement Image *</label>
-            <input
-              id="adImageInput"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className={`${imagePreview ? "hidden" : "block"} w-full mt-1`}
-            />
-            {imagePreview && (
-              <div className="relative mt-2">
-                <img src={imagePreview} alt="Preview" className="h-32 w-48 object-cover rounded border" />
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Link */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                      />
+                    </svg>
+                    Advertisement Link *
+                  </label>
+                  <input
+                    type="text"
+                    name="link"
+                    value={formData.link}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                {/* Image Upload */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Advertisement Image *
+                  </label>
+                  {!imagePreview ? (
+                    <div className="relative">
+                      <input
+                        id="adImageInput"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="adImageInput"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+                      >
+                        <svg
+                          className="w-10 h-10 text-gray-400 mb-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                        <p className="text-sm text-gray-500">
+                          Click to upload image
+                        </p>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="relative group">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-32 w-full object-cover rounded-xl border-2 border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-colors duration-200"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Position */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-purple-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                    </svg>
+                    Position *
+                  </label>
+                  <select
+                    name="position"
+                    value={formData.position}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none bg-white"
+                  >
+                    <option value="">Select Position</option>
+                    <option value="top">Top</option>
+                    <option value="middle">Middle</option>
+                    <option value="footer">Footer</option>
+                  </select>
+                </div>
+
+                {/* Location */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-orange-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
+                    </svg>
+                    Location *
+                  </label>
+                  <select
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none bg-white"
+                  >
+                    <option value="">Select Location</option>
+                    <option value="home">Home</option>
+                    <option value="blog">Blog</option>
+                    <option value="property">Property</option>
+                  </select>
+                </div>
+
+                {/* Image Size */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-indigo-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                      />
+                    </svg>
+                    Image Size *
+                  </label>
+                  <select
+                    name="image_size"
+                    value={formData.image_size}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none bg-white"
+                  >
+                    <option value="">Select Size</option>
+                    <option value="300x250">100x100</option>
+                    <option value="728x90">100x50</option>
+                  </select>
+                </div>
+
+                {/* Start Date */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Start Date *
+                  </label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={formData.start_date}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+                  />
+                </div>
+
+                {/* End Date */}
+                <div className="space-y-2">
+                  <label className="flex items-center text-sm font-semibold text-gray-700">
+                    <svg
+                      className="w-4 h-4 mr-2 text-red-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    End Date *
+                  </label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={formData.end_date}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Cities Selection */}
+              <div className="space-y-4">
+                <label className="flex items-center text-sm font-semibold text-gray-700">
+                  <svg
+                    className="w-4 h-4 mr-2 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                  Select Cities *
+                </label>
+                <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {cities.map((city) => (
+                      <label
+                        key={city.id}
+                        className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          value={city.id}
+                          checked={formData.cityIds.includes(String(city.id))}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData((prev) => {
+                              const selected = new Set(
+                                prev.cityIds.map(String)
+                              );
+                              e.target.checked
+                                ? selected.add(val)
+                                : selected.delete(val);
+                              return { ...prev, cityIds: Array.from(selected) };
+                            });
+                          }}
+                          className="w-4 h-4 text-blue-600 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          {city.name}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end pt-6">
                 <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  type="submit"
+                  disabled={isLoading}
+                  className={`px-8 py-4 rounded-xl font-semibold text-white transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 ${
+                    isLoading
+                      ? "bg-blue-400 cursor-not-allowed scale-100"
+                      : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl"
+                  }`}
                 >
-                  ×
+                  {isLoading ? (
+                    <LoadingSpinner />
+                  ) : (
+                    <span className="flex items-center">
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                      Create Advertisement
+                    </span>
+                  )}
                 </button>
               </div>
-            )}
+            </form>
+          </div>
+        </div>
+
+        {/* Advertisement List */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="bg-gradient-to-r from-gray-800 to-gray-700 px-8 py-6">
+            <h3 className="text-2xl font-bold text-white flex items-center">
+              <svg
+                className="w-8 h-8 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+              Existing Advertisements
+            </h3>
           </div>
 
-          {/* Position */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">Position *</label>
-            <select
-              name="position"
-              value={formData.position}
-              onChange={handleChange}
-              required
-              className="w-full mt-1 p-2 border rounded"
-            >
-              <option value="">Select Position</option>
-              <option value="top">Top</option>
-              <option value="middle">Middle</option>
-              <option value="footer">Footer</option>
-            </select>
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">Location *</label>
-            <select
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              required
-              className="w-full mt-1 p-2 border rounded"
-            >
-              <option value="">Select Location</option>
-              <option value="home">Home</option>
-              <option value="blog">Blog</option>
-              <option value="property">Property</option>
-            </select>
-          </div>
-
-          {/* Image Size */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">Image Size *</label>
-            <select
-              name="image_size"
-              value={formData.image_size}
-              onChange={handleChange}
-              required
-              className="w-full mt-1 p-2 border rounded"
-            >
-              <option value="">Select Size</option>
-              <option value="300x250">100x100</option>
-              <option value="728x90">100x50</option>
-          
-            </select>
-          </div>
-
-          {/* Start/End Date */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">Start Date *</label>
-            <input
-              type="date"
-              name="start_date"
-              value={formData.start_date}
-              onChange={handleChange}
-              required
-              className="w-full mt-1 p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700">End Date *</label>
-            <input
-              type="date"
-              name="end_date"
-              value={formData.end_date}
-              onChange={handleChange}
-              required
-              className="w-full mt-1 p-2 border rounded"
-            />
-          </div>
-
-          {/* Cities */}
-          <div className="col-span-full">
-            <label className="text-sm font-medium text-gray-700">Select Cities *</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-              {cities.map((city) => (
-                <label key={city.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    value={city.id}
-                    checked={formData.cityIds.includes(String(city.id))}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFormData((prev) => {
-                        const selected = new Set(prev.cityIds.map(String));
-                        e.target.checked ? selected.add(val) : selected.delete(val);
-                        return { ...prev, cityIds: Array.from(selected) };
-                      });
-                    }}
-                    className="form-checkbox"
-                  />
-                  <span>{city.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="col-span-full flex justify-end mt-4">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-6 py-2 rounded text-white font-medium ${
-                isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              {isLoading ? "Submitting..." : "Submit"}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Advertisement List */}
-      <div className="mt-10 bg-white shadow rounded overflow-x-auto border">
-        <h3 className="text-xl font-semibold p-4 border-b">Existing Advertisements</h3>
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="p-3 text-left">#</th>
-              <th className="p-3 text-left">Image</th>
-              <th className="p-3 text-left">Link</th>
-              <th className="p-3 text-left">Position</th>
-              <th className="p-3 text-left">Location</th>
-              <th className="p-3 text-left">Size</th>
-              <th className="p-3 text-left">Start</th>
-              <th className="p-3 text-left">End</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {advertisements.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="text-center p-4 text-gray-500">No advertisements found.</td>
-              </tr>
-            ) : (
-              advertisements.map((ad, index) => (
-                <tr key={ad.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{index + 1}</td>
-                  <td className="p-3">
-                    <img src={ad.image_url} alt="ad" className="h-12 w-24 object-cover rounded border" />
-                  </td>
-                  <td className="p-3"><a href={ad.link} className="text-blue-600 underline">{ad.link}</a></td>
-                  <td className="p-3 capitalize">{ad.position}</td>
-                  <td className="p-3 capitalize">{ad.location}</td>
-                  <td className="p-3">{ad.image_size}</td>
-                  <td className="p-3">{ad.start_date}</td>
-                  <td className="p-3">{ad.end_date}</td>
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={() => handleDelete(ad.id)}
-                      disabled={isDeleting[ad.id]}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                    >
-                      {isDeleting[ad.id] ? "Deleting..." : "Delete"}
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    #
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Image
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Link
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Position
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Size
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Start
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    End
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {advertisements.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="9"
+                      className="px-6 py-12 text-center text-gray-500"
+                    >
+                      <div className="flex flex-col items-center">
+                        <svg
+                          className="w-12 h-12 text-gray-300 mb-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                          />
+                        </svg>
+                        <p className="text-lg font-medium">
+                          No advertisements found
+                        </p>
+                        <p className="text-sm">
+                          Create your first advertisement using the form above
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  advertisements.map((ad, index) => (
+                    <tr
+                      key={ad.id}
+                      className="hover:bg-gray-50 transition-colors duration-200"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <img
+                          src={ad.image_url}
+                          alt="advertisement"
+                          className="h-12 w-20 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <a
+                          href={ad.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline font-medium text-sm max-w-xs truncate block"
+                        >
+                          {ad.link}
+                        </a>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 capitalize">
+                          {ad.position}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 capitalize">
+                          {ad.location}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        {ad.image_size}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {ad.start_date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {ad.end_date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <button
+                          onClick={() => handleDelete(ad.id)}
+                          disabled={isDeleting[ad.id]}
+                          className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                            isDeleting[ad.id]
+                              ? "bg-red-300 text-red-700 cursor-not-allowed"
+                              : "bg-red-500 hover:bg-red-600 text-white shadow-md hover:shadow-lg transform hover:scale-105"
+                          }`}
+                        >
+                          {isDeleting[ad.id] ? (
+                            <div className="flex items-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-700 mr-2"></div>
+                              Deleting...
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                              Delete
+                            </div>
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

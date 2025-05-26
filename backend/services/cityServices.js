@@ -1,4 +1,4 @@
-import pool from '../config/db.js'
+import pool from "../config/db.js";
 // City-related service functions
 export async function getAllCities() {
   const result = await pool.query(`SELECT id, name FROM cities ORDER BY name`);
@@ -6,7 +6,9 @@ export async function getAllCities() {
 }
 
 export async function getCityById(id) {
-  const result = await pool.query(`SELECT id, name FROM cities WHERE id = $1`, [id]);
+  const result = await pool.query(`SELECT id, name FROM cities WHERE id = $1`, [
+    id,
+  ]);
   return result.rows[0];
 }
 
@@ -44,4 +46,19 @@ export async function getCitiesForFeaturedProperty(featuredPropertyId) {
     [featuredPropertyId]
   );
   return result.rows;
+}
+
+// get the all locality by city name
+export async function getLocalityByCity(cityName) {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT locality
+    FROM property_details
+    WHERE city = $1
+  `,
+    [cityName]
+  );
+
+  // Return just the list of locality names
+  return result.rows.map((row) => row.locality);
 }
