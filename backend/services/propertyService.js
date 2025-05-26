@@ -1,5 +1,14 @@
 import pool from "../config/db.js";
-
+import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';  
+dotenv.config();
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 /**
  * Insert a new property into the database
  * @param {Object} property - The property basic information
@@ -45,7 +54,6 @@ export async function insertProperty(property) {
         subcategory_id,
       ]
     );
-
     return result.rows[0];
   } catch (error) {
     console.error("Error inserting property:", error);
@@ -840,60 +848,51 @@ export const getReadyToMoveProperties = async () => {
   }
 };
 
-// new propperties display services
-// services/propertyService.js
+// send a mail to all email present in the property_inquiries table
 
-// export const getNewProperties = async () => {
-//   try{
-//     const { rows: propertyRows } = await pool.query(`
-//       SELECT
-//         p.*,
-//         d.name AS developer_name, d.company_name AS developer_company_name,
-//         pc.name AS property_category_name,
-//         psc.name AS property_subcategory_name
-//       FROM property p
-//       LEFT JOIN developer d ON p.developer_id = d.id
-//       LEFT JOIN property_category pc ON p.category_id = pc.id
-//       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-//       WHERE p.transaction_type = $1
-//       ORDER BY p.id DESC
-//     `, ['New Property']);
+export async function sendNewPropertyEmails(property_id) {
+  try {
+    const [property, primaryImage, subcategory, inquiries] = await Promise.all([
+      pool.query(`SELECT title, subcategory_id FROM property WHERE id = $1`, [property_id]),
+      pool.query(`SELECT image_url FROM property_images WHERE property_id = $1 AND is_primary = true LIMIT 1`, [property_id]),
+      pool.query(`SELECT name FROM property_subcategory WHERE id = (
+        SELECT subcategory_id FROM property WHERE id = $1
+      )`, [property_id]),
+      pool.query(`SELECT DISTINCT name, email FROM property_inquiries`)
+    ]);
 
-//     const newProperties = [];
+    const title = property.rows[0]?.title;
+    const imageUrl = primaryImage.rows[0]?.image_url || '';
+    const subcategoryName = subcategory.rows[0]?.name || 'N/A';
+    const contactNumber = '+91-1234567890';
+    const instaLink = 'https://instagram.com/example';
+    const fbLink = 'https://facebook.com/example';
 
-//     for (const property of propertyRows) {
-//       const id = property.id;
+    for (let inquiry of inquiries.rows) {
+      const html = `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Hello ${inquiry.name},</h2>
+          <p>Check out our latest property: <strong>${title}</strong></p>
+          <img src="${imageUrl}" alt="Property Image" style="width: 100%; max-width: 500px;" />
+          <p>Type: ${subcategoryName}</p>
+          <p>Contact us at: <strong>${contactNumber}</strong></p>
+          <p>
+            <a href="${instaLink}">Instagram</a> | 
+            <a href="${fbLink}">Facebook</a>
+          </p>
+        </div>
+      `;
 
-//       const [{ rows: detailsRows }, { rows: imagesRows }, { rows: locationRows },
-//              { rows: nearestRows }, { rows: amenitiesRows }, { rows: documentRows }] = await Promise.all([
-//         pool.query(`SELECT * FROM property_details WHERE property_id = $1`, [id]),
-//         pool.query(`SELECT * FROM property_images WHERE property_id = $1`, [id]),
-//         pool.query(`SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`, [id]),
-//         pool.query(`SELECT nt.id, nt.name, pnt.distance_km
-//                     FROM property_nearest_to pnt
-//                     JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
-//                     WHERE pnt.property_id = $1`, [id]),
-//         pool.query(`SELECT a.id, a.name, a.icon
-//                     FROM property_amenity pa
-//                     JOIN amenity a ON pa.amenity_id = a.id
-//                     WHERE pa.property_id = $1`, [id]),
-//         pool.query(`SELECT id, type, file_url FROM property_documents WHERE property_id = $1`, [id])
-//       ]);
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: inquiry.email,
+        subject: `New Property Alert: ${title}`,
+        html,
+      });
+    }
 
-//       newProperties.push({
-//         basic: property,
-//         details: detailsRows[0] || null,
-//         location: locationRows[0] || null,
-//         images: imagesRows,
-//         documents: documentRows,
-//         amenities: amenitiesRows,
-//         nearest_to: nearestRows
-//       });
-//     }
-
-//     return newProperties;
-//   }catch(error){
-//     console.error("failed to fetch the new property",error)
-//     throw new Error(`failed to fetch the new property${error.message}`)
-//   }
-// };
+    console.log(`📧 Emails sent for property ID ${property_id}`);
+  } catch (err) {
+    console.error('Failed to send property emails:', err.message);
+  }
+}

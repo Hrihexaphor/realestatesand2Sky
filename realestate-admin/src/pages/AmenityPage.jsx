@@ -670,8 +670,10 @@ const AmenityPage = () => {
     setSubmitting(true);
     try {
       // In a real implementation, this would be an API call
-      await axios.post(`${BASE_URL}/api/amenities`, form);
-
+      await axios.post(`${BASE_URL}/api/amenities`, form,{
+        withCredentials: true,
+      });
+      
       // For demo, just add to local state
       const newAmenity = {
         ...form,

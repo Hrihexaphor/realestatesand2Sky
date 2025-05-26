@@ -2,7 +2,7 @@ import express from 'express';
 import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
 import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments,insertPropertyConfigurations,insertKeyfeature } from '../services/propertyService.js';
-import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties } from '../services/propertyService.js';
+import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties,sendNewPropertyEmails } from '../services/propertyService.js';
 import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
 const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
@@ -150,7 +150,7 @@ router.post('/property', upload.fields([
     
       await insertPropertyDocuments(property.id, documents);
     }
-
+    await sendNewPropertyEmails(property.id);
     res.status(201).json({ success: true, property_id: property.id });
   } catch (err) {
     console.error('Error adding property:', err);
