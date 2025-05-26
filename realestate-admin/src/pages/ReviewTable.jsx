@@ -10,7 +10,7 @@ const ReviewTable = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/pendingreview`);
+      const res = await axios.get(`${BASE_URL}/api/review/pending`);
       setReviews(res.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -50,6 +50,7 @@ const ReviewTable = () => {
               <th className="px-5 py-3 text-left">#</th>
               <th className="px-5 py-3 text-left">Name</th>
               <th className="px-5 py-3 text-left">Property</th>
+              <th className="px-5 py-3 text-left">Comment</th>
               <th className="px-5 py-3 text-left">Rating</th>
               <th className="px-5 py-3 text-left">Date</th>
               <th className="px-5 py-3 text-center">Action</th>
@@ -61,6 +62,7 @@ const ReviewTable = () => {
                 <td className="px-5 py-3">{index + 1}</td>
                 <td className="px-5 py-3">{review.name}</td>
                 <td className="px-5 py-3">{review.property_title}</td>
+                <td className="px-5 py-3">{review.review}</td>
                 <td className="px-5 py-3">{review.rating}</td>
                 <td className="px-5 py-3">
                   {new Date(review.created_at).toLocaleDateString()}
