@@ -1,11 +1,20 @@
-import pool from '../config/db.js'
+// services/reviewService.js
 
+import pool from "../config/db.js";
 
-// Add a new review
-export async function insertReview({ property_id, name, email, phone, rating, review }) {
+// Add a new review (pending by default)
+export async function insertReview({
+  property_id,
+  name,
+  email,
+  phone,
+  rating,
+  review,
+}) {
   const result = await pool.query(
-    `INSERT INTO property_reviews (property_id, name, email, phone, rating, review)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    `INSERT INTO property_reviews (property_id, name, email, phone, rating, review, is_approved)
+     VALUES ($1, $2, $3, $4, $5, $6, FALSE)
+     RETURNING id`,
     [property_id, name, email, phone, rating, review]
   );
   return result.rows[0];
@@ -24,11 +33,15 @@ export async function fetchPendingReviews() {
 }
 
 // Approve or reject a review
-export async function updateReviewApproval(id, is_approved) {
-  await pool.query(
-    `UPDATE property_reviews SET is_approved = $1 WHERE id = $2`,
-    [is_approved, id]
+export async function updateReviewApproval(id, isApproved) {
+  const result = await pool.query(
+    `UPDATE property_reviews
+     SET is_approved = $1
+     WHERE id = $2
+     RETURNING id`,
+    [isApproved, id]
   );
+  return result.rowCount > 0;
 }
 
 // Get approved reviews for a property

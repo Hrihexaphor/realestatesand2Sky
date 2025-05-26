@@ -1,49 +1,81 @@
-import express from 'express';
-import { insertReview,fetchPendingReviews,updateReviewApproval,fetchApprovedReviews } from '../services/reviewService.js';
-const router = express.Router()
-router.post('/review', async (req, res) => {
+// routes/reviewRoutes.js
+
+import express from "express";
+import {
+  insertReview,
+  fetchPendingReviews,
+  updateReviewApproval,
+  fetchApprovedReviews,
+} from "../services/reviewService.js";
+
+const router = express.Router();
+
+// POST: Add a new review (user)
+router.post("/review", async (req, res) => {
   try {
     const review = await insertReview(req.body);
-    res.status(201).json({ success: true, message: 'Submitted for approval', review_id: review.id });
+    res
+      .status(201)
+      .json({
+        success: true,
+        message: "Submitted for approval",
+        review_id: review.id,
+      });
   } catch (err) {
-    console.error('Add Review Error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Add Review Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// GET /api/reviews/pending - Admin gets pending reviews
-router.get('/pendingreview', async (req, res) => {
+// GET: Admin gets all pending reviews
+router.get("/review/pending", async (req, res) => {
   try {
     const reviews = await fetchPendingReviews();
     res.json(reviews);
   } catch (err) {
-    console.error('Get Pending Reviews Error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Get Pending Reviews Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// PUT /api/reviews/:id/approve - Approve or reject review
-router.put('/review/:id/approve', async (req, res) => {
+// PATCH: Admin approves or rejects a review
+router.patch("/review/:id/approval", async (req, res) => {
   const { id } = req.params;
   const { is_approved } = req.body;
 
+  if (typeof is_approved !== "boolean") {
+    return res
+      .status(400)
+      .json({ success: false, message: "is_approved must be a boolean" });
+  }
+
   try {
-    await updateReviewApproval(id, is_approved);
-    res.json({ success: true, message: `Review ${is_approved ? 'approved' : 'rejected'}` });
+    const updated = await updateReviewApproval(id, is_approved);
+    if (!updated) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Review not found" });
+    }
+
+    res.json({
+      success: true,
+      message: `Review ${is_approved ? "approved" : "rejected"}`,
+    });
   } catch (err) {
-    console.error('Approve/Reject Review Error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Review Approval Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// GET /api/reviews/approved/:propertyId - Get approved reviews
-router.get('/approvedreview/:propertyId', async (req, res) => {
+// GET: Get approved reviews for a property
+router.get("/review/approved/:propertyId", async (req, res) => {
   try {
     const reviews = await fetchApprovedReviews(req.params.propertyId);
     res.json(reviews);
   } catch (err) {
-    console.error('Get Approved Reviews Error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Get Approved Reviews Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 export default router;
