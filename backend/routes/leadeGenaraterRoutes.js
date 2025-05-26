@@ -1,5 +1,5 @@
 import express from 'express';
-import {insertLead,getAllLeads,updateContactedStatus,createInquiry,getAllInquiries,markAsContacted} from '../services/leadServices.js'
+import {insertLead,getAllLeads,updateContactedStatus,createInquiry,getAllInquiries,markAsContacted,postGetInfo,getAllGetInfo,toggleContactedGetInfo} from '../services/leadServices.js'
 
 const router = express.Router();
 
@@ -65,4 +65,38 @@ router.patch('/propinquiry/:id/contacted', async (req, res) => {
   }
 });
 
+// getInfo routes
+// POST /api/get-info
+router.post("/getinfo", async (req, res) => {
+  try {
+    const data = await postGetInfo(req.body);
+    res.json(data);
+  } catch (err) {
+    console.error("Create GetInfo Error:", err);
+    res.status(500).json({ error: "Failed to submit information" });
+  }
+});
+
+// GET /api/get-info
+router.get("/getinfo", async (req, res) => {
+  try {
+    const data = await getAllGetInfo();
+    res.json(data);
+  } catch (err) {
+    console.error("Fetch GetInfo Error:", err);
+    res.status(500).json({ error: "Failed to fetch information" });
+  }
+});
+
+// PATCH /api/get-info/:id/contacted
+router.patch("/getinfo/:id/contacted", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await toggleContactedGetInfo(id);
+    res.json(updated);
+  } catch (err) {
+    console.error("Toggle Contacted Error:", err);
+    res.status(500).json({ error: "Failed to update status" });
+  }
+});
   export default router;

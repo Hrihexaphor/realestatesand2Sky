@@ -56,6 +56,11 @@ export const ROUTES = [
     label: "Property Inquiry",
     element: "LeadInquiriesPage",
   },
+   {
+    path: "getinfolead",
+    label: "GetInfo",
+    element: "GetInfoLeads",
+  },
   {
     path: "usermanager",
     label: "User Manager",

@@ -344,3 +344,57 @@ const sendAdminEmail = async ({ title, project_name, name, phone, email }) => {
 
   await transporter.sendMail(mailOptions);
 };
+
+// get info services
+export async function postGetInfo(data) {
+  const {
+    reason_to_buy,
+    is_property_dealer,
+    name,
+    email,
+    phone,
+    when_plan_to_buy,
+    interested,
+  } = data;
+
+  const query = `
+    INSERT INTO get_info (
+      reason_to_buy,
+      is_property_dealer,
+      name,
+      email,
+      phone,
+      when_plan_to_buy,
+      interested
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *;
+  `;
+
+  const values = [
+    reason_to_buy,
+    is_property_dealer,
+    name,
+    email,
+    phone,
+    when_plan_to_buy,
+    interested,
+  ];
+
+  const result = await pool.query(query, values);
+  return result.rows[0];
+}
+
+// Get all entries
+export async function getAllGetInfo() {
+  const result = await pool.query("SELECT * FROM get_info ORDER BY created_at DESC");
+  return result.rows;
+}
+
+// Toggle contacted status
+export async function toggleContactedGetInfo(id) {
+  const result = await pool.query(
+    `UPDATE get_info SET contacted = NOT contacted WHERE id = $1 RETURNING *`,
+    [id]
+  );
+  return result.rows[0];
+}
