@@ -295,9 +295,9 @@ export  async function createInquiry(data){
 
   const result = await pool.query(
     `INSERT INTO property_inquiries 
-     (property_id, visitor_id, phone, project_name, title, name, email, inquiry_time, contacted) 
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-    [property_id, visitor_id, phone, project_name, title, name, email, inquiry_time, contacted]
+     (property_id,phone, project_name, title, name, email, inquiry_time, contacted) 
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [property_id, phone, project_name, title, name, email, inquiry_time, contacted]
   );
 
   await sendAdminEmail({ title, project_name, name, phone, email });

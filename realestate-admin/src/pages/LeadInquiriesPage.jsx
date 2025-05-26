@@ -8,6 +8,7 @@ const LeadInquiriesPage = () => {
   const [inquiries, setInquiries] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchInquiries();
@@ -15,7 +16,7 @@ const LeadInquiriesPage = () => {
 
   const fetchInquiries = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/propinquiry");
+      const res = await axios.get(`${BASE_URL}/api/propinquiry`);
       setInquiries(res.data);
     } catch (err) {
       toast.error("Failed to load inquiries");
@@ -24,7 +25,7 @@ const LeadInquiriesPage = () => {
 
   const handleToggleContacted = async (id) => {
     try {
-      await axios.patch(`http://localhost:3001/api/propinquiry/${id}/contacted`);
+      await axios.patch(`${BASE_URL}/api/propinquiry/${id}/contacted`);
       toast.success("Lead status updated");
       fetchInquiries(); // refresh list
     } catch (err) {
@@ -39,7 +40,7 @@ const LeadInquiriesPage = () => {
     }
 
     try {
-      const res = await axios.get("http://localhost:3001/api/propinquiry", {
+      const res = await axios.get(`${BASE_URL}/api/propinquiry`, {
         params: {
           start_date: startDate.toISOString(),
           end_date: endDate.toISOString(),
