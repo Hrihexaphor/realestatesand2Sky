@@ -398,3 +398,17 @@ export async function toggleContactedGetInfo(id) {
   );
   return result.rows[0];
 }
+
+// contactus lead services
+export async function createContact({name,email,message}){
+    const result = await pool.query(
+    "INSERT INTO contactus (name, email, message) VALUES ($1, $2, $3) RETURNING *",
+    [name, email, message]
+  );
+  return result.rows[0];
+}
+
+export async function getAllContacts(){
+   const result = await pool.query("SELECT * FROM contactus ORDER BY created_at DESC");
+  return result.rows;
+}

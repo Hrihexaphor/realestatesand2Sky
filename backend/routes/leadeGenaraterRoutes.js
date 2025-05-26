@@ -1,5 +1,5 @@
 import express from 'express';
-import {insertLead,getAllLeads,updateContactedStatus,createInquiry,getAllInquiries,markAsContacted,postGetInfo,getAllGetInfo,toggleContactedGetInfo} from '../services/leadServices.js'
+import {insertLead,getAllLeads,updateContactedStatus,createInquiry,getAllInquiries,markAsContacted,postGetInfo,getAllGetInfo,toggleContactedGetInfo,createContact,getAllContacts} from '../services/leadServices.js'
 
 const router = express.Router();
 
@@ -99,4 +99,30 @@ router.patch("/getinfo/:id/contacted", async (req, res) => {
     res.status(500).json({ error: "Failed to update status" });
   }
 });
-  export default router;
+
+// contactus lead routes
+  router.post("/contact", async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+    const newContact = await createContact({ name, email, message });
+    res.json(newContact);
+  } catch (err) {
+    console.error("Contact form error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// GET /api/contact
+router.get("/contact", async (req, res) => {
+  try {
+    const contacts = await getAllContacts();
+    res.json(contacts);
+  } catch (err) {
+    console.error("Get contact error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+export default router;

@@ -61,6 +61,11 @@ export const ROUTES = [
     label: "GetInfo",
     element: "GetInfoLeads",
   },
+   {
+    path: "contactuslead",
+    label: "Contactus",
+    element: "ContactLeads",
+  },
   {
     path: "usermanager",
     label: "User Manager",

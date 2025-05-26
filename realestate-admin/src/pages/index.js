@@ -25,3 +25,4 @@ export { default as UserManager} from './UserManager';
 export {default as ContactManager} from './ContactManager';
 export {default as LeadInquiriesPage} from './LeadInquiriesPage';
 export {default as GetInfoLeads} from './GetInfoLeads';
+export {default as ContactLeads} from './ContactLeads';
