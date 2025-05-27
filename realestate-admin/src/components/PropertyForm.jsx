@@ -181,7 +181,7 @@ const PropertyForm = ({editData,onClose}) => {
           axios.get(`${BASE_URL}/api/developer`),
           axios.get(`${BASE_URL}/api/nearest`),
           axios.get(`${BASE_URL}/api/category`),
-          axios.get('http://localhost:3001/api/keyfeature')
+          axios.get(`${BASE_URL}/api/keyfeature`)
         ]);
         
         setAmenities(amenityRes.data);
@@ -592,10 +592,15 @@ const handleSubmit = async (e) => {
         formData.append('documents', doc.file);
       });
       
-      await axios.post(
-        `http://localhost:3001/api/property`,
+          await axios.post(
+        `${BASE_URL}/api/property`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          withCredentials: true
+        }
       );
     }
     
