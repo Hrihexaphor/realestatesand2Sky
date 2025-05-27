@@ -851,7 +851,7 @@ export const getReadyToMoveProperties = async () => {
 // send a mail to all email present in the property_inquiries table
 
 export async function sendNewPropertyEmails(property_id) {
-  try {
+ try {
     const [property, primaryImage, subcategory, inquiries] = await Promise.all([
       pool.query(`SELECT title, subcategory_id FROM property WHERE id = $1`, [property_id]),
       pool.query(`SELECT image_url FROM property_images WHERE property_id = $1 AND is_primary = true LIMIT 1`, [property_id]),
@@ -863,35 +863,283 @@ export async function sendNewPropertyEmails(property_id) {
 
     const title = property.rows[0]?.title;
     const imageUrl = primaryImage.rows[0]?.image_url || '';
-    const subcategoryName = subcategory.rows[0]?.name || 'N/A';
+    const subcategoryName = subcategory.rows[0]?.name || 'Residential Houses';
     const contactNumber = '+91-1234567890';
     const instaLink = 'https://instagram.com/example';
     const fbLink = 'https://facebook.com/example';
+    const twitterLink = 'https://twitter.com/example';
+    const landingPageUrl = `https://yourwebsite.com/property/${property_id}`; // Replace with your actual landing page URL
 
     for (let inquiry of inquiries.rows) {
       const html = `
-        <div style="font-family: Arial, sans-serif;">
-          <h2>Hello ${inquiry.name},</h2>
-          <p>Check out our latest property: <strong>${title}</strong></p>
-          <img src="${imageUrl}" alt="Property Image" style="width: 100%; max-width: 500px;" />
-          <p>Type: ${subcategoryName}</p>
-          <p>Contact us at: <strong>${contactNumber}</strong></p>
-          <p>
-            <a href="${instaLink}">Instagram</a> | 
-            <a href="${fbLink}">Facebook</a>
-          </p>
-        </div>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <title>Property Alert</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #f5f5f5;
+                    line-height: 1.6;
+                }
+                
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                }
+                
+                .header {
+                    background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+                    color: white;
+                    padding: 30px 20px;
+                    text-align: center;
+                    position: relative;
+                }
+                
+                .header h1 {
+                    font-size: 24px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                
+                .header p {
+                    font-size: 16px;
+                    font-weight: 400;
+                    opacity: 0.95;
+                }
+                
+                .property-card {
+                    background-color: #E8B4B8;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .card-header {
+                    background-color: rgba(0,0,0,0.1);
+                    color: #2c3e50;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+                
+                .card-content {
+                    padding: 30px 20px;
+                    text-align: center;
+                }
+                
+                .property-image-container {
+                    background-color: #f8f9fa;
+                    border: 2px dashed #dee2e6;
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-bottom: 30px;
+                    min-height: 200px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .property-image {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                
+                .placeholder-image {
+                    color: #6c757d;
+                    font-size: 48px;
+                    opacity: 0.5;
+                }
+                
+                .property-title {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 20px;
+                }
+                
+                .view-details-btn {
+                    display: inline-block;
+                    background-color: #34495e;
+                    color: white;
+                    padding: 12px 30px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    transition: all 0.3s ease;
+                    margin-bottom: 30px;
+                }
+                
+                .view-details-btn:hover {
+                    background-color: #2c3e50;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                }
+                
+                .social-links {
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                }
+                
+                .social-icon {
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 18px;
+                    transition: all 0.3s ease;
+                }
+                
+                .social-icon:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+                
+                .facebook {
+                    background-color: #3b5998;
+                }
+                
+                .instagram {
+                    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+                }
+                
+                .twitter {
+                    background-color: #1da1f2;
+                }
+                
+                .footer {
+                    background-color: #2c3e50;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 12px;
+                }
+                
+                .contact-info {
+                    background-color: #ecf0f1;
+                    padding: 20px;
+                    text-align: center;
+                    color: #2c3e50;
+                }
+                
+                @media only screen and (max-width: 600px) {
+                    .email-container {
+                        margin: 0;
+                        box-shadow: none;
+                    }
+                    
+                    .header h1 {
+                        font-size: 20px;
+                    }
+                    
+                    .header p {
+                        font-size: 14px;
+                    }
+                    
+                    .card-content {
+                        padding: 20px 15px;
+                    }
+                    
+                    .social-links {
+                        gap: 10px;
+                    }
+                    
+                    .social-icon {
+                        width: 40px;
+                        height: 40px;
+                        font-size: 16px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <!-- Header Section -->
+                <div class="header">
+                    <h1>Hi ${inquiry.name.toUpperCase()},</h1>
+                    <p>Here are some <strong>${subcategoryName}</strong> matching your budget and requirements</p>
+                </div>
+                
+                <!-- Property Card -->
+                <div class="property-card">
+                    <div class="card-header">
+                        It's time to find your dream property
+                    </div>
+                    
+                    <div class="card-content">
+                        <!-- Property Image -->
+                        <div class="property-image-container">
+                            ${imageUrl ? 
+                                `<img src="${imageUrl}" alt="${title}" class="property-image">` : 
+                                `<div class="placeholder-image">🏠</div>`
+                            }
+                        </div>
+                        
+                        <!-- Property Title -->
+                        <div class="property-title">${title}</div>
+                        
+                        <!-- View Details Button -->
+                        <a href="${landingPageUrl}" class="view-details-btn">View Details</a>
+                        
+                        <!-- Social Media Icons -->
+                        <div class="social-links">
+                            <a href="${fbLink}" class="social-icon facebook" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="${instaLink}" class="social-icon instagram" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="${twitterLink}" class="social-icon twitter" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Information -->
+                <div class="contact-info">
+                    <p><strong>Need help?</strong> Contact us at <strong>${contactNumber}</strong></p>
+                    <p>Visit our website for more amazing properties!</p>
+                </div>
+                
+                <!-- Footer -->
+                <div class="footer">
+                    <p>&copy; 2025 Your Property Company. All rights reserved.</p>
+                    <p>You're receiving this email because you showed interest in our properties.</p>
+                </div>
+            </div>
+        </body>
+        </html>
       `;
 
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: inquiry.email,
-        subject: `New Property Alert: ${title}`,
+        subject: `🏠 New ${subcategoryName} Alert: ${title}`,
         html,
       });
     }
 
-    console.log(`📧 Emails sent for property ID ${property_id}`);
+    console.log(`📧 Enhanced emails sent for property ID ${property_id}`);
+    return { success: true, message: `Emails sent to ${inquiries.rows.length} recipients` };
   } catch (err) {
     console.error('Failed to send property emails:', err.message);
   }

@@ -82,7 +82,9 @@ const UserManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      await axios.delete(`${BASE_URL}/api/users/${id}`);
+      await axios.delete(`${BASE_URL}/api/users/${id}`,{
+        withCredentials: true,
+      });
       toast.success("User deleted");
       fetchUsers();
     } catch (err) {

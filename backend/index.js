@@ -12,7 +12,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://realestatesand2-sky.vercel.app',
-  'https://realestatesand2sky.onrender.com'
+  'https://realestatesand2sky.onrender.com',
+  'https://sand2skyfrontendfile.vercel.app'
 ];
 
 app.use(cors({
