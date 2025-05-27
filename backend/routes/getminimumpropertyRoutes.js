@@ -143,6 +143,7 @@ router.get("/developer-properties/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch properties" });
   }
 });
+// router to get the property by popular option
 router.get("/search/popular-options", async (req, res) => {
   try {
     const options = await getPopularSearchOptions();

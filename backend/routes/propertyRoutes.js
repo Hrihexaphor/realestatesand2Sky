@@ -302,13 +302,5 @@ router.get('/property/:id',async (req,res)=>{
     res.status(500).json({error:`failed to fetch property details by id`})
   }
 })
-
-
-
-
-
-
-
-
 export default router;
 
