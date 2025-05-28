@@ -163,4 +163,29 @@ router.get("/contact", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// test routes
+router.post('/test-email', async (req, res) => {
+  try {
+    const testData = {
+      name: 'Test User',
+      email: 'pandahritesh@gmail.com',
+      phone_number: '+91-9876543210',
+      city: 'Test City',
+      budget: '10-20 Lakhs',
+      inquiry_for: 'Buy',
+      property_category: 'Apartment'
+    };
+    
+    const result = await handleEmailSending(sendAdminNotificationEmail, testData);
+    
+    if (result.success) {
+      res.json({ message: 'Test email sent successfully!', result: result.result });
+    } else {
+      res.status(500).json({ message: 'Test email failed', error: result.error });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Test failed', error: error.message });
+  }
+});
 export default router;

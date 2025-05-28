@@ -81,7 +81,7 @@ const PropertyForm = ({editData,onClose}) => {
           });
           const categoryName = editData.property_category_name;
           // Specific fields based on property type
-          if (categoryName === 'Apartment/Flat') {
+          if (categoryName === 'Apartment') {
             ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area','facing', 
      'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
      'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
@@ -89,7 +89,7 @@ const PropertyForm = ({editData,onClose}) => {
           'super_built_up_area','youtube_link','about_location','available_from','other_rooms'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
-          } else if (categoryName === 'Villa/House') {
+          } else if (categoryName === 'House/Villa') {
             ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area','facing', 
      'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
      'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 
@@ -97,7 +97,7 @@ const PropertyForm = ({editData,onClose}) => {
           'super_built_up_area','youtube_link','about_location','available_from','no_of_house','plot_area','plot_breadth','plot_length','corner_plot','other_rooms'].forEach(field => {
               if (editData[field] !== undefined) detailsFields[field] = editData[field];
             });
-          } else if (categoryName === 'Project Apartment' || categoryName === 'Project Flat') {
+          } else if (categoryName === 'Project Apartment' || categoryName === 'Project House/Villa') {
             ['bedrooms', 'bathrooms', 'floor', 'total_floors', 'built_up_area','facing', 
      'locality', 'bedrooms', 'balconies', 'bathrooms','project_area','no_of_flat','overlooking',
      'booking_amount','maintenance_charge','transaction_types','available_from','project_rera_id', 

@@ -4,22 +4,23 @@ dotenv.config();
 export const testEmailConfig = async () => {
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT, 10),
-      secure: false,
+      service: 'gmail', // Use Gmail service
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // Use STARTTLS
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: process.env.EMAIL_USER, // hritesh.hexaphor@gmail.com
+        pass: process.env.EMAIL_PASS  // tfkpbzqdkvwxodyp (App Password)
       },
       debug: true,
       logger: true
     });
 
     const verification = await transporter.verify();
-    console.log('✅ Email configuration verified:', verification);
+    console.log('✅ Gmail configuration verified:', verification);
     return transporter;
   } catch (error) {
-    console.error('❌ Email configuration error:', error);
+    console.error('❌ Gmail configuration error:', error);
     throw error;
   }
 };
@@ -31,8 +32,9 @@ export const sendAdminEmail = async ({ title, project_name, name, phone, email }
     }
 
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT, 10),
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
@@ -40,15 +42,12 @@ export const sendAdminEmail = async ({ title, project_name, name, phone, email }
       },
       connectionTimeout: 60000,
       greetingTimeout: 30000,
-      socketTimeout: 60000,
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 10
+      socketTimeout: 60000
     });
 
     const mailOptions = {
       from: `"Property Inquiry" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL,
+      to: process.env.ADMIN_EMAIL, // developer19.hexaphor@gmail.com
       subject: 'New Property Inquiry',
       html: `
         <div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 600px;">
@@ -73,14 +72,14 @@ export const sendAdminEmail = async ({ title, project_name, name, phone, email }
       `
     };
 
-    console.log('📧 Sending email to:', process.env.ADMIN_EMAIL);
+    console.log('📧 Sending email via Gmail to:', process.env.ADMIN_EMAIL);
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', result.messageId);
+    console.log('✅ Email sent successfully via Gmail:', result.messageId);
     
     transporter.close();
     return result;
   } catch (error) {
-    console.error('❌ Error sending admin email:', error);
+    console.error('❌ Error sending admin email via Gmail:', error);
     throw error;
   }
 };
@@ -96,8 +95,9 @@ export const sendAdminNotificationEmail = async (lead) => {
     }
 
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT, 10),
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
@@ -105,10 +105,7 @@ export const sendAdminNotificationEmail = async (lead) => {
       },
       connectionTimeout: 60000,
       greetingTimeout: 30000,
-      socketTimeout: 60000,
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 10
+      socketTimeout: 60000
     });
 
     const mailOptions = {
@@ -177,14 +174,14 @@ export const sendAdminNotificationEmail = async (lead) => {
       `
     };
 
-    console.log('📧 Sending notification email to:', process.env.ADMIN_EMAIL);
+    console.log('📧 Sending notification email via Gmail to:', process.env.ADMIN_EMAIL);
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Notification email sent successfully:', result.messageId);
+    console.log('✅ Notification email sent successfully via Gmail:', result.messageId);
     
     transporter.close();
     return result;
   } catch (error) {
-    console.error('❌ Error sending notification email:', error);
+    console.error('❌ Error sending notification email via Gmail:', error);
     throw error;
   }
 };
@@ -195,17 +192,134 @@ export const handleEmailSending = async (emailFunction, data) => {
     const result = await emailFunction(data);
     return { success: true, result };
   } catch (error) {
-    console.error('Email sending failed:', error.message);
+    console.error('Gmail email sending failed:', error.message);
     
-    // Log specific error types
+    // Log specific Gmail error types
     if (error.code === 'EAUTH') {
-      console.error('Authentication failed - check your EMAIL_USER and EMAIL_PASS');
+      console.error('Gmail Authentication failed - check your EMAIL_USER and EMAIL_PASS (App Password)');
+      console.error('Make sure you have:');
+      console.error('1. Enabled 2-Factor Authentication on your Gmail account');
+      console.error('2. Generated an App Password for this application');
+      console.error('3. Used the App Password (not your regular Gmail password)');
     } else if (error.code === 'ECONNECTION') {
-      console.error('Connection failed - check your EMAIL_HOST and EMAIL_PORT');
+      console.error('Gmail connection failed - check your internet connection');
     } else if (error.code === 'EMESSAGE') {
       console.error('Message error - check your email content and recipients');
+    } else if (error.responseCode === 535) {
+      console.error('Gmail login failed - App Password might be incorrect');
     }
     
     return { success: false, error: error.message };
   }
 };
+
+// Rate limiting and retry logic for Gmail
+export const rateLimitedEmailSend = async (emailFunction, data, maxRetries = 3) => {
+  let retryCount = 0;
+  
+  while (retryCount < maxRetries) {
+    try {
+      const result = await emailFunction(data);
+      return { success: true, result };
+    } catch (error) {
+      console.error(`Gmail email attempt ${retryCount + 1} failed:`, error.message);
+      
+      // Handle specific Gmail rate limit error
+      if (error.responseCode === 550 && error.message.includes('Daily user sending limit exceeded')) {
+        console.error('🚫 Gmail daily sending limit exceeded!');
+        console.error('Solutions:');
+        console.error('1. Wait 24 hours for limit to reset');
+        console.error('2. Use a different Gmail account');
+        console.error('3. Upgrade to Google Workspace for higher limits (2000/day)');
+        console.error('4. Use a different email service (SendGrid, Mailgun, etc.)');
+        
+        return { 
+          success: false, 
+          error: 'Gmail daily sending limit exceeded',
+          shouldRetry: false,
+          limitExceeded: true
+        };
+      }
+      
+      // Handle temporary errors with retry
+      if (error.responseCode >= 400 && error.responseCode < 500 && retryCount < maxRetries - 1) {
+        const backoffTime = Math.pow(2, retryCount) * 1000; // Exponential backoff
+        console.log(`⏳ Retrying in ${backoffTime}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+        retryCount++;
+        continue;
+      }
+      
+      return { success: false, error: error.message, shouldRetry: false };
+    }
+  }
+  
+  return { success: false, error: 'Max retries exceeded', shouldRetry: false };
+};
+
+// Email queue system for better rate limiting
+class EmailQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+    this.dailyCount = 0;
+    this.lastResetDate = new Date().toDateString();
+    this.maxDailyEmails = 450; // Conservative limit for free Gmail
+  }
+
+  async addToQueue(emailFunction, data) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ emailFunction, data, resolve, reject });
+      this.processQueue();
+    });
+  }
+
+  async processQueue() {
+    if (this.processing || this.queue.length === 0) return;
+    
+    // Reset daily count if new day
+    const today = new Date().toDateString();
+    if (today !== this.lastResetDate) {
+      this.dailyCount = 0;
+      this.lastResetDate = today;
+      console.log('📅 Daily email count reset');
+    }
+
+    // Check daily limit
+    if (this.dailyCount >= this.maxDailyEmails) {
+      console.error('🚫 Daily email limit reached. Emails will be queued for tomorrow.');
+      return;
+    }
+
+    this.processing = true;
+
+    while (this.queue.length > 0 && this.dailyCount < this.maxDailyEmails) {
+      const { emailFunction, data, resolve, reject } = this.queue.shift();
+      
+      try {
+        const result = await emailFunction(data);
+        this.dailyCount++;
+        console.log(`✅ Email sent. Daily count: ${this.dailyCount}/${this.maxDailyEmails}`);
+        resolve({ success: true, result });
+        
+        // Add delay between emails to avoid rate limiting
+        if (this.queue.length > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+        }
+      } catch (error) {
+        console.error('❌ Email failed:', error.message);
+        reject({ success: false, error: error.message });
+      }
+    }
+
+    this.processing = false;
+  }
+    getStatus() {
+    return {
+      queueLength: this.queue.length,
+      dailyCount: this.dailyCount,
+      maxDailyEmails: this.maxDailyEmails,
+      resetDate: this.lastResetDate
+    };
+  }
+}
