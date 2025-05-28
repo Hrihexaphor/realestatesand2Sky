@@ -30,10 +30,14 @@ const CancellationPolicy = () => {
 
     try {
       if (editId) {
-        await axios.put(`${BASE_URL}/api/cancelpolicy/${editId}`, { title, description });
+        await axios.put(`${BASE_URL}/api/cancelpolicy/${editId}`,{
+    withCredentials: true
+  }, { title, description });
         toast.success('Policy updated');
       } else {
-        await axios.post(`${BASE_URL}/api/addcancelpolicy`, { title, description });
+        await axios.post(`${BASE_URL}/api/addcancelpolicy`,{
+    withCredentials: true
+  }, { title, description });
         toast.success('Policy added');
       }
       setTitle('');
@@ -54,7 +58,9 @@ const CancellationPolicy = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this policy?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/cancelpolicy/${id}`);
+      await axios.delete(`${BASE_URL}/api/cancelpolicy/${id}`,{
+    withCredentials: true
+  });
       toast.success('Policy deleted');
       fetchPolicies();
     } catch (err) {

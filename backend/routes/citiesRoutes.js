@@ -8,7 +8,7 @@ import {
   getLocalityByCity,
 } from "../services/cityServices.js";
 const router = express.Router();
-
+import { isAuthenticated } from "../middleware/auth.js";
 // Get all cities
 router.get("/cities", async (req, res) => {
   try {
@@ -39,7 +39,7 @@ router.get("/cities/:id", async (req, res) => {
 });
 
 // Create new city
-router.post("/cities", async (req, res) => {
+router.post("/cities",isAuthenticated(), async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -57,7 +57,7 @@ router.post("/cities", async (req, res) => {
 });
 
 // Update city
-router.put("/cities/:id", async (req, res) => {
+router.put("/cities/:id", isAuthenticated(),async (req, res) => {
   const { name } = req.body;
   const { id } = req.params;
 
@@ -81,7 +81,7 @@ router.put("/cities/:id", async (req, res) => {
 });
 
 // Delete city
-router.delete("/cities/:id", async (req, res) => {
+router.delete("/cities/:id",isAuthenticated(), async (req, res) => {
   try {
     const deletedCity = await deleteCity(req.params.id);
 

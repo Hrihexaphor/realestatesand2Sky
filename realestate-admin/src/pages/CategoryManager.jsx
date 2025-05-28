@@ -41,11 +41,15 @@ const CategoryManager = () => {
     try {
       if (editingCategoryId) {
         // Update category
-        await axios.put(`${BASE_URL}/api/category/${editingCategoryId}`, { name: categoryName });
+        await axios.put(`${BASE_URL}/api/category/${editingCategoryId}`, { name: categoryName },{
+    withCredentials: true
+  });
         toast.success('Category updated');
       } else {
         // Add category
-        await axios.post(`${BASE_URL}/api/category`, { name: categoryName });
+        await axios.post(`${BASE_URL}/api/category`, { name: categoryName },{
+    withCredentials: true
+  });
         toast.success('Category added');
       }
       setCategoryName('');
@@ -64,7 +68,11 @@ const CategoryManager = () => {
   const handleCategoryDelete = async (id) => {
     if (window.confirm('Delete this category?')) {
       try {
-        await axios.delete(`${BASE_URL}/api/category/${id}`);
+        await axios.delete(`${BASE_URL}/api/category/${id}`,
+          {
+    withCredentials: true
+  }
+        );
         toast.success('Category deleted');
         fetchCategories();
       } catch (err) {

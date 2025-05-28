@@ -206,7 +206,9 @@ const PropertyForm = ({editData,onClose}) => {
       }
       
       try {
-        const response = await axios.get(`${BASE_URL}/api/subcategory/${categoryId}`);
+        const response = await axios.get(`${BASE_URL}/api/subcategory/${categoryId}`,{
+    withCredentials: true
+  });
         setSubcategories(response.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);

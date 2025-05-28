@@ -4,10 +4,11 @@ import upload from '../middleware/upload.js';
 import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments,insertPropertyConfigurations,insertKeyfeature } from '../services/propertyService.js';
 import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties,sendNewPropertyEmails } from '../services/propertyService.js';
 import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
 
-router.post('/property', upload.fields([
+router.post('/property',isAuthenticated(), upload.fields([
   { name: 'images', maxCount: 8 },
   { name: 'documents', maxCount: 10 },
   { name: 'configFiles', maxCount: 10 }  // Add this line

@@ -1,8 +1,9 @@
 import express from 'express';
 import { checkIfInGallery,addToGallery,getActiveGalleryImages,removeFromGallery } from '../services/gallaryServices.js';
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router()
 // POST /api/gallery/add
-router.post('/addgallary', async (req, res) => {
+router.post('/addgallary',isAuthenticated(), async (req, res) => {
   const { property_id, gallery_from, gallery_to } = req.body;
 
   if (!property_id || !gallery_from || !gallery_to) {
@@ -32,7 +33,7 @@ router.get('/activegallary', async (req, res) => {
   }
 });
 // DELETE /api/gallery/remove/:property_id
-router.delete('/removegallary/:property_id', async (req, res) => {
+router.delete('/removegallary/:property_id',isAuthenticated(), async (req, res) => {
   const { property_id } = req.params;
 
   try {

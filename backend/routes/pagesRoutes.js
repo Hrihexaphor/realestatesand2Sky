@@ -1,11 +1,12 @@
 import express from 'express';
 import uploadAboutImage from '../middleware/aboutupload.js'
 import aboutServices from '../services/pagesServices.js'
+import { isAuthenticated } from '../middleware/auth.js';
 import multer from 'multer';
 
 const router = express.Router()
 
-router.post('/addAbout', async (req, res) => {
+router.post('/addAbout',isAuthenticated(), async (req, res) => {
     uploadAboutImage.single('aboutImage')(req, res, async function (err) {
         if (err instanceof multer.MulterError || err) {
             return res.status(400).json({ error: err.message });
@@ -39,7 +40,7 @@ router.get('/aboutus', async (req, res) => {
     }
 });
 
-router.put('/aboutus/:id', (req, res) => {
+router.put('/aboutus/:id',isAuthenticated(), (req, res) => {
     uploadAboutImage.single('aboutImage')(req, res, async function (err) {
       if (err instanceof multer.MulterError || err) {
         return res.status(400).json({ error: err.message });
@@ -67,7 +68,7 @@ router.put('/aboutus/:id', (req, res) => {
     });
   });
 
-  router.delete('/aboutus/:id', async (req, res) => {
+  router.delete('/aboutus/:id',isAuthenticated(), async (req, res) => {
     try {
       const id = req.params.id;
       const deleted = await aboutServices.deleteAboutPage(id);
@@ -84,7 +85,7 @@ router.put('/aboutus/:id', (req, res) => {
   });
   
 //   privacy polycy routes
-router.post('/addprivacypolicy', async (req, res) => {
+router.post('/addprivacypolicy',isAuthenticated(), async (req, res) => {
     try {
       const policy = await aboutServices.addPrivacyPolicy(req.body);
       res.status(201).json(policy);
@@ -104,7 +105,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   
-  router.put('/privacypolicy/:id', async (req, res) => {
+  router.put('/privacypolicy/:id',isAuthenticated(), async (req, res) => {
     try {
       const updated = await aboutServices.updatePrivacyPolicy(req.params.id, req.body);
       res.status(200).json(updated);
@@ -114,7 +115,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   
-  router.delete('/privacypolicy/:id', async (req, res) => {
+  router.delete('/privacypolicy/:id',isAuthenticated(), async (req, res) => {
     try {
       const deleted = await aboutServices.deletePrivacyPolicy(req.params.id);
       res.status(200).json(deleted);
@@ -124,7 +125,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   // cancellation policy Routes
-  router.post('/addcancelpolicy', async (req, res) => {
+  router.post('/addcancelpolicy',isAuthenticated(), async (req, res) => {
     try {
       const policy = await aboutServices.addCancellationPolicy(req.body);
       res.status(201).json(policy);
@@ -144,7 +145,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   
-  router.put('/cancelpolicy/:id', async (req, res) => {
+  router.put('/cancelpolicy/:id',isAuthenticated(), async (req, res) => {
     try {
       const updated = await aboutServices.updateCancellationPolicy(req.params.id, req.body);
       res.status(200).json(updated);
@@ -154,7 +155,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   
-  router.delete('/cancelpolicy/:id', async (req, res) => {
+  router.delete('/cancelpolicy/:id',isAuthenticated(), async (req, res) => {
     try {
       const deleted = await aboutServices.deleteCancellationPolicy(req.params.id);
       res.status(200).json(deleted);
@@ -165,7 +166,7 @@ router.post('/addprivacypolicy', async (req, res) => {
   });
 
   // terms and services routes
-  router.post('/addtermsandservice', async (req, res) => {
+  router.post('/addtermsandservice',isAuthenticated(), async (req, res) => {
     try {
       const policy = await aboutServices.addTermandServices(req.body);
       res.status(201).json(policy);
@@ -185,7 +186,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   
-  router.put('/termsandservice/:id', async (req, res) => {
+  router.put('/termsandservice/:id',isAuthenticated(), async (req, res) => {
     try {
       const updated = await aboutServices.updateTermandServices(req.params.id, req.body);
       res.status(200).json(updated);
@@ -195,7 +196,7 @@ router.post('/addprivacypolicy', async (req, res) => {
     }
   });
   
-  router.delete('/termsandservice/:id', async (req, res) => {
+  router.delete('/termsandservice/:id',isAuthenticated(), async (req, res) => {
     try {
       const deleted = await aboutServices.deleteTermandServices(req.params.id);
       res.status(200).json(deleted);

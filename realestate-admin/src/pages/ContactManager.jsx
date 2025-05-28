@@ -28,9 +28,13 @@ const ContactManager = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(`${BASE_URL}/api/contact/${editId}`, formData);
+        await axios.put(`${BASE_URL}/api/contact/${editId}`, formData,{
+    withCredentials: true
+  });
       } else {
-        await axios.post(`${BASE_URL}/api/addcontact`, formData);
+        await axios.post(`${BASE_URL}/api/addcontact`, formData,{
+    withCredentials: true
+  });
       }
       setFormData({ email: '', phone_number: '', address: '' });
       setEditId(null);
@@ -48,7 +52,9 @@ const ContactManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this contact?')) {
       try {
-        await axios.delete(`${BASE_URL}/api/contact/${id}`);
+        await axios.delete(`${BASE_URL}/api/contact/${id}`,{
+    withCredentials: true
+  });
         fetchContacts();
       } catch (err) {
         console.error('Delete failed', err);

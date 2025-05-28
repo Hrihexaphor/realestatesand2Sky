@@ -74,7 +74,9 @@ const AdvertisementForm = () => {
     data.append("advertisementImage", advertisementImage);
 
     try {
-      await axios.post(`${BASE_URL}/api/advertisement`, data);
+      await axios.post(`${BASE_URL}/api/advertisement`, data,{
+    withCredentials: true
+  });
       toast.success("Advertisement added successfully");
       setFormData({
         link: "",
@@ -99,7 +101,9 @@ const AdvertisementForm = () => {
     if (window.confirm("Are you sure you want to delete this advertisement?")) {
       setIsDeleting((prev) => ({ ...prev, [id]: true }));
       try {
-        await axios.delete(`${BASE_URL}/api/advertisement/${id}`);
+        await axios.delete(`${BASE_URL}/api/advertisement/${id}`,{
+    withCredentials: true
+  });
         toast.success("Advertisement deleted successfully");
         fetchAdvertisements();
       } catch (err) {

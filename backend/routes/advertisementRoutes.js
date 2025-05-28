@@ -7,10 +7,10 @@ import {
 } from '../services/advertisementServices.js';
 import multer from 'multer';
 import uploadAdvertisementImage from '../middleware/advertisementUpload.js';
-
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
-router.post('/advertisement', (req, res) => {
+router.post('/advertisement', isAuthenticated(),(req, res) => {
   uploadAdvertisementImage.single('advertisementImage')(req, res, async function (err) {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
@@ -71,7 +71,7 @@ router.get('/advertisement', async (req, res) => {
   }
 });
 
-router.delete('/advertisement/:id', async (req, res) => {
+router.delete('/advertisement/:id', isAuthenticated(),async (req, res) => {
   try {
     const { id } = req.params;
     await deleteAdvertisement(id);

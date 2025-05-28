@@ -8,13 +8,13 @@ import { addBlog, getAllBlogs, updateBlog, deleteBlog,  getAllBlogCategories,get
   getBlogCategoryCounts
 } from '../services/blogServices.js';
 
-
+import { isAuthenticated } from '../middleware/auth.js';
 import multer from 'multer';
 
 const router = express.Router();
 
 // Route to add a new blog post
-router.post('/addblog', (req, res) => {
+router.post('/addblog', isAuthenticated(),(req, res) => {
   uploadBlogImage.single('blogImage')(req, res, async function (err) {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
@@ -56,7 +56,7 @@ router.get('/blogs', async (req, res) => {
 });
 
 // Route to update a blog post
-router.put('/blogs/:id', (req, res) => {
+router.put('/blogs/:id',isAuthenticated(), (req, res) => {
   uploadBlogImage.single('blogImage')(req, res, async function(err) {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
@@ -108,7 +108,7 @@ router.get('/blog/:id', async (req, res) => {
 });
 
 // Route to delete a blog post
-router.delete('/blogs/:id', async (req, res) => {
+router.delete('/blogs/:id', isAuthenticated(),async (req, res) => {
   try {
     const blogId = req.params.id;
     const deletedBlog = await deleteBlog(blogId);
@@ -146,7 +146,7 @@ router.get('/blog-categories/:id', async (req, res) => {
 });
 
 // Create a new blog category
-router.post('/blogCategories', async (req, res) => {
+router.post('/blogCategories',isAuthenticated(), async (req, res) => {
   const { name, slug } = req.body;
   try {
     const newCategory = await createBlogCategory(name, slug);
@@ -157,7 +157,7 @@ router.post('/blogCategories', async (req, res) => {
 });
 
 // Update a blog category
-router.put('/blog-categories/:id', async (req, res) => {
+router.put('/blog-categories/:id',isAuthenticated(), async (req, res) => {
   const { id } = req.params;
   const { name, slug } = req.body;
   try {
@@ -172,7 +172,7 @@ router.put('/blog-categories/:id', async (req, res) => {
 });
 
 // Delete a blog category
-router.delete('/blog-categories/:id', async (req, res) => {
+router.delete('/blog-categories/:id',isAuthenticated(), async (req, res) => {
   const { id } = req.params;
   try {
     const deletedCategory = await deleteBlogCategory(id);

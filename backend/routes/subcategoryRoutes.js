@@ -1,8 +1,9 @@
 import express from 'express';
 import { addPropertySubcategory,getSubcategoriesByCategoryId,updateSubcategory,deleteSubcategory,getAllSubcategories } from '../services/propertySubcategory.js';
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
-router.post('/subcategory', async (req, res) => {
+router.post('/subcategory',isAuthenticated(), async (req, res) => {
     const { name, category_id } = req.body;
     try {
       const subcategory = await addPropertySubcategory(name, category_id);
@@ -33,7 +34,7 @@ router.post('/subcategory', async (req, res) => {
     }
   });
   // Update subcategory
-router.put('/subcategory/:id', async (req, res) => {
+router.put('/subcategory/:id',isAuthenticated(), async (req, res) => {
   const { name, category_id } = req.body;
   const { id } = req.params;
   try {
@@ -45,7 +46,7 @@ router.put('/subcategory/:id', async (req, res) => {
 });
 
 // Delete subcategory
-router.delete('/subcategory/:id', async (req, res) => {
+router.delete('/subcategory/:id',isAuthenticated(), async (req, res) => {
   try {
     const deleted = await deleteSubcategory(req.params.id);
     res.json(deleted);

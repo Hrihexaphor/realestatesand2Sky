@@ -7,11 +7,11 @@ import {
   updateReviewApproval,
   fetchApprovedReviews,
 } from "../services/reviewService.js";
-
+import { isAuthenticated } from "../middleware/auth.js";
 const router = express.Router();
 
 // POST: Add a new review (user)
-router.post("/review", async (req, res) => {
+router.post("/review",isAuthenticated(), async (req, res) => {
   try {
     const review = await insertReview(req.body);
     res
@@ -39,7 +39,7 @@ router.get("/review/pending", async (req, res) => {
 });
 
 // PATCH: Admin approves or rejects a review
-router.patch("/review/:id/approval", async (req, res) => {
+router.patch("/review/:id/approval",isAuthenticated(), async (req, res) => {
   const { id } = req.params;
   const { is_approved } = req.body;
 

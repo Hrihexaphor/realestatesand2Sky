@@ -34,9 +34,13 @@ export default function BlogCategoryManager() {
     e.preventDefault();
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/blog-categories/${editingId}`, form);
+        await axios.put(`${BASE_URL}/api/blog-categories/${editingId}`, form,{
+    withCredentials: true
+  });
       } else {
-        await axios.post(`$${BASE_URL}/api/blogCategories`, form);
+        await axios.post(`$${BASE_URL}/api/blogCategories`, form,{
+    withCredentials: true
+  });
       }
       setForm({ name: '', slug: '' });
       setEditingId(null);
@@ -53,7 +57,9 @@ export default function BlogCategoryManager() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/api/blog-categories/${id}`);
+      await axios.delete(`${BASE_URL}/api/blog-categories/${id}`,{
+    withCredentials: true
+  });
       fetchCategories();
     } catch (error) {
       console.error('Error deleting category:', error);

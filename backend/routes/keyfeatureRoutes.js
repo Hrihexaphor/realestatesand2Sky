@@ -6,11 +6,11 @@ import {
   updateKeyFeature,
   deleteKeyFeature,
 } from '../services/keyfeatureServices.js';
-
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
 // Create
-router.post('/keyfeature', async (req, res) => {
+router.post('/keyfeature',isAuthenticated(), async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
@@ -34,7 +34,7 @@ router.get('/keyfeature', async (req, res) => {
 });
 
 // Update
-router.put('/keyfeature/:id', async (req, res) => {
+router.put('/keyfeature/:id',isAuthenticated(), async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -47,7 +47,7 @@ router.put('/keyfeature/:id', async (req, res) => {
 });
 
 // Delete
-router.delete('/keyfeature/:id', async (req, res) => {
+router.delete('/keyfeature/:id',isAuthenticated(), async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await deleteKeyFeature(id);

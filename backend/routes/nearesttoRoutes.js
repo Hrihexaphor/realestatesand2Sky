@@ -1,8 +1,8 @@
 import express from 'express';
 import { createNearesTo,getAllNearest,updateNearestTo,deleteNearestTo } from '../services/nearestoServices.js';
-
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
-router.post('/nearest', async (req, res) => {
+router.post('/nearest',isAuthenticated(), async (req, res) => {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: "Name is required" });
 
@@ -26,7 +26,7 @@ router.get('/nearest', async (req, res) => {
 
 
 // PUT /api/nearest-to/:id - Update a nearest_to entry
-router.put('/nearest/:id', async (req, res) => {
+router.put('/nearest/:id',isAuthenticated(), async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
   
@@ -44,7 +44,7 @@ router.put('/nearest/:id', async (req, res) => {
 
   
 // DELETE /api/nearest-to/:id - Delete a nearest_to entry
-router.delete('/nearest/:id', async (req, res) => {
+router.delete('/nearest/:id',isAuthenticated(), async (req, res) => {
     const { id } = req.params;
   
     try {

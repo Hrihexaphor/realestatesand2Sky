@@ -45,7 +45,9 @@ export default function CityManager() {
       } else {
         const res = await axios.post(`${BASE_URL}/api/cities`, {
           name: cityName,
-        });
+        },{
+    withCredentials: true
+  });
         setCities([...cities, res.data]);
       }
       setCityName("");

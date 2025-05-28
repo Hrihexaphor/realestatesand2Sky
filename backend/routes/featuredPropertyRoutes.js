@@ -1,8 +1,9 @@
 import express from 'express';
 import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,getActiveFeaturedPropertiesLite,getFeaturedProperties } from '../services/featuredProperty.js';
+import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
-router.post('/addtofeatured', async (req, res) => {
+router.post('/addtofeatured', isAuthenticated(),async (req, res) => {
   const { property_id, start_date, end_date, cities } = req.body;
   
   if (!property_id) {
@@ -28,7 +29,7 @@ router.post('/addtofeatured', async (req, res) => {
 
 
 // Remove a property from featured
-router.delete('/featured/:property_id', async (req, res) => {
+router.delete('/featured/:property_id',isAuthenticated(), async (req, res) => {
   const { property_id } = req.params;
   
   try {

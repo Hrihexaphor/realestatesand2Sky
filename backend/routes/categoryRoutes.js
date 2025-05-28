@@ -1,7 +1,9 @@
 import express from 'express';
 import { addPropertyCategory,getAllPropertyCategories,updateCategory,deleteCategory } from '../services/propertyCategory.js';
 const router = express.Router();
-router.post('/category', async (req, res) => {
+import { isAuthenticated } from '../middleware/auth.js';
+
+router.post('/category', isAuthenticated(),async (req, res) => {
     const { name } = req.body;
     try {
       const category = await addPropertyCategory(name);
@@ -23,7 +25,7 @@ router.post('/category', async (req, res) => {
     }
   });
   // Update category
-  router.put('/category/:id', async (req, res) => {
+  router.put('/category/:id',isAuthenticated(), async (req, res) => {
     const { name } = req.body;
     const { id } = req.params;
     try {
@@ -35,7 +37,7 @@ router.post('/category', async (req, res) => {
   });
   
   // Delete category
-  router.delete('/category/:id', async (req, res) => {
+  router.delete('/category/:id',isAuthenticated(), async (req, res) => {
     try {
       const deleted = await deleteCategory(req.params.id);
       res.json(deleted);
