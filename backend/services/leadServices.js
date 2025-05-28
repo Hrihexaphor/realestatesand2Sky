@@ -191,7 +191,7 @@ export  async function createInquiry(data){
     [property_id, phone, project_name, title, name, email, inquiry_time, contacted]
   );
 
-  await sendAdminEmail({ title, project_name, name, phone, email });
+  // await sendAdminEmail({ title, project_name, name, phone, email });
   return result.rows[0];
 }
 
