@@ -2291,7 +2291,7 @@ const renderPropertySocietyDertails = ()=>{
       <option value="brochure">Brochure</option>
       <option value="floorplan">Floor Plan</option>
       <option value="Masterplan">Master Plan</option>
-      <option value="Approval">3BHK</option>
+      <option value="Approval">Approval</option>
       <option value="rerecirtificate">RERA Cirtificate</option>
     </select>
     <button type="button" className="remove-btn" onClick={() => removeDocument(idx)}>❌</button>
