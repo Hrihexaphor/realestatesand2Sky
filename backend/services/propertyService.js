@@ -3,11 +3,13 @@ import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';  
 dotenv.config();
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT, 10),
+  secure: false, // Brevo uses STARTTLS, not SSL
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    pass: process.env.EMAIL_PASS
+  }
 });
 /**
  * Insert a new property into the database

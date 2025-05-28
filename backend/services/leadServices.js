@@ -80,11 +80,13 @@ export const sendConfirmationEmail = async (email, name, data) => {
   }).format(budget);
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+     host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT, 10),
+      secure: false, // Brevo uses STARTTLS, not SSL
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+  }
   });
 
   const mailOptions = {
@@ -137,11 +139,13 @@ Property Finder Team
   } = lead;
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+     host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT, 10),
+  secure: false, // Brevo uses STARTTLS, not SSL
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
   });
 
   const mailOptions = {
@@ -204,11 +208,13 @@ export  async function markAsContacted(id){
 
 const sendAdminEmail = async ({ title, project_name, name, phone, email }) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+    host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT, 10),
+  secure: false, // Brevo uses STARTTLS, not SSL
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
   });
 
   const mailOptions = {
