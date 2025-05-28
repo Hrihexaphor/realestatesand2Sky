@@ -1,17 +1,33 @@
 import express from 'express';
 import {insertLead,getAllLeads,updateContactedStatus,createInquiry,getAllInquiries,markAsContacted,postGetInfo,getAllGetInfo,toggleContactedGetInfo,createContact,getAllContacts} from '../services/leadServices.js'
-
+import { 
+  sendAdminNotificationEmail, 
+  sendAdminEmail,
+  handleEmailSending 
+} from '../utils/emailfunction.js'
 const router = express.Router();
 
 router.post('/inquiryleads', async (req, res) => {
-    try {
-      const lead = await insertLead(req.body);
-      res.status(201).json({ message: 'Lead submitted', lead });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error submitting lead' });
+  try {
+    const lead = await insertLead(req.body);
+    
+    // Send email notification to admin
+    const emailResult = await handleEmailSending(sendAdminNotificationEmail, req.body);
+    if (!emailResult.success) {
+      console.warn('Failed to send admin notification email:', emailResult.error);
+      // Don't fail the request if email fails, just log it
     }
-  });
+    
+    res.status(201).json({ 
+      message: 'Lead submitted successfully', 
+      lead,
+      emailSent: emailResult.success 
+    });
+  } catch (err) {
+    console.error('Error submitting lead:', err);
+    res.status(500).json({ message: 'Error submitting lead' });
+  }
+});
   
   router.get('/inquiryleads', async (req, res) => {
     try {
@@ -38,7 +54,29 @@ router.post('/inquiryleads', async (req, res) => {
 router.post('/propinquiry', async (req, res) => {
   try {
     const result = await createInquiry(req.body);
-    res.status(201).json(result);
+    
+    // Send email notification for property inquiry
+    const { title, project_name, name, phone, email } = req.body;
+    if (title && project_name && name && phone && email) {
+      const emailResult = await handleEmailSending(sendAdminEmail, {
+        title,
+        project_name,
+        name,
+        phone,
+        email
+      });
+      
+      if (!emailResult.success) {
+        console.warn('Failed to send property inquiry email:', emailResult.error);
+      }
+      
+      res.status(201).json({
+        ...result,
+        emailSent: emailResult.success
+      });
+    } else {
+      res.status(201).json(result);
+    }
   } catch (error) {
     console.error('Create Inquiry Error:', error);
     res.status(500).json({ error: 'Failed to create inquiry' });

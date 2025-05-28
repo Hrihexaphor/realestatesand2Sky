@@ -34,8 +34,8 @@ export const insertLead = async (data) => {
     try {
       const result = await pool.query(query, values);
       // Pass the complete data object to sendConfirmationEmail for better personalization
-      await sendConfirmationEmail(email, name, data);
-       await sendAdminNotificationEmail(data);
+      // await sendConfirmationEmail(email, name, data);
+      //  await sendAdminNotificationEmail(data);
       return result.rows[0];
     } catch (error) {
       console.error('Error inserting lead:', error);
@@ -62,115 +62,116 @@ export const updateContactedStatus = async (id, contacted) => {
   return result.rows[0];
 };
 
+
 /**
  * Send confirmation email to the user
  */
-export const sendConfirmationEmail = async (email, name, data) => {
-  const {
-    property_category,
-    construction_status,
-    budget,
-    city
-  } = data;
+// export const sendConfirmationEmail = async (email, name, data) => {
+//   const {
+//     property_category,
+//     construction_status,
+//     budget,
+//     city
+//   } = data;
 
-  const formattedBudget = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(budget);
+//   const formattedBudget = new Intl.NumberFormat('en-IN', {
+//     style: 'currency',
+//     currency: 'INR',
+//     maximumFractionDigits: 0
+//   }).format(budget);
 
-  const transporter = nodemailer.createTransport({
-     host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT, 10),
-      secure: false, // Brevo uses STARTTLS, not SSL
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-  }
-  });
+//   const transporter = nodemailer.createTransport({
+//      host: process.env.EMAIL_HOST,
+//       port: parseInt(process.env.EMAIL_PORT, 10),
+//       secure: false, // Brevo uses STARTTLS, not SSL
+//       auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS
+//   }
+//   });
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: `✅ Thank you for your property inquiry, ${name}`,
-    html: `
-      <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
-        <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
-        <p>Dear ${name},</p>
-        <p>Thank you for your inquiry. We've received your request with the following details:</p>
-        <p><strong>Property Type:</strong> ${property_category}</p>
-        <p><strong>Construction Status:</strong> ${construction_status}</p>
-        <p><strong>Budget:</strong> ${formattedBudget}</p>
-        <p><strong>Location:</strong> ${city}</p>
-        <p>Our team will contact you shortly to assist with your property search.</p>
-        <p>Best regards,<br><strong>Property Finder Team</strong></p>
-      </div>
-    `,
-    text: `Dear ${name},
+//   const mailOptions = {
+//     from: process.env.EMAIL_USER,
+//     to: email,
+//     subject: `✅ Thank you for your property inquiry, ${name}`,
+//     html: `
+//       <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
+//         <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
+//         <p>Dear ${name},</p>
+//         <p>Thank you for your inquiry. We've received your request with the following details:</p>
+//         <p><strong>Property Type:</strong> ${property_category}</p>
+//         <p><strong>Construction Status:</strong> ${construction_status}</p>
+//         <p><strong>Budget:</strong> ${formattedBudget}</p>
+//         <p><strong>Location:</strong> ${city}</p>
+//         <p>Our team will contact you shortly to assist with your property search.</p>
+//         <p>Best regards,<br><strong>Property Finder Team</strong></p>
+//       </div>
+//     `,
+//     text: `Dear ${name},
 
-Thank you for your inquiry. We've received your request with the following details:
+// Thank you for your inquiry. We've received your request with the following details:
 
-- Property Type: ${property_category}
-- Construction Status: ${construction_status}
-- Budget: ${formattedBudget}
-- Location: ${city}
+// - Property Type: ${property_category}
+// - Construction Status: ${construction_status}
+// - Budget: ${formattedBudget}
+// - Location: ${city}
 
-Our team will contact you shortly to assist with your property search.
+// Our team will contact you shortly to assist with your property search.
 
-Best regards,
-Property Finder Team
-`
-  };
+// Best regards,
+// Property Finder Team
+// `
+//   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Confirmation email sent to ${email}`);
-    return true;
-  } catch (error) {
-    console.error('Error sending confirmation email:', error);
-    throw error;
-  }
-};
+//   try {
+//     await transporter.sendMail(mailOptions);
+//     console.log(`Confirmation email sent to ${email}`);
+//     return true;
+//   } catch (error) {
+//     console.error('Error sending confirmation email:', error);
+//     throw error;
+//   }
+// };
 
   // also get the mail admin
- const sendAdminNotificationEmail = async (lead) => {
-  const {
-    name, email, phone_number, city, budget, inquiry_for, property_category
-  } = lead;
+//  const sendAdminNotificationEmail = async (lead) => {
+//   const {
+//     name, email, phone_number, city, budget, inquiry_for, property_category
+//   } = lead;
 
-  const transporter = nodemailer.createTransport({
-     host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT, 10),
-  secure: false, // Brevo uses STARTTLS, not SSL
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-  });
+//   const transporter = nodemailer.createTransport({
+//      host: process.env.EMAIL_HOST,
+//   port: parseInt(process.env.EMAIL_PORT, 10),
+//   secure: false, // Brevo uses STARTTLS, not SSL
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS
+//   }
+//   });
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.ADMIN_EMAIL,
-    subject: `🚀 New Property Inquiry from ${name}`,
-    html: `
-      <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
-        <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
-        <p>Dear Truptikanta Swain,</p>
-        <p>You have received a new property inquiry with the following details:</p>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone_number}</p>
-        <p><strong>City:</strong> ${city}</p>
-        <p><strong>Inquiry For:</strong> ${inquiry_for}</p>
-        <p><strong>Budget:</strong> ${budget}</p>
-        <p><strong>Property Type:</strong> ${property_category}</p>
-        <p><em>Please follow up with this lead as soon as possible.</em></p>
-      </div>
-    `
-  };
+//   const mailOptions = {
+//     from: process.env.EMAIL_USER,
+//     to: process.env.ADMIN_EMAIL,
+//     subject: `🚀 New Property Inquiry from ${name}`,
+//     html: `
+//       <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
+//         <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
+//         <p>Dear Truptikanta Swain,</p>
+//         <p>You have received a new property inquiry with the following details:</p>
+//         <p><strong>Name:</strong> ${name}</p>
+//         <p><strong>Email:</strong> ${email}</p>
+//         <p><strong>Phone:</strong> ${phone_number}</p>
+//         <p><strong>City:</strong> ${city}</p>
+//         <p><strong>Inquiry For:</strong> ${inquiry_for}</p>
+//         <p><strong>Budget:</strong> ${budget}</p>
+//         <p><strong>Property Type:</strong> ${property_category}</p>
+//         <p><em>Please follow up with this lead as soon as possible.</em></p>
+//       </div>
+//     `
+//   };
 
-  await transporter.sendMail(mailOptions);
-};
+//   await transporter.sendMail(mailOptions);
+// };
 
 // this is the services for the property inquiry leads
 
@@ -206,36 +207,36 @@ export  async function markAsContacted(id){
   return result.rows[0];
 }
 
-const sendAdminEmail = async ({ title, project_name, name, phone, email }) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT, 10),
-  secure: false, // Brevo uses STARTTLS, not SSL
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-  });
+// const sendAdminEmail = async ({ title, project_name, name, phone, email }) => {
+//   const transporter = nodemailer.createTransport({
+//     host: process.env.EMAIL_HOST,
+//   port: parseInt(process.env.EMAIL_PORT, 10),
+//   secure: false, // Brevo uses STARTTLS, not SSL
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS
+//   }
+//   });
 
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.ADMIN_EMAIL,
-    subject: 'New Property Inquiry',
-    html: `
-      <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
-        <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
-        <p>Dear Truptikanta Swain,</p>
-        <p>A user is interested in your property: <strong>${title} (${project_name})</strong></p>
-        <p><strong>Sender Name:</strong> ${name}</p>
-        <p><strong>Visitor Phone:</strong> ${phone}</p>
-        <p><strong>Visitor Email:</strong> ${email}</p>
-        <p><strong>Message:</strong> I am interested in your property. Please get in touch with me.</p>
-      </div>
-    `
-  };
+//   const mailOptions = {
+//     from: process.env.EMAIL_USER,
+//     to: process.env.ADMIN_EMAIL,
+//     subject: 'New Property Inquiry',
+//     html: `
+//       <div style="font-family: Arial; border: 1px solid #ddd; padding: 20px;">
+//         <img src="https://res.cloudinary.com/djqpz99jb/image/upload/v1748241602/WhatsApp_Image_2025-05-26_at_12.02.58_PM_mvl5cs.jpg" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
+//         <p>Dear Truptikanta Swain,</p>
+//         <p>A user is interested in your property: <strong>${title} (${project_name})</strong></p>
+//         <p><strong>Sender Name:</strong> ${name}</p>
+//         <p><strong>Visitor Phone:</strong> ${phone}</p>
+//         <p><strong>Visitor Email:</strong> ${email}</p>
+//         <p><strong>Message:</strong> I am interested in your property. Please get in touch with me.</p>
+//       </div>
+//     `
+//   };
 
-  await transporter.sendMail(mailOptions);
-};
+//   await transporter.sendMail(mailOptions);
+// };
 
 // get info services
 export async function postGetInfo(data) {
