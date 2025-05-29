@@ -26,14 +26,12 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         d.name AS developer_name,
         psc.name AS subcategory_name,
 
-        (
+       (
           SELECT pi.image_url
           FROM property_images pi
-          WHERE pi.property_id = p.id
-          ORDER BY pi.id ASC
+          WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
-
         EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -102,14 +100,12 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
-        (
+             (
           SELECT pi.image_url
           FROM property_images pi
-          WHERE pi.property_id = p.id
-          ORDER BY pi.id ASC
+          WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
-
         EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -174,11 +170,10 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
-        (
+           (
           SELECT pi.image_url
           FROM property_images pi
-          WHERE pi.property_id = p.id
-          ORDER BY pi.id ASC
+          WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
 
@@ -253,11 +248,10 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
-        (
+           (
           SELECT pi.image_url
           FROM property_images pi
-          WHERE pi.property_id = p.id
-          ORDER BY pi.id ASC
+          WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
 
@@ -328,13 +322,12 @@ export const getPropertiesInPriceRangeSummaryOnetotwo = async (
           d.name AS developer_name,
           pc.name AS category_name,
           psc.name AS subcategory_name,
-          (
-            SELECT pi.image_url
-            FROM property_images pi
-            WHERE pi.property_id = p.id
-            ORDER BY pi.id ASC
-            LIMIT 1
-          ) AS primary_image,
+            (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id AND pi.is_primary = true
+          LIMIT 1
+        ) AS primary_image,
              EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -519,11 +512,10 @@ export const getPropertiesByLocality = async (
         d.name AS developer_name,
         pc.name AS category_name,
         psc.name AS subcategory_name,
-        (
+       (
           SELECT pi.image_url
           FROM property_images pi
-          WHERE pi.property_id = p.id
-          ORDER BY pi.id ASC
+          WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
         EXISTS (
@@ -590,13 +582,12 @@ export const getPropertiesByDeveloperId = async (
       d.developer_logo,
       psc.name AS subcategory_name,
 
-      (
-        SELECT pi.image_url
-        FROM property_images pi
-        WHERE pi.property_id = p.id
-        ORDER BY pi.id ASC
-        LIMIT 1
-      ) AS primary_image,
+        (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id AND pi.is_primary = true
+          LIMIT 1
+        ) AS primary_image,
 
       EXISTS (
         SELECT 1 FROM featured_properties fp 

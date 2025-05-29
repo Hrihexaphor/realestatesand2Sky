@@ -17,6 +17,7 @@ import {
   FaCity,
   FaKeycdn,
   FaRegUser,
+  FaRegImages 
 } from "react-icons/fa";
 import { useState } from "react";
 import SingleNavItem from "../components/SingleNavItem";
@@ -28,6 +29,7 @@ import { USER_ROLES } from "../config";
 const NAV_ITEMS = [
   { path: "/dashboard/usermanager", icon: <FaRegUser />, label: "Manage User" },
   { path: "/dashboard/property", icon: <FaHome />, label: "Property" },
+   { path: "/dashboard/primaryimage", icon: <FaRegImages  />, label: "Primaryimage" },
   { path: "/dashboard/amenities", icon: <FaBath />, label: "Amenities" },
   { path: "/dashboard/keyfeature", icon: <FaKeycdn />, label: "Key Feature" },
   { path: "/dashboard/developer", icon: <FaHardHat />, label: "Developer" },

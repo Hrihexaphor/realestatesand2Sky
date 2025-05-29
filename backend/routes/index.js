@@ -20,6 +20,7 @@ import generalfaqRouts from './generalfaqRouts.js';
 import userRoutes from './userRoutes.js';
 import authRoutes from './authRoutes.js';
 import contactRoutes from './contactusRoutes.js';
+import propertyImageRoute from './propertyImagesroutes.js'
 import { isAuthenticated } from '../middleware/auth.js';
 
 import { ROLES } from '../constants/roles.js';
@@ -49,5 +50,6 @@ apiRouter.use('/', gallaryRoutes);
 apiRouter.use('/', keyfeatureRoute);
 apiRouter.use('/', generalfaqRouts);
 apiRouter.use('/', contactRoutes);
+apiRouter.use('/', propertyImageRoute);
 
 export default apiRouter;

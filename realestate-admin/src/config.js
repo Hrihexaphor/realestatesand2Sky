@@ -67,6 +67,11 @@ export const ROUTES = [
     element: "ContactLeads",
   },
   {
+    path:"primaryimage",
+    label:'primaryimage',
+    element:'PropertyImageManager',
+  },
+  {
     path: "usermanager",
     label: "User Manager",
     element: "UserManager",
