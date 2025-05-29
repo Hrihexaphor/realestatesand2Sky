@@ -8,7 +8,7 @@ import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
 
-router.post('/property',isAuthenticated(), upload.fields([
+router.post('/property', upload.fields([
   { name: 'images', maxCount: 8 },
   { name: 'documents', maxCount: 10 },
   { name: 'configFiles', maxCount: 10 }  // Add this line
