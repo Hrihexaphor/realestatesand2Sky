@@ -10,7 +10,7 @@ import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
 // Create
-router.post('/keyfeature',isAuthenticated(), async (req, res) => {
+router.post('/keyfeature', async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
