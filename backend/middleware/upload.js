@@ -16,10 +16,18 @@ const storage = new CloudinaryStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype.startsWith('image/') ||
-    file.mimetype === 'application/pdf'
-  ) {
+  const allowedMimeTypes = [
+    'application/pdf',
+    'application/x-pdf',
+    'application/acrobat',
+    'text/pdf'
+  ];
+  
+  const isImage = file.mimetype.startsWith('image/');
+  const isPDF = allowedMimeTypes.includes(file.mimetype) || 
+                file.originalname.toLowerCase().endsWith('.pdf');
+  
+  if (isImage || isPDF) {
     cb(null, true);
   } else {
     cb(new Error('Only image and PDF files are allowed!'), false);
