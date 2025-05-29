@@ -1515,7 +1515,7 @@ const PropertyForm = ({ editData, onClose }) => {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>Floor Number</label>
+                <label>Property In Floor</label>
                 <input
                   type="text"
                   name="floor"

@@ -31,10 +31,14 @@ const KeyFeatureManager = () => {
 
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/keyfeature/${editingId}`, { name });
+        await axios.put(`${BASE_URL}/api/keyfeature/${editingId}`, { name },{
+          withCredentials:true
+        });
         toast.success('Feature updated');
       } else {
-        await axios.post(`${BASE_URL}/api/keyfeature`, { name });
+        await axios.post(`${BASE_URL}/api/keyfeature`, { name },{
+          withCredentials:true
+        });
         toast.success('Feature added');
       }
       setName('');
