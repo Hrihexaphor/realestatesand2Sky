@@ -751,7 +751,7 @@ const PropertyForm = ({ editData, onClose }) => {
           formData.append("documents", doc.file);
         });
 
-        await axios.post(`http://localhost:3001/api/property`, formData, {
+        await axios.post(`${BASE_URL}/api/property`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
