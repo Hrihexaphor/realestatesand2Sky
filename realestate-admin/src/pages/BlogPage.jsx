@@ -149,7 +149,7 @@ export default function BlogPage() {
         toast.success('Blog updated successfully');
       } else {
         await axios.post(
-          `http://localhost:3001/api/addblog`,
+          `${BASE_URL}/api/addblog`,
           formData,
           { withCredentials: true }
         );
