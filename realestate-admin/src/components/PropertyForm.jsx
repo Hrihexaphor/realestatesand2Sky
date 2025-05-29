@@ -271,7 +271,11 @@ const PropertyForm = ({ editData, onClose }) => {
           editData.amenities.map((a) => (typeof a === "object" ? a.id : a))
         );
       }
-
+        if (editData.keyfeature && Array.isArray(editData.keyfeature)) {
+        setSelectedKeyfeature(
+          editData.keyfeature.map((a) => (typeof a === "object" ? a.id : a))
+        );
+      }
       if (editData.nearest_to && Array.isArray(editData.nearest_to)) {
         setNearestTo(
           editData.nearest_to.map((n) => ({
@@ -2407,9 +2411,9 @@ const PropertyForm = ({ editData, onClose }) => {
                   <line x1="20" y1="11" x2="20" y2="11"></line>
                 </svg>
                 <div className="file-upload-text">
-                  Drop images here or click to upload
+                  Drop images here or click to upload 
                 </div>
-                <p className="file-help">Select multiple images (JPG, PNG)</p>
+                <p className="file-help">Select multiple images (JPG, PNG). Max size: 10MB each.</p>
               </label>
             </div>
           </div>
