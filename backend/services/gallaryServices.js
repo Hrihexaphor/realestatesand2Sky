@@ -101,4 +101,4 @@ export async function removeFromGallery(property_id) {
     [property_id]
   );
   return result.rows[0]; // returns deleted entry or undefined if not found
-}
+} 

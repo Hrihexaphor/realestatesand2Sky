@@ -72,12 +72,17 @@ const propertyStorage = new CloudinaryStorage({
   params: (req, file) => {
     const isPDF = file.mimetype === 'application/pdf';
     const filename = file.originalname.split('.')[0];
+    // Get the file extension
+    const fileExtension = file.originalname.split('.').pop().toLowerCase();
     
     return {
       folder: file.fieldname === 'images' ? 'realestate/property/images' : 'realestate/property/documents',
       allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],
       resource_type: isPDF ? 'raw' : 'image',
-      public_id: `${filename}-${Date.now()}-${uuidv4()}`,
+      // Include the file extension in the public_id for PDFs
+      public_id: isPDF 
+        ? `${filename}-${Date.now()}-${uuidv4()}.${fileExtension}`
+        : `${filename}-${Date.now()}-${uuidv4()}`,
       // Don't add transformation for PDFs
       transformation: isPDF ? undefined : [{ width: 1200, height: 1200, crop: 'limit' }],
     };
