@@ -11,7 +11,7 @@ import { isAuthenticated } from "../middleware/auth.js";
 const router = express.Router();
 
 // POST: Add a new review (user)
-router.post("/review",isAuthenticated(), async (req, res) => {
+router.post("/review", async (req, res) => {
   try {
     const review = await insertReview(req.body);
     res

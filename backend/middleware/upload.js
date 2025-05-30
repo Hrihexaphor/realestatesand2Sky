@@ -1,19 +1,7 @@
 import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+// import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinaryConfig from '../utils/cloudinary.js'; // Import the full config object
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinaryConfig.cloudinary, // ✅ use cloudinary instance
-  params: async (req, file) => {
-    const isPDF = file.mimetype === 'application/pdf';
-    return {
-      folder: file.fieldname === 'images' ? 'realestate_images' : 'realestate_documents',
-      allowed_formats: ['jpg', 'png', 'jpeg', 'pdf'],
-      resource_type: isPDF ? 'raw' : 'image',  // ✅ important for non-image files
-      public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
-    };
-  },
-});
+const storage = cloudinaryConfig.propertyStorage;
 
 const fileFilter = (req, file, cb) => {
   const allowedMimeTypes = [
@@ -24,12 +12,14 @@ const fileFilter = (req, file, cb) => {
   ];
   
   const isImage = file.mimetype.startsWith('image/');
-  const isPDF = allowedMimeTypes.includes(file.mimetype) || 
+  const isPDF = allowedMimeTypes.includes(file.mimetype) ||
                 file.originalname.toLowerCase().endsWith('.pdf');
   
   if (isImage || isPDF) {
+    console.log(`✅ File accepted: ${file.originalname} (${file.mimetype})`);
     cb(null, true);
   } else {
+    console.log(`❌ File rejected: ${file.originalname} (${file.mimetype})`);
     cb(new Error('Only image and PDF files are allowed!'), false);
   }
 };
