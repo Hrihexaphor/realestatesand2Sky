@@ -271,11 +271,6 @@ const PropertyForm = ({ editData, onClose }) => {
           editData.amenities.map((a) => (typeof a === "object" ? a.id : a))
         );
       }
-        if (editData.keyfeature && Array.isArray(editData.keyfeature)) {
-        setSelectedKeyfeature(
-          editData.keyfeature.map((a) => (typeof a === "object" ? a.id : a))
-        );
-      }
       if (editData.nearest_to && Array.isArray(editData.nearest_to)) {
         setNearestTo(
           editData.nearest_to.map((n) => ({
@@ -286,6 +281,18 @@ const PropertyForm = ({ editData, onClose }) => {
       }
     }
   }, [editData, map, marker]);
+  useEffect(() => {
+  if (
+    editData &&
+    editData.keyfeature &&
+    Array.isArray(editData.keyfeature) &&
+    keyfeature.length > 0
+  ) {
+    setSelectedKeyfeature(
+      editData.keyfeature.map((a) => (typeof a === "object" ? a.id : a))
+    );
+  }
+}, [keyfeature]);
   // calculate the price for square feet automatically
   useEffect(() => {
     const area = parseFloat(details.super_built_up_area);

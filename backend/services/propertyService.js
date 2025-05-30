@@ -325,46 +325,53 @@ export async function getAllProperties() {
   try {
     const result = await pool.query(`
       SELECT 
-  p.*, 
-  pd.*, 
-  pl.latitude, pl.longitude, pl.address,
-  d.id AS developer_id, d.name AS developer_name, d.company_name AS developer_company_name,
-  pc.name AS property_category_name,
-  psc.name AS property_subcategory_name,
+        p.*, 
+        pd.*, 
+        pl.latitude, pl.longitude, pl.address,
+        d.id AS developer_id, d.name AS developer_name, d.company_name AS developer_company_name,
+        pc.name AS property_category_name,
+        psc.name AS property_subcategory_name,
 
-  (
-    SELECT json_agg(pi.*) 
-    FROM property_images pi 
-    WHERE pi.property_id = p.id
-  ) AS images,
+        (
+          SELECT json_agg(pi.*) 
+          FROM property_images pi 
+          WHERE pi.property_id = p.id
+        ) AS images,
 
-  (
-    SELECT json_agg(json_build_object('id', a.id, 'name', a.name, 'icon', a.icon)) 
-    FROM property_amenity pa 
-    JOIN amenity a ON pa.amenity_id = a.id 
-    WHERE pa.property_id = p.id
-  ) AS amenities,
+        (
+          SELECT json_agg(json_build_object('id', a.id, 'name', a.name, 'icon', a.icon)) 
+          FROM property_amenity pa 
+          JOIN amenity a ON pa.amenity_id = a.id 
+          WHERE pa.property_id = p.id
+        ) AS amenities,
 
-  (
-    SELECT json_agg(json_build_object('id', nt.id, 'name', nt.name, 'distance_km', pnt.distance_km)) 
-    FROM property_nearest_to pnt 
-    JOIN nearest_to nt ON pnt.nearest_to_id = nt.id 
-    WHERE pnt.property_id = p.id
-  ) AS nearest_to,
+        (
+          SELECT json_agg(json_build_object('id', nt.id, 'name', nt.name, 'distance_km', pnt.distance_km)) 
+          FROM property_nearest_to pnt 
+          JOIN nearest_to nt ON pnt.nearest_to_id = nt.id 
+          WHERE pnt.property_id = p.id
+        ) AS nearest_to,
 
-  (
-    SELECT json_agg(json_build_object('id', pd.id, 'type', pd.type, 'file_url', pd.file_url)) 
-    FROM property_documents pd 
-    WHERE pd.property_id = p.id
-  ) AS documents
+        (
+          SELECT json_agg(json_build_object('id', pd.id, 'type', pd.type, 'file_url', pd.file_url)) 
+          FROM property_documents pd 
+          WHERE pd.property_id = p.id
+        ) AS documents,
 
-FROM property p
-LEFT JOIN property_details pd ON p.id = pd.property_id
-LEFT JOIN property_location pl ON p.id = pl.property_id
-LEFT JOIN developer d ON p.developer_id = d.id
-LEFT JOIN property_category pc ON p.category_id = pc.id
-LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-ORDER BY p.id DESC
+        (
+          SELECT json_agg(json_build_object('id', kf.id, 'name', kf.name))
+          FROM property_key_feature pkf
+          JOIN key_feature kf ON pkf.key_feature_id = kf.id
+          WHERE pkf.property_id = p.id
+        ) AS key_feature
+
+      FROM property p
+      LEFT JOIN property_details pd ON p.id = pd.property_id
+      LEFT JOIN property_location pl ON p.id = pl.property_id
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      ORDER BY p.id DESC
     `);
 
     return result.rows;
@@ -374,6 +381,7 @@ ORDER BY p.id DESC
   }
 }
 
+
 /**
  * Update a property by ID
  * @param {number} id - The property ID
@@ -382,96 +390,79 @@ ORDER BY p.id DESC
  */
 export async function updatePropertyById(id, data) {
   try {
-    const { basic, details, location, nearest_to, amenities, keyfeature } =
-      data;
+    const { basic, details, location, nearest_to, amenities, keyfeature } = data;
 
-    // Update basic property info
+    // 1. Update basic property info
     if (basic) {
       const fields = Object.keys(basic);
       const values = Object.values(basic);
-      const setClause = fields
-        .map((field, index) => `${field} = $${index + 2}`)
-        .join(", ");
-
+      const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(", ");
       await pool.query(
-        `
-       UPDATE property 
-       SET ${setClause} 
-       WHERE id = $1
-     `,
+        `UPDATE property SET ${setClause} WHERE id = $1`,
         [id, ...values]
       );
     }
 
-    // Update property details
+    // 2. Update property details
     if (details) {
       const fields = Object.keys(details);
       const values = Object.values(details);
-      const setClause = fields
-        .map((field, index) => `${field} = $${index + 2}`)
-        .join(", ");
-
+      const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(", ");
       await pool.query(
-        `
-       UPDATE property_details 
-       SET ${setClause} 
-       WHERE property_id = $1
-     `,
+        `UPDATE property_details SET ${setClause} WHERE property_id = $1`,
         [id, ...values]
       );
     }
 
-    // Update location
+    // 3. Update location
     if (location) {
       const { latitude, longitude, address } = location;
       await pool.query(
-        `
-       UPDATE property_location 
-       SET latitude = $2, longitude = $3, address = $4 
-       WHERE property_id = $1
-     `,
+        `UPDATE property_location SET latitude = $2, longitude = $3, address = $4 WHERE property_id = $1`,
         [id, latitude, longitude, address]
       );
     }
 
-    // Update amenities
-    if (amenities) {
-      // Delete existing amenities
-      await pool.query(`DELETE FROM property_amenity WHERE property_id = $1`, [
-        id,
-      ]);
-
-      // Insert new amenities
-      await insertAmenities(id, amenities);
-    }
-    if (keyfeature) {
-      // Delete existing keyfeature
-      await pool.query(
-        `DELETE FROM property_key_feature WHERE property_id = $1`,
-        [id]
-      );
-
-      // Insert new amenities
-      await insertKeyfeature(id, keyfeature);
-    }
-    // Update nearest places
-    if (nearest_to) {
-      // Delete existing nearest places
-      await pool.query(
-        `DELETE FROM property_nearest_to WHERE property_id = $1`,
-        [id]
-      );
-
-      // Insert new nearest places
-      await insertNearestTo(id, nearest_to);
+    // 4. Update amenities
+    if (Array.isArray(amenities)) {
+      await pool.query(`DELETE FROM property_amenity WHERE property_id = $1`, [id]);
+      for (const amenityId of amenities) {
+        await pool.query(
+          `INSERT INTO property_amenity (property_id, amenity_id) VALUES ($1, $2)`,
+          [id, amenityId]
+        );
+      }
     }
 
-    return true;
-  } catch (error) {
-    console.error("Error updating property:", error);
-    throw new Error(`Failed to update property: ${error.message}`);
+    // 5. Update key features
+    if (Array.isArray(keyfeature)) {
+      await pool.query(`DELETE FROM property_keyfeature WHERE property_id = $1`, [id]);
+      for (const featureId of keyfeature) {
+        await pool.query(
+          `INSERT INTO property_keyfeature (property_id, keyfeature_id) VALUES ($1, $2)`,
+          [id, featureId]
+        );
+      }
+    }
+
+    // 6. Update nearest_to
+    if (Array.isArray(nearest_to)) {
+      await pool.query(`DELETE FROM property_nearestto WHERE property_id = $1`, [id]);
+      for (const { nearest_to_id, distance_km } of nearest_to) {
+        await pool.query(
+          `INSERT INTO property_nearestto (property_id, nearest_to_id, distance_km) VALUES ($1, $2, $3)`,
+          [id, nearest_to_id, distance_km]
+        );
+      }
+    }
+
+    return { success: true, message: "Property updated successfully" };
+  } catch (err) {
+    console.error("Error updating property:", err);
+    throw err;
   }
 }
+
 
 /**
  * Delete a property by ID
