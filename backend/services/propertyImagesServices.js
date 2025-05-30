@@ -14,7 +14,20 @@ export async function getPropertiesWithImages() {
   const result = await pool.query(query);
   return result.rows;
 }
-
+// get property images by id
+export async function getPropertyImagesById(propertyId) {
+  const query = `
+    SELECT 
+      id AS image_id,
+      image_url,
+      is_primary
+    FROM property_images
+    WHERE property_id = $1
+    ORDER BY is_primary DESC, id ASC
+  `;
+  const result = await pool.query(query, [propertyId]);
+  return result.rows;
+}
 // set primary images
 export async function setPrimaryImage(propertyId, imageId) {
   const client = await pool.connect();
