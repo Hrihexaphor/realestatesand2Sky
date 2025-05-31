@@ -707,113 +707,97 @@ export const searchProperty = async (filters) => {
 //  get properyt by id function
 
 export const getpropertyById = async (propertyId) => {
-   try {
-    // Get all property data in a single query with proper joins
-    const { rows } = await pool.query(
+     try {
+    // 1. Basic + developer + category + subcategory
+    const { rows: basicRows } = await pool.query(
       `SELECT 
-        p.*,
-        pd.*,
-        pl.latitude, 
-        pl.longitude, 
-        pl.address,
-        d.name AS developer_name,
-        d.developer_logo,
-        d.company_name AS developer_company_name,
-        c.name AS property_category_name,
-        s.name AS property_subcategory_name,
-        
-        -- Images as JSON array
-        (
-          SELECT json_agg(pi.*) 
-          FROM property_images pi 
-          WHERE pi.property_id = p.id
-        ) AS images,
-        
-        -- Documents as JSON array
-        (
-          SELECT json_agg(json_build_object('id', pd.id, 'type', pd.type, 'file_url', pd.file_url)) 
-          FROM property_documents pd 
-          WHERE pd.property_id = p.id
-        ) AS documents,
-        
-        -- Amenities as JSON array
-        (
-          SELECT json_agg(json_build_object('id', a.id, 'name', a.name, 'icon', a.icon)) 
-          FROM property_amenity pa 
-          JOIN amenity a ON pa.amenity_id = a.id 
-          WHERE pa.property_id = p.id
-        ) AS amenities,
-        
-        -- Key Features as JSON array
-        (
-          SELECT json_agg(json_build_object('id', kf.id, 'name', kf.name))
-          FROM property_key_feature pk
-          JOIN key_feature kf ON pk.key_feature_id = kf.id
-          WHERE pk.property_id = p.id
-        ) AS key_features,
-        
-        -- Nearest To as JSON array
-        (
-          SELECT json_agg(json_build_object('id', nt.id, 'name', nt.name, 'distance_km', pnt.distance_km))
-          FROM property_nearest_to pnt
-          JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
-          WHERE pnt.property_id = p.id
-        ) AS nearest_to,
-        
-        -- BHK Configurations as JSON array
-        (
-          SELECT json_agg(json_build_object(
-            'id', pc.id, 
-            'bhk_type', pc.bhk_type, 
-            'bedrooms', pc.bedrooms, 
-            'bathrooms', pc.bathrooms, 
-            'super_built_up_area', pc.super_built_up_area, 
-            'carpet_area', pc.carpet_area, 
-            'balconies', pc.balconies, 
-            'file_url', pc.file_url
-          ))
-          FROM property_configurations pc
-          WHERE pc.property_id = p.id
-        ) AS bhk_configurations,
-        
-        -- FAQs as JSON array
-        (
-          SELECT json_agg(
-            json_build_object('id', f.id, 'question', f.question, 'answer', f.answer)
-            ORDER BY f.created_at
-          )
-          FROM faqs f
-          WHERE f.property_id = p.id
-        ) AS faqs
+          p.*, 
+          d.name AS developer_name,
+           d.developer_logo,
+          d.company_name AS developer_company_name,
+          c.name AS property_category_name,
+          s.name AS property_subcategory_name
+        FROM property p
+        LEFT JOIN developer d ON p.developer_id = d.id
+        LEFT JOIN property_category c ON p.category_id = c.id
+        LEFT JOIN property_subcategory s ON p.subcategory_id = s.id
+        WHERE p.id = $1`,
+      [propertyId]
+    );
+    if (basicRows.length === 0) return null;
+    const basic = basicRows[0];
 
-      FROM property p
-      LEFT JOIN property_details pd ON p.id = pd.property_id
-      LEFT JOIN property_location pl ON p.id = pl.property_id
-      LEFT JOIN developer d ON p.developer_id = d.id
-      LEFT JOIN property_category c ON p.category_id = c.id
-      LEFT JOIN property_subcategory s ON p.subcategory_id = s.id
-      WHERE p.id = $1`,
+    // 2. Details
+    const { rows: detailsRows } = await pool.query(
+      `SELECT * FROM property_details WHERE property_id = $1`,
       [propertyId]
     );
 
-    if (rows.length === 0) {
-      return null;
-    }
+    // property configurtion
+    const { rows: bhkRows } = await pool.query(
+      `SELECT id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies,file_url
+        FROM property_configurations
+        WHERE property_id = $1`,
+      [propertyId]
+    );
+    // 3. Location
+    const { rows: locationRows } = await pool.query(
+      `SELECT latitude, longitude, address FROM property_location WHERE property_id = $1`,
+      [propertyId]
+    );
 
-    const property = rows[0];
-    
-    // Ensure arrays are never null
-    return {
-      ...property,
-      images: property.images || [],
-      documents: property.documents || [],
-      amenities: property.amenities || [],
-      key_features: property.key_features || [],
-      nearest_to: property.nearest_to || [],
-      bhk_configurations: property.bhk_configurations || [],
-      faqs: property.faqs || []
-    };
+    // 4. Images
+    const { rows: imageRows } = await pool.query(
+      `SELECT * FROM property_images WHERE property_id = $1`,
+      [propertyId]
+    );
 
+    // 5. Documents
+    const { rows: documentRows } = await pool.query(
+      `SELECT id, type, file_url FROM property_documents WHERE property_id = $1`,
+      [propertyId]
+    );
+     // 6. AmenitiesAdd commentMore actions
+    const { rows: amenitiesRows } = await pool.query(
+      `SELECT a.id, a.name, a.icon
+         FROM property_amenity pa
+         JOIN amenity a ON pa.amenity_id = a.id
+         WHERE pa.property_id = $1`,
+      [propertyId]
+    );
+    // 7.key feature
+    const { rows: keyfeatureRows } = await pool.query(
+      `SELECT kf.id, kf.name
+         FROM property_key_feature pk
+         JOIN key_feature kf ON pk.key_feature_id = kf.id
+         WHERE pk.property_id = $1`,
+      [propertyId]
+    );
+    // 8. Nearest To
+    const { rows: nearestRows } = await pool.query(
+      `SELECT nt.id, nt.name, pnt.distance_km
+         FROM property_nearest_to pnt
+         JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
+         WHERE pnt.property_id = $1`,
+          [propertyId]
+    );
+          // 9. FAQsAdd commentMore actions
+    const { rows: faqRows } = await pool.query(
+      `SELECT id, question, answer FROM faqs WHERE property_id = $1 ORDER BY created_at ASC`,
+      [propertyId]
+    );
+     return {
+      basic,
+      details: detailsRows[0] || null,
+      location: locationRows[0] || null,
+      images: imageRows,
+      documents: documentRows,
+      amenities: amenitiesRows,
+      keyfeature: keyfeatureRows,
+      nearest_to: nearestRows,
+      faqs: faqRows,
+      bhk_configurations: bhkRows,
+      };
   } catch (error) {
     console.error("Error fetching property by ID:", error);
     throw new Error(`Failed to fetch property by ID: ${error.message}`);
