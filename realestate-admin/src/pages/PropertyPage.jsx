@@ -37,10 +37,17 @@ export default function PropertyPage() {
     }
   };
 
-  const handleEdit = (property) => {
-    console.log('Editing:', property);
-    setEditData(property);
-    setShowForm(true);
+   const handleEdit = (property) => {
+    console.log('Editing property:', property);
+    
+    // Make sure we're passing the complete property data
+    if (property && property.id) {
+      setEditData(property);
+      setShowForm(true);
+    } else {
+      console.error('Invalid property data for editing:', property);
+      toast.error('Invalid property data');
+    }
   };
 
   const handleView = (propertyId) => {

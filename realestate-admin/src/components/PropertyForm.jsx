@@ -271,6 +271,12 @@ const PropertyForm = ({ editData, onClose }) => {
           editData.amenities.map((a) => (typeof a === "object" ? a.id : a))
         );
       }
+      if (editData.key_feature && Array.isArray(editData.key_feature)) {
+          console.log('Setting key features:', editData.key_feature);
+          setSelectedKeyfeature(
+            editData.key_feature.map((kf) => (typeof kf === "object" ? kf.id : kf))
+          );
+        }
       if (editData.nearest_to && Array.isArray(editData.nearest_to)) {
         setNearestTo(
           editData.nearest_to.map((n) => ({
