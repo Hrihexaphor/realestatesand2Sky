@@ -381,17 +381,7 @@ export async function getAllProperties() {
           ))
           FROM property_configurations pc
           WHERE pc.property_id = p.id
-        ) AS bhk_configurations,
-        
-        (
-          SELECT json_agg(
-            json_build_object('id', f.id, 'question', f.question, 'answer', f.answer)
-            ORDER BY f.created_at
-          )
-          FROM faqs f
-          WHERE f.property_id = p.id
-        ) AS faqs
-
+        ) AS bhk_configurations
       FROM property p
       LEFT JOIN property_details pd ON p.id = pd.property_id
       LEFT JOIN property_location pl ON p.id = pl.property_id
@@ -401,7 +391,7 @@ export async function getAllProperties() {
       ORDER BY p.id DESC
     `);
 
-    // Normalize null arrays to empty arrays
+    // Ensure arrays are never null for each property
     return result.rows.map(property => ({
       ...property,
       images: property.images || [],
@@ -409,8 +399,7 @@ export async function getAllProperties() {
       amenities: property.amenities || [],
       key_features: property.key_features || [],
       nearest_to: property.nearest_to || [],
-      bhk_configurations: property.bhk_configurations || [],
-      faqs: property.faqs || []
+      bhk_configurations: property.bhk_configurations || []
     }));
 
   } catch (error) {
@@ -418,7 +407,6 @@ export async function getAllProperties() {
     throw new Error(`Failed to get properties: ${error.message}`);
   }
 }
-
 
 /**
  * Update a property by ID
