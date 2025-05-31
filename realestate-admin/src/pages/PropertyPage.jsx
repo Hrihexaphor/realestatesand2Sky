@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import PropertyForm from '../components/PropertyForm';
-import PropertyCard from '../components/PropertyCard';
-import ErrorBoundary from '../components/ErrorBoundary';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import PropertyForm from "../components/PropertyForm";
+import PropertyCard from "../components/PropertyCard";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 export default function PropertyPage() {
   const [properties, setProperties] = useState([]);
@@ -18,35 +18,35 @@ export default function PropertyPage() {
 
   const fetchProperties = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/property`);
-      console.log(res.data)
+      const res = await axios.get(`http://localhost:3001/api/property`);
+      console.log(res.data);
       setProperties(res.data);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to fetch properties');
+      toast.error("Failed to fetch properties");
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${BASE_URL}/api/property/${id}`);
-      toast.success('Property deleted');
+      toast.success("Property deleted");
       fetchProperties();
     } catch (err) {
-      toast.error('Failed to delete');
+      toast.error("Failed to delete");
     }
   };
 
-   const handleEdit = (property) => {
-    console.log('Editing property:', property);
-    
+  const handleEdit = (property) => {
+    console.log("Editing property:", property);
+
     // Make sure we're passing the complete property data
     if (property && property.id) {
       setEditData(property);
       setShowForm(true);
     } else {
-      console.error('Invalid property data for editing:', property);
-      toast.error('Invalid property data');
+      console.error("Invalid property data for editing:", property);
+      toast.error("Invalid property data");
     }
   };
 
