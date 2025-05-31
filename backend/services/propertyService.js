@@ -322,7 +322,7 @@ export async function insertKeyfeature(property_id, keyfeature) {
  * @returns {Array} - List of properties
  */
 export async function getAllProperties() {
-   try {
+  try {
     const result = await pool.query(`
       SELECT 
         p.*, 
@@ -384,10 +384,12 @@ export async function getAllProperties() {
         ) AS bhk_configurations,
         
         (
-          SELECT json_agg(json_build_object('id', f.id, 'question', f.question, 'answer', f.answer))
+          SELECT json_agg(
+            json_build_object('id', f.id, 'question', f.question, 'answer', f.answer)
+            ORDER BY f.created_at
+          )
           FROM faqs f
           WHERE f.property_id = p.id
-          ORDER BY f.created_at ASC
         ) AS faqs
 
       FROM property p
@@ -399,7 +401,7 @@ export async function getAllProperties() {
       ORDER BY p.id DESC
     `);
 
-    // Ensure arrays are never null for each property
+    // Normalize null arrays to empty arrays
     return result.rows.map(property => ({
       ...property,
       images: property.images || [],
@@ -776,10 +778,12 @@ export const getpropertyById = async (propertyId) => {
         
         -- FAQs as JSON array
         (
-          SELECT json_agg(json_build_object('id', f.id, 'question', f.question, 'answer', f.answer))
+          SELECT json_agg(
+            json_build_object('id', f.id, 'question', f.question, 'answer', f.answer)
+            ORDER BY f.created_at
+          )
           FROM faqs f
           WHERE f.property_id = p.id
-          ORDER BY f.created_at ASC
         ) AS faqs
 
       FROM property p
