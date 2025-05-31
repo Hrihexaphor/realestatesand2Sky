@@ -20,7 +20,7 @@ const ReviewTable = () => {
 
   const handleApprove = async (id, is_approved) => {
     try {
-      await axios.patch(`${BASE_URL}/api/review/${id}/approve`, {
+      await axios.patch(`${BASE_URL}/api/review/${id}/approval`, {
         is_approved,
       });
       toast.success(
