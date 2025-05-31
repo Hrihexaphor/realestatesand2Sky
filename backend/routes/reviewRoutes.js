@@ -39,7 +39,7 @@ router.get("/review/pending", async (req, res) => {
 });
 
 // PATCH: Admin approves or rejects a review
-router.patch("/review/:id/approval",isAuthenticated(), async (req, res) => {
+router.patch("/review/:id/approval", async (req, res) => {
   const { id } = req.params;
   const { is_approved } = req.body;
 

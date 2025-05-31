@@ -22,8 +22,6 @@ const ReviewTable = () => {
     try {
       await axios.patch(`${BASE_URL}/api/review/${id}/approve`, {
         is_approved,
-      },{
-        withCredentials:true
       });
       toast.success(
         `Review ${is_approved ? "approved" : "rejected"} successfully`
