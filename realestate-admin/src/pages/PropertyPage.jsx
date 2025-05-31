@@ -18,7 +18,7 @@ export default function PropertyPage() {
 
   const fetchProperties = async () => {
     try {
-      const res = await axios.get(`http://localhost:3001/api/property`);
+      const res = await axios.get(`${BASE_URL}/api/property`);
       console.log(res.data);
       setProperties(res.data);
     } catch (err) {
