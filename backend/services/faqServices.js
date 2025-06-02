@@ -17,64 +17,114 @@ export  async function addFaq({ property_id, question, answer }) {
   }
   
 export async function generateAutomaticFaqs(propertyId) {
-  // 1. Get property details
+   // 1. Get property details
   const propertyDetails = await pool.query('SELECT * FROM property_details WHERE property_id = $1', [propertyId]);
   if (propertyDetails.rows.length === 0) return [];
 
   const details = propertyDetails.rows[0];
+  const projectName = details.project_name || 'this property';
   const autoFaqs = [];
+    
+  // 2. Basic detail FAQs
+  if (details.locality && details.city) autoFaqs.push({
+    property_id: propertyId,
+    question: `Where is ${projectName} Located?`,
+    answer: `This property is located in ${details.locality}, ${details.city}.`,
+    is_auto: true
+  });
+    // 2. Get main property info (for price and status)
+  const propertyResult = await pool.query(
+    'SELECT expected_price, possession_status FROM property WHERE id = $1',
+    [propertyId]
+  );
+  const propertyInfo = propertyResult.rows[0] || {};
 
-  // 2. Standard details-based FAQs
   if (details.bedrooms) autoFaqs.push({
     property_id: propertyId,
-    question: `How many bedrooms does this property have?`,
-    answer: `This property has ${details.bedrooms} bedroom(s).`,
+    question: `How Many Bedrooms are In ${projectName}?`,
+    answer: `${details.bedrooms} bedroom(s) are available in this property.`,
     is_auto: true
   });
 
   if (details.bathrooms) autoFaqs.push({
     property_id: propertyId,
-    question: `How many bathrooms are available in this property?`,
-    answer: `There are ${details.bathrooms} bathroom(s) available.`,
-    is_auto: true
-  });
-
-  if (details.project_name) autoFaqs.push({
-    property_id: propertyId,
-    question: `What is the name of this project?`,
-    answer: `This property is part of ${details.project_name}.`,
-    is_auto: true
-  });
-
-  if (details.locality) autoFaqs.push({
-    property_id: propertyId,
-    question: `Where is this property located?`,
-    answer: `This property is located in ${details.locality}, ${details.city}.`,
-    is_auto: true
-  });
-
-  if (details.built_up_area) autoFaqs.push({
-    property_id: propertyId,
-    question: `What is the built-up area of this property?`,
-    answer: `The built-up area is ${details.built_up_area} sq. ft.`,
-    is_auto: true
-  });
-
-  if (details.maintenance_charge) autoFaqs.push({
-    property_id: propertyId,
-    question: `What is the maintenance charge for this property?`,
-    answer: `The maintenance charge is ${details.maintenance_charge}.`,
+    question: `How Many Bathrooms are In ${projectName}?`,
+    answer: `${details.bathrooms} bathroom(s) are available in this property.`,
     is_auto: true
   });
 
   if (details.balconies) autoFaqs.push({
     property_id: propertyId,
-    question: `Does this property have balconies?`,
-    answer: `Yes, this property includes ${details.balconies} balcony/balconies.`,
+    question: `How Many Balconies are In ${projectName}?`,
+    answer: `${details.balconies} balcony/balconies are available in this property.`,
     is_auto: true
   });
 
-  // 3. Add configuration-based FAQs
+  if (details.covered_parking) autoFaqs.push({
+    property_id: propertyId,
+    question: `How Many Reserved Parking are In ${projectName}?`,
+    answer: `${details.covered_parking} reserved parking space(s) are available.`,
+    is_auto: true
+  });
+
+  if (details.project_rera_id) autoFaqs.push({
+    property_id: propertyId,
+    question: `Is ${projectName} RERA Registered?`,
+    answer: `Yes, it is RERA registered with ID ${details.project_rera_id}.`,
+    is_auto: true
+  });
+
+   if (propertyInfo.possession_status) autoFaqs.push({
+    property_id: propertyId,
+    question: `What is the Status of ${projectName}?`,
+    answer: `The current status of this property is ${propertyInfo.possession_status}.`,
+    is_auto: true
+  });
+
+  if (propertyInfo.expected_price) autoFaqs.push({
+    property_id: propertyId,
+    question: `What is the Price Range of ${projectName}?`,
+    answer: `The price range is ${propertyInfo.expected_price}.`,
+    is_auto: true
+  });
+
+
+  if (details.rental_return) autoFaqs.push({
+    property_id: propertyId,
+    question: `Expected Rental Rerurn of ${projectName}?`,
+    answer: `The expected rental return is ${details.rental_return}.`,
+    is_auto: true
+  });
+
+  // 3. Fetch nearest_to distances for Railway Station and Airport
+  const nearestResult = await pool.query(`
+    SELECT nt.name, pnt.distance_km
+    FROM property_nearest_to pnt
+    JOIN nearest_to nt ON nt.id = pnt.nearest_to_id
+    WHERE pnt.property_id = $1 AND nt.name IN ('Railway Station', 'Airport')
+  `, [propertyId]);
+
+  nearestResult.rows.forEach(row => {
+    if (row.name === 'Railway Station') {
+      autoFaqs.push({
+        property_id: propertyId,
+        question: `How Far From Railway Station?`,
+        answer: `It is approximately ${row.distance_km} km from the nearest railway station.`,
+        is_auto: true
+      });
+    }
+
+    if (row.name === 'Airport') {
+      autoFaqs.push({
+        property_id: propertyId,
+        question: `How Far From Airport?`,
+        answer: `It is approximately ${row.distance_km} km from the airport.`,
+        is_auto: true
+      });
+    }
+  });
+
+  // 4. Config-based FAQs
   const configResult = await pool.query(
     'SELECT * FROM property_configurations WHERE property_id = $1',
     [propertyId]
@@ -110,6 +160,7 @@ export async function generateAutomaticFaqs(propertyId) {
       }
     });
   }
+
 
   return autoFaqs;
 }
