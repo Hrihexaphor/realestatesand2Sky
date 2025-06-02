@@ -271,12 +271,14 @@ const PropertyForm = ({ editData, onClose }) => {
           editData.amenities.map((a) => (typeof a === "object" ? a.id : a))
         );
       }
-      if (editData.key_feature && Array.isArray(editData.key_feature)) {
-          console.log('Setting key features:', editData.key_feature);
-          setSelectedKeyfeature(
-            editData.key_feature.map((kf) => (typeof kf === "object" ? kf.id : kf))
-          );
-        }
+      if (editData.key_features && Array.isArray(editData.key_features)) {
+        console.log("Setting key features:", editData.key_features);
+        setSelectedKeyfeature(
+          editData.key_features.map((kf) =>
+            typeof kf === "object" ? kf.id : kf
+          )
+        );
+      }
       if (editData.nearest_to && Array.isArray(editData.nearest_to)) {
         setNearestTo(
           editData.nearest_to.map((n) => ({
@@ -288,17 +290,17 @@ const PropertyForm = ({ editData, onClose }) => {
     }
   }, [editData, map, marker]);
   useEffect(() => {
-  if (
-    editData &&
-    editData.keyfeature &&
-    Array.isArray(editData.keyfeature) &&
-    keyfeature.length > 0
-  ) {
-    setSelectedKeyfeature(
-      editData.keyfeature.map((a) => (typeof a === "object" ? a.id : a))
-    );
-  }
-}, [keyfeature]);
+    if (
+      editData &&
+      editData.keyfeature &&
+      Array.isArray(editData.keyfeature) &&
+      keyfeature.length > 0
+    ) {
+      setSelectedKeyfeature(
+        editData.keyfeature.map((a) => (typeof a === "object" ? a.id : a))
+      );
+    }
+  }, [keyfeature]);
   // calculate the price for square feet automatically
   useEffect(() => {
     const area = parseFloat(details.super_built_up_area);
@@ -2424,9 +2426,11 @@ const PropertyForm = ({ editData, onClose }) => {
                   <line x1="20" y1="11" x2="20" y2="11"></line>
                 </svg>
                 <div className="file-upload-text">
-                  Drop images here or click to upload 
+                  Drop images here or click to upload
                 </div>
-                <p className="file-help">Select multiple images (JPG, PNG). Max size: 10MB each.</p>
+                <p className="file-help">
+                  Select multiple images (JPG, PNG). Max size: 10MB each.
+                </p>
               </label>
             </div>
           </div>
