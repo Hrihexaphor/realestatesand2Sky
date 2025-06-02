@@ -29,11 +29,15 @@ const PrivacyPolicyPage = () => {
     if (!title || !description) return toast.warn('All fields are required');
 
     try {
-      if (editId) {
-        await axios.put(`${BASE_URL}/api/privacypolicy/${editId}`, { title, description });
+    if (editId) {
+        await axios.put(`${BASE_URL}/api/privacypolicy/${editId}`, { title, description }, {
+          withCredentials: true
+        });
         toast.success('Policy updated');
       } else {
-        await axios.post(`${BASE_URL}/api/addprivacypolicy`, { title, description });
+        await axios.post(`${BASE_URL}/api/addprivacypolicy`, { title, description }, {
+          withCredentials: true
+        });
         toast.success('Policy added');
       }
       setTitle('');
@@ -54,7 +58,10 @@ const PrivacyPolicyPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this policy?')) return;
     try {
-      await axios.delete(`${BASE_URL}/api/privacypolicy/${id}`);
+      await axios.delete(`${BASE_URL}/api/privacypolicy/${id}`,{
+        withCredentials: true
+      });
+
       toast.success('Policy deleted');
       fetchPolicies();
     } catch (err) {

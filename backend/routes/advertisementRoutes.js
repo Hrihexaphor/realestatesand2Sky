@@ -3,7 +3,8 @@ import {
   createAdvertisement,
   getAllAdvertisements,
   getAdvertisementsByLocation,
-  deleteAdvertisement 
+  deleteAdvertisement,
+  updateAdvertisement 
 } from '../services/advertisementServices.js';
 import multer from 'multer';
 import uploadAdvertisementImage from '../middleware/advertisementUpload.js';
@@ -71,6 +72,37 @@ router.get('/advertisement', async (req, res) => {
   }
 });
 
+router.put('/advertisement/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    link,
+    image_url,
+    image_size,
+    image_position,
+    location,
+    start_date,
+    end_date,
+    cityIds
+  } = req.body;
+
+  try {
+    const updatedAd = await updateAdvertisement(
+      id,
+      link,
+      image_url,
+      image_size,
+      image_position,
+      location,
+      start_date,
+      end_date,
+      cityIds
+    );
+    res.json(updatedAd);
+  } catch (error) {
+    console.error('Error updating advertisement:', error);
+    res.status(500).json({ message: 'Failed to update advertisement' });
+  }
+});
 router.delete('/advertisement/:id', isAuthenticated(),async (req, res) => {
   try {
     const { id } = req.params;

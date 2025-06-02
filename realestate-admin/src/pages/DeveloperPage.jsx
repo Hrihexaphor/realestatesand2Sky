@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import SearchBox from '../components/SearchBox';
+import * as XLSX from 'xlsx';
 
 const DeveloperPage = () => {
   const [developers, setDevelopers] = useState([]);
@@ -11,7 +12,15 @@ const DeveloperPage = () => {
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
   const [searchTerm, setSearchTerm] = useState('');
   const [previewImage, setPreviewImage] = useState(null);
+  const [exporting, setExporting] = useState(false);
   const fileInputRef = useRef(null);
+  
+  // Date filter states
+  const [dateFilter, setDateFilter] = useState({
+    fromDate: '',
+    toDate: '',
+    showFilter: false
+  });
   
   const [form, setForm] = useState({
     name: '',
@@ -143,20 +152,22 @@ const DeveloperPage = () => {
       });
       
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/developer/${editingId}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        toast.success('Developer updated successfully');
-      } else {
-        await axios.post(`${BASE_URL}/api/developer`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        toast.success('Developer added successfully');
-      }
+          await axios.put(`${BASE_URL}/api/developer/${editingId}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true
+          });
+          toast.success('Developer updated successfully');
+        } else {
+          await axios.post(`${BASE_URL}/api/developer`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true
+          });
+          toast.success('Developer added successfully');
+        }
       resetForm();
       fetchDevelopers();
     } catch (err) {
@@ -232,6 +243,7 @@ const DeveloperPage = () => {
     }
   };
 
+  // Filter developers by search term
   const filteredDevelopers = developers.filter(dev => 
     dev.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dev.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -239,6 +251,117 @@ const DeveloperPage = () => {
     dev.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dev.state.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
+
+  // Filter developers by date range
+  const getDateFilteredDevelopers = () => {
+    if (!dateFilter.fromDate && !dateFilter.toDate) {
+      return filteredDevelopers;
+    }
+
+    return filteredDevelopers.filter(dev => {
+      // Assuming your developer object has created_at or updated_at field
+      // Adjust the field name based on your actual database structure
+      const devDate = new Date(dev.created_at || dev.updated_at);
+      const fromDate = dateFilter.fromDate ? new Date(dateFilter.fromDate) : null;
+      const toDate = dateFilter.toDate ? new Date(dateFilter.toDate + 'T23:59:59') : null;
+
+      if (fromDate && toDate) {
+        return devDate >= fromDate && devDate <= toDate;
+      } else if (fromDate) {
+        return devDate >= fromDate;
+      } else if (toDate) {
+        return devDate <= toDate;
+      }
+      return true;
+    });
+  };
+
+  // Excel export function
+  const exportToExcel = async () => {
+    try {
+      setExporting(true);
+      
+      const dataToExport = getDateFilteredDevelopers();
+      
+      if (dataToExport.length === 0) {
+        toast.warning('No data available for the selected date range');
+        return;
+      }
+
+      // Prepare data for Excel export
+      const excelData = dataToExport.map((dev, index) => ({
+        'S.No': index + 1,
+        'Name': dev.name,
+        'Company Name': dev.company_name,
+        'Email': dev.contact_email,
+        'Phone': dev.phone_number,
+        'Address': dev.address || '',
+        'City': dev.city || '',
+        'State': dev.state || '',
+        'Partial Amount': dev.partial_amount || '',
+        'Created Date': dev.created_at ? new Date(dev.created_at).toLocaleDateString() : '',
+        'Updated Date': dev.updated_at ? new Date(dev.updated_at).toLocaleDateString() : ''
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Set column widths
+      const colWidths = [
+        { wch: 6 },  // S.No
+        { wch: 20 }, // Name
+        { wch: 25 }, // Company Name
+        { wch: 30 }, // Email
+        { wch: 15 }, // Phone
+        { wch: 30 }, // Address
+        { wch: 15 }, // City
+        { wch: 15 }, // State
+        { wch: 15 }, // Partial Amount
+        { wch: 12 }, // Created Date
+        { wch: 12 }  // Updated Date
+      ];
+      ws['!cols'] = colWidths;
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Developers');
+
+      // Generate filename with date range
+      let filename = 'developers_list';
+      if (dateFilter.fromDate || dateFilter.toDate) {
+        const fromStr = dateFilter.fromDate || 'start';
+        const toStr = dateFilter.toDate || 'end';
+        filename += `_${fromStr}_to_${toStr}`;
+      }
+      filename += `_${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      // Save file
+      XLSX.writeFile(wb, filename);
+      
+      toast.success(`Excel file exported successfully! (${dataToExport.length} records)`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export Excel file');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Handle date filter changes
+  const handleDateFilterChange = (field, value) => {
+    setDateFilter(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Clear date filters
+  const clearDateFilters = () => {
+    setDateFilter({
+      fromDate: '',
+      toDate: '',
+      showFilter: dateFilter.showFilter
+    });
+  };
 
   // Form fields organized by section
   const formSections = [
@@ -259,6 +382,8 @@ const DeveloperPage = () => {
       fields: ["address", "city", "state"]
     }
   ];
+
+  const dateFilteredDevelopers = getDateFilteredDevelopers();
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
@@ -394,15 +519,103 @@ const DeveloperPage = () => {
       
       <div className="bg-white rounded-lg shadow-md border border-gray-200">
         <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
             <h2 className="text-xl font-semibold text-gray-700 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              Developer Directory
+              Developer Directory ({dateFilteredDevelopers.length} records)
             </h2>
-            <SearchBox placeholder="Search developers..." value={searchTerm} onChange={(val) => setSearchTerm(val)} />
+            
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+              <SearchBox 
+                placeholder="Search developers..." 
+                value={searchTerm} 
+                onChange={(val) => setSearchTerm(val)} 
+              />
+              
+              {/* Filter Toggle Button */}
+              <button
+                onClick={() => setDateFilter(prev => ({ ...prev, showFilter: !prev.showFilter }))}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                </svg>
+                Filter by Date
+              </button>
+              
+              {/* Export Button */}
+              <button
+                onClick={exportToExcel}
+                disabled={exporting || dateFilteredDevelopers.length === 0}
+                className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                {exporting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Export Excel
+                  </>
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Date Filter Panel */}
+          {dateFilter.showFilter && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                  <input
+                    type="date"
+                    value={dateFilter.fromDate}
+                    onChange={(e) => handleDateFilterChange('fromDate', e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  />
+                </div>
+                
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                  <input
+                    type="date"
+                    value={dateFilter.toDate}
+                    onChange={(e) => handleDateFilterChange('toDate', e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  />
+                </div>
+                
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={clearDateFilters}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+              
+              {(dateFilter.fromDate || dateFilter.toDate) && (
+                <div className="mt-3 text-sm text-blue-600">
+                  <strong>Active Filter:</strong> 
+                  {dateFilter.fromDate && ` From ${new Date(dateFilter.fromDate).toLocaleDateString()}`}
+                  {dateFilter.fromDate && dateFilter.toDate && ' - '}
+                  {dateFilter.toDate && ` To ${new Date(dateFilter.toDate).toLocaleDateString()}`}
+                </div>
+              )}
+            </div>
+          )}
           
           {loading ? (
             <div className="flex justify-center items-center h-40">
@@ -415,13 +628,13 @@ const DeveloperPage = () => {
             <div className="text-center py-8 text-gray-500">
               No developers found. Add your first developer above.
             </div>
-          ) : filteredDevelopers.length === 0 ? (
+          ) : dateFilteredDevelopers.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No developers match your search criteria.
+              No developers match your search criteria or date filter.
             </div>
           ) : (
             <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-              {filteredDevelopers.map((dev) => (
+              {dateFilteredDevelopers.map((dev) => (
                 <div
                   key={dev.id}
                   className="bg-gray-50 border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow duration-200"
@@ -429,69 +642,108 @@ const DeveloperPage = () => {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-start space-x-4 mb-4 md:mb-0">
                       {/* Developer Logo */}
-                      {/* <div className="flex-shrink-0">
+                      <div className="flex-shrink-0">
                         {dev.developer_logo ? (
-                          <img
-                            src={`http://localhost:3001/${dev.developer_logo}`}
+                          <img 
+                            src={`${BASE_URL}/${dev.developer_logo}`} 
                             alt={`${dev.company_name} logo`}
-                            className="w-16 h-16 object-contain bg-white rounded-md border p-1"
+                            className="w-16 h-16 object-contain rounded-lg border border-gray-200 bg-white p-1"
                           />
                         ) : (
-                          <div className="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-md text-gray-400 border">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                           </div>
                         )}
-                      </div> */}
+                      </div>
                       
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-800">{dev.name}</h3>
-                        <p className="text-blue-600 font-medium">{dev.company_name}</p>
+                      {/* Developer Info */}
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                          <h3 className="text-lg font-semibold text-gray-800">{dev.name}</h3>
+                          <span className="text-sm text-gray-500 mt-1 sm:mt-0">
+                            ID: {dev.id}
+                          </span>
+                        </div>
                         
-                        <div className="mt-2 space-y-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            {dev.contact_email}
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                            <div className="flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                              </svg>
+                              <strong>Company:</strong> <span className="ml-1">{dev.company_name}</span>
+                            </div>
+                            
+                            <div className="flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              <strong>Email:</strong> <span className="ml-1">{dev.contact_email}</span>
+                            </div>
+                            
+                            <div className="flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              <strong>Phone:</strong> <span className="ml-1">{dev.phone_number}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                            {dev.phone_number}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.567-3 3.5S10.343 15 12 15s3-1.567 3-3.5S13.657 8 12 8zm0 0V5m0 10v3" />
-                            </svg>
-                            {dev.partial_amount}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            {dev.address}, {dev.city}, {dev.state}
+                          
+                          {(dev.address || dev.city || dev.state) && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              <strong>Address:</strong> 
+                              <span className="ml-1">
+                                {[dev.address, dev.city, dev.state].filter(Boolean).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          
+                          {dev.partial_amount && (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                              </svg>
+                              <strong>Partial Amount:</strong> <span className="ml-1">₹{dev.partial_amount}</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                            {dev.created_at && (
+                              <span>
+                                <strong>Created:</strong> {new Date(dev.created_at).toLocaleDateString()}
+                              </span>
+                            )}
+                            {dev.updated_at && (
+                              <span>
+                                <strong>Updated:</strong> {new Date(dev.updated_at).toLocaleDateString()}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex space-x-3">
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0 md:ml-4">
                       <button
                         onClick={() => handleEdit(dev)}
-                        className="bg-yellow-100 text-yellow-700 hover:bg-yellow-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         Edit
                       </button>
+                      
                       <button
                         onClick={() => setDeleteModal({ show: true, id: dev.id })}
-                        className="bg-red-100 text-red-700 hover:bg-red-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -506,23 +758,30 @@ const DeveloperPage = () => {
           )}
         </div>
       </div>
-      
+
       {/* Delete Confirmation Modal */}
       {deleteModal.show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Confirm Deletion</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this developer? This action cannot be undone.</p>
-            <div className="flex space-x-3 justify-end">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <h3 className="text-lg font-semibold text-gray-800">Confirm Delete</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this developer? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setDeleteModal({ show: false, id: null })}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-md font-medium hover:bg-red-700 transition-colors"
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
               >
                 Delete
               </button>

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from 'react-toastify';
+
 const AdvertisementForm = () => {
   const [formData, setFormData] = useState({
     link: "",
@@ -17,6 +19,8 @@ const AdvertisementForm = () => {
   const [advertisements, setAdvertisements] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [editAdId, setEditAdId] = useState(null);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -58,39 +62,106 @@ const AdvertisementForm = () => {
     if (fileInput) fileInput.value = "";
   };
 
+  const resetForm = () => {
+    setFormData({
+      link: "",
+      position: "",
+      location: "",
+      start_date: "",
+      end_date: "",
+      cityIds: [],
+      image_size: "",
+    });
+    removeImage();
+    setIsEditing(false);
+    setEditAdId(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!advertisementImage) return toast.error("Image is required");
+    if (!advertisementImage && !isEditing) return toast.error("Image is required");
 
     setIsLoading(true);
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach((v) => data.append(`${key}[]`, v));
-      } else {
-        data.append(key, value);
-      }
-    });
-    data.append("advertisementImage", advertisementImage);
-
+    
     try {
-      await axios.post(`${BASE_URL}/api/advertisement`, data,{
-    withCredentials: true
-  });
-      toast.success("Advertisement added successfully");
-      setFormData({
-        link: "",
-        position: "",
-        location: "",
-        start_date: "",
-        end_date: "",
-        cityIds: [],
-        image_size: "",
-      });
-      removeImage();
+      if (isEditing) {
+        // For editing, send JSON data instead of FormData
+        const updateData = {
+          link: formData.link,
+          image_position: formData.position, // Note: backend expects 'image_position'
+          location: formData.location,
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+          cityIds: formData.cityIds,
+          image_size: formData.image_size,
+        };
+
+        // If new image is uploaded, handle it separately
+        if (advertisementImage) {
+          const imageFormData = new FormData();
+          imageFormData.append("advertisementImage", advertisementImage);
+          
+          // Upload new image first (you might need a separate endpoint for this)
+          // For now, we'll include it in the update
+          const formDataForUpdate = new FormData();
+          Object.entries(updateData).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+              value.forEach((v) => formDataForUpdate.append(`${key}[]`, v));
+            } else {
+              formDataForUpdate.append(key, value);
+            }
+          });
+          formDataForUpdate.append("advertisementImage", advertisementImage);
+
+          await axios.put(`http://localhost:3001/api/advertisement/${editAdId}`, formDataForUpdate, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            },
+            withCredentials: true,
+          });
+        } else {
+          // No new image, send JSON data
+          await axios.put(`http://localhost:3001/api/advertisement/api/advertisement/${editAdId}`, updateData, {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            withCredentials: true,
+          });
+        }
+        
+        toast.success("Advertisement updated successfully");
+      } else {
+        // Creating new advertisement
+        const data = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+          if (key === 'position') {
+            // Map 'position' to 'image_position' for backend
+            if (Array.isArray(value)) {
+              value.forEach((v) => data.append(`image_position[]`, v));
+            } else {
+              data.append('image_position', value);
+            }
+          } else if (Array.isArray(value)) {
+            value.forEach((v) => data.append(`${key}[]`, v));
+          } else {
+            data.append(key, value);
+          }
+        });
+
+        if (advertisementImage) {
+          data.append("advertisementImage", advertisementImage);
+        }
+
+        await axios.post(`${BASE_URL}/api/advertisement`, data, {
+          withCredentials: true,
+        });
+        toast.success("Advertisement added successfully");
+      }
+
+      resetForm();
       fetchAdvertisements();
     } catch (err) {
-      toast.error("Failed to add advertisement");
+      toast.error(isEditing ? "Failed to update advertisement" : "Failed to create advertisement");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -101,9 +172,9 @@ const AdvertisementForm = () => {
     if (window.confirm("Are you sure you want to delete this advertisement?")) {
       setIsDeleting((prev) => ({ ...prev, [id]: true }));
       try {
-        await axios.delete(`${BASE_URL}/api/advertisement/${id}`,{
-    withCredentials: true
-  });
+        await axios.delete(`${BASE_URL}/api/advertisement/${id}`, {
+          withCredentials: true
+        });
         toast.success("Advertisement deleted successfully");
         fetchAdvertisements();
       } catch (err) {
@@ -113,6 +184,27 @@ const AdvertisementForm = () => {
         setIsDeleting((prev) => ({ ...prev, [id]: false }));
       }
     }
+  };
+
+  const handleEdit = (ad) => {
+    setIsEditing(true);
+    setEditAdId(ad.id);
+    setFormData({
+      link: ad.link || "",
+      position: ad.position || ad.image_position || "", // Handle both field names
+      location: ad.location || "",
+      start_date: ad.start_date?.slice(0, 10) || "",
+      end_date: ad.end_date?.slice(0, 10) || "",
+      cityIds: ad.city_ids || ad.cityIds || [],
+      image_size: ad.image_size || "",
+    });
+    setImagePreview(ad.image_url);
+    setAdvertisementImage(null); // Reset file input
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    resetForm();
   };
 
   const LoadingSpinner = () => (
@@ -152,7 +244,7 @@ const AdvertisementForm = () => {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              Create New Advertisement
+              {isEditing ? "Edit Advertisement" : "Create New Advertisement"}
             </h2>
           </div>
 
@@ -204,7 +296,7 @@ const AdvertisementForm = () => {
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    Advertisement Image *
+                    Advertisement Image {!isEditing && "*"}
                   </label>
                   {!imagePreview ? (
                     <div className="relative">
@@ -357,8 +449,8 @@ const AdvertisementForm = () => {
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none bg-white"
                   >
                     <option value="">Select Size</option>
-                    <option value="300x250">100x100</option>
-                    <option value="728x90">100x50</option>
+                    <option value="100x100">100x100</option>
+                    <option value="100x50">100x50</option>
                   </select>
                 </div>
 
@@ -471,8 +563,17 @@ const AdvertisementForm = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end pt-6">
+              {/* Submit Buttons */}
+              <div className="flex justify-end gap-4 pt-6">
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-8 py-4 rounded-xl font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-300"
+                  >
+                    Cancel
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -496,10 +597,10 @@ const AdvertisementForm = () => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          d={isEditing ? "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" : "M12 6v6m0 0v6m0-6h6m-6 0H6"}
                         />
                       </svg>
-                      Create Advertisement
+                      {isEditing ? "Update Advertisement" : "Create Advertisement"}
                     </span>
                   )}
                 </button>
@@ -640,6 +741,41 @@ const AdvertisementForm = () => {
                         {ad.end_date}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <button
+                            onClick={() => handleEdit(ad)} // Pass entire ad object, not just ad.id
+                            disabled={isDeleting[ad.id]}
+                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                              isDeleting[ad.id]
+                                ? "bg-blue-300 text-blue-700 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:scale-105"
+                            }`}
+                          >
+                          {isDeleting[ad.id] ? (
+                            <div className="flex items-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Editing...
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"
+                                />
+                              </svg>
+                              Edit
+                            </div>
+                          )}
+                        </button>
+
                         <button
                           onClick={() => handleDelete(ad.id)}
                           disabled={isDeleting[ad.id]}
