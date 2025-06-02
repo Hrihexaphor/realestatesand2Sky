@@ -900,200 +900,261 @@ export async function sendNewPropertyEmails(property_id) {
     for (let inquiry of inquiries.rows) {
       const html = `
         <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-            <title>New Property Alert</title>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <title>Property Alert</title>
             <style>
-              body {
-                margin: 0;
-                padding: 0;
-                background: #f5f5f5;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                line-height: 1.6;
-              }
-
-              .email-container {
-                max-width: 600px;
-                margin: 20px auto;
-                background: #ffffff;
-                box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-                overflow: hidden;
-              }
-
-              .header {
-                background: linear-gradient(135deg, #FFA500, #FF8C00);
-                color: white;
-                text-align: center;
-                padding: 30px 20px;
-              }
-
-              .header h1 {
-                margin-bottom: 10px;
-                font-size: 24px;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-              }
-
-              .header p {
-                font-size: 16px;
-                opacity: 0.95;
-              }
-
-              .property-card {
-                background: #E8B4B8;
-              }
-
-              .card-header {
-                background: rgba(0, 0, 0, 0.1);
-                color: #2c3e50;
-                text-align: center;
-                padding: 15px;
-                font-weight: bold;
-              }
-
-              .card-content {
-                padding: 30px 20px;
-                text-align: center;
-              }
-
-              .property-image-container {
-                background: #f8f9fa;
-                border: 2px dashed #dee2e6;
-                border-radius: 8px;
-                padding: 20px;
-                margin-bottom: 20px;
-                min-height: 200px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              }
-
-              .property-image {
-                max-width: 100%;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-              }
-
-              .placeholder {
-                font-size: 50px;
-                color: #ccc;
-              }
-
-              .property-title {
-                font-size: 20px;
-                font-weight: 600;
-                color: #2c3e50;
-                margin: 15px 0;
-              }
-
-              .view-btn {
-                display: inline-block;
-                background: #34495e;
-                color: #fff;
-                padding: 12px 25px;
-                text-decoration: none;
-                border-radius: 5px;
-                font-size: 14px;
-                font-weight: bold;
-                margin: 10px 0 20px;
-              }
-
-              .view-btn:hover {
-                background: #2c3e50;
-              }
-
-              .social-links {
-                display: flex;
-                justify-content: center;
-                gap: 15px;
-                margin-top: 10px;
-              }
-
-              .social-icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-decoration: none;
-                color: white;
-                font-size: 16px;
-              }
-
-              .facebook { background: #3b5998; }
-              .instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-              .twitter { background: #1da1f2; }
-
-              .contact-info {
-                background: #ecf0f1;
-                text-align: center;
-                padding: 20px;
-                color: #2c3e50;
-              }
-
-              .footer {
-                background: #2c3e50;
-                color: white;
-                text-align: center;
-                font-size: 12px;
-                padding: 15px;
-              }
-
-              @media screen and (max-width: 600px) {
-                .card-content { padding: 20px 10px; }
-                .view-btn { padding: 10px 20px; }
-                .social-icon { width: 36px; height: 36px; }
-              }
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #f5f5f5;
+                    line-height: 1.6;
+                }
+                
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                }
+                
+                .header {
+                    background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+                    color: white;
+                    padding: 30px 20px;
+                    text-align: center;
+                    position: relative;
+                }
+                
+                .header h1 {
+                    font-size: 24px;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                
+                .header p {
+                    font-size: 16px;
+                    font-weight: 400;
+                    opacity: 0.95;
+                }
+                
+                .property-card {
+                    background-color: #E8B4B8;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .card-header {
+                    background-color: rgba(0,0,0,0.1);
+                    color: #2c3e50;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+                
+                .card-content {
+                    padding: 30px 20px;
+                    text-align: center;
+                }
+                
+                .property-image-container {
+                    background-color: #f8f9fa;
+                    border: 2px dashed #dee2e6;
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-bottom: 30px;
+                    min-height: 200px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .property-image {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                }
+                
+                .placeholder-image {
+                    color: #6c757d;
+                    font-size: 48px;
+                    opacity: 0.5;
+                }
+                
+                .property-title {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: #2c3e50;
+                    margin-bottom: 20px;
+                }
+                
+                .view-details-btn {
+                    display: inline-block;
+                    background-color: #34495e;
+                    color: white;
+                    padding: 12px 30px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    transition: all 0.3s ease;
+                    margin-bottom: 30px;
+                }
+                
+                .view-details-btn:hover {
+                    background-color: #2c3e50;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                }
+                
+                .social-links {
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                }
+                
+                .social-icon {
+                    width: 45px;
+                    height: 45px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 18px;
+                    transition: all 0.3s ease;
+                }
+                
+                .social-icon:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                }
+                
+                .facebook {
+                    background-color: #3b5998;
+                }
+                
+                .instagram {
+                    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+                }
+                
+                .twitter {
+                    background-color: #1da1f2;
+                }
+                
+                .footer {
+                    background-color: #2c3e50;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 12px;
+                }
+                
+                .contact-info {
+                    background-color: #ecf0f1;
+                    padding: 20px;
+                    text-align: center;
+                    color: #2c3e50;
+                }
+                
+                @media only screen and (max-width: 600px) {
+                    .email-container {
+                        margin: 0;
+                        box-shadow: none;
+                    }
+                    
+                    .header h1 {
+                        font-size: 20px;
+                    }
+                    
+                    .header p {
+                        font-size: 14px;
+                    }
+                    
+                    .card-content {
+                        padding: 20px 15px;
+                    }
+                    
+                    .social-links {
+                        gap: 10px;
+                    }
+                    
+                    .social-icon {
+                        width: 40px;
+                        height: 40px;
+                        font-size: 16px;
+                    }
+                }
             </style>
-          </head>
-          <body>
+        </head>
+        <body>
             <div class="email-container">
-              <div class="header">
-                <h1>Hi {{USER_NAME}}</h1>
-                <p>Here are some <strong>{{SUBCATEGORY_NAME}}</strong> matching your interest!</p>
-              </div>
-
-              <div class="property-card">
-                <div class="card-header">
-                  It's time to find your dream property
+                <!-- Header Section -->
+                <div class="header">
+                    <h1>Hi ${inquiry.name.toUpperCase()},</h1>
+                    <p>Here are some <strong>${subcategoryName}</strong> matching your budget and requirements</p>
                 </div>
-
-                <div class="card-content">
-                  <div class="property-image-container">
-                    {{#if IMAGE_URL}}
-                      <img src="{{IMAGE_URL}}" alt="Property Image" class="property-image" />
-                    {{else}}
-                      <div class="placeholder">🏠</div>
-                    {{/if}}
-                  </div>
-
-                  <div class="property-title">{{PROPERTY_TITLE}}</div>
-
-                  <a href="{{LANDING_URL}}" class="view-btn">View Details</a>
-
-                  <div class="social-links">
-                    <a href="{{FB_LINK}}" class="social-icon facebook" target="_blank">f</a>
-                    <a href="{{INSTA_LINK}}" class="social-icon instagram" target="_blank">I</a>
-                    <a href="{{TWITTER_LINK}}" class="social-icon twitter" target="_blank">t</a>
-                  </div>
+                
+                <!-- Property Card -->
+                <div class="property-card">
+                    <div class="card-header">
+                        It's time to find your dream property
+                    </div>
+                    
+                    <div class="card-content">
+                        <!-- Property Image -->
+                        <div class="property-image-container">
+                            ${imageUrl ? 
+                                `<img src="${imageUrl}" alt="${title}" class="property-image">` : 
+                                `<div class="placeholder-image">🏠</div>`
+                            }
+                        </div>
+                        
+                        <!-- Property Title -->
+                        <div class="property-title">${title}</div>
+                        
+                        <!-- View Details Button -->
+                        <a href="${landingPageUrl}" class="view-details-btn">View Details</a>
+                        
+                        <!-- Social Media Icons -->
+                        <div class="social-links">
+                            <a href="${fbLink}" class="social-icon facebook" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="${instaLink}" class="social-icon instagram" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="${twitterLink}" class="social-icon twitter" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                        </div>
+                    </div>
                 </div>
-              </div>
-
-              <div class="contact-info">
-                <p><strong>Need help?</strong> Contact us at <strong>{{CONTACT_NUMBER}}</strong></p>
-                <p>Visit our website for more amazing properties!</p>
-              </div>
-
-              <div class="footer">
-                <p>&copy; 2025 Your Property Company. All rights reserved.</p>
-                <p>You are receiving this email because you showed interest in our properties.</p>
-              </div>
+                
+                <!-- Contact Information -->
+                <div class="contact-info">
+                    <p><strong>Need help?</strong> Contact us at <strong>${contactNumber}</strong></p>
+                    <p>Visit our website for more amazing properties!</p>
+                </div>
+                
+                <!-- Footer -->
+                <div class="footer">
+                    <p>&copy; 2025 Your Property Company. All rights reserved.</p>
+                    <p>You're receiving this email because you showed interest in our properties.</p>
+                </div>
             </div>
-          </body>
-          </html>
+        </body>
+        </html>
       `;
 
       await transporter.sendMail({

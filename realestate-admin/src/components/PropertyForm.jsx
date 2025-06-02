@@ -1270,7 +1270,7 @@ const PropertyForm = ({ editData, onClose }) => {
                   type="number"
                   name="rental_return"
                   value={basic.rental_return}
-                  onChange={handleBasicChange}
+                  onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
                 />
@@ -1474,7 +1474,7 @@ const PropertyForm = ({ editData, onClose }) => {
                   type="number"
                   name="rental_return"
                   value={basic.rental_return}
-                  onChange={handleBasicChange}
+                  onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
                 />
@@ -1776,7 +1776,7 @@ const PropertyForm = ({ editData, onClose }) => {
                   type="number"
                   name="rental_return"
                   value={basic.rental_return}
-                  onChange={handleBasicChange}
+                  onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
                 />
@@ -2112,7 +2112,7 @@ const PropertyForm = ({ editData, onClose }) => {
                   type="number"
                   name="rental_return"
                   value={basic.rental_return}
-                  onChange={handleBasicChange}
+                  onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
                 />
