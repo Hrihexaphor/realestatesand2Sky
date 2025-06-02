@@ -14,7 +14,7 @@ import multer from 'multer';
 const router = express.Router();
 
 // Route to add a new blog post
-router.post('/addblog', isAuthenticated(),(req, res) => {
+router.post('/addblog',(req, res) => {
   uploadBlogImage.single('blogImage')(req, res, async function (err) {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
