@@ -139,6 +139,7 @@ const PropertyForm = ({ editData, onClose }) => {
             "about_location",
             "available_from",
             "other_rooms",
+            "rental_return"
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -178,6 +179,7 @@ const PropertyForm = ({ editData, onClose }) => {
             "plot_length",
             "corner_plot",
             "other_rooms",
+            "rental_return"
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -214,6 +216,7 @@ const PropertyForm = ({ editData, onClose }) => {
             "youtube_link",
             "about_location",
             "available_from",
+            "rental_return"
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -1256,9 +1259,23 @@ const PropertyForm = ({ editData, onClose }) => {
                   value={details.maintenance_charge}
                   onChange={handleDetailsChange}
                   min="0"
-                  placeholder="Enter price per sqft"
+                  placeholder="Enter price"
                 />
               </div>
+            </div>
+            <div className="form-row">
+               <div className="form-group">
+                <label>Rental Return</label>
+                <input
+                  type="number"
+                  name="rental_return"
+                  value={basic.rental_return}
+                  onChange={handleBasicChange}
+                  min="0"
+                  placeholder="Enter price "
+                />
+              </div>
+              <div className="form-group"></div>
             </div>
           </>
         );
@@ -1446,9 +1463,23 @@ const PropertyForm = ({ editData, onClose }) => {
                   value={details.maintenance_charge}
                   onChange={handleDetailsChange}
                   min="0"
-                  placeholder="Enter price per sqft"
+                  placeholder="Enter price"
                 />
               </div>
+            </div>
+              <div className="form-row">
+               <div className="form-group">
+                <label>Rental Return</label>
+                <input
+                  type="number"
+                  name="rental_return"
+                  value={basic.rental_return}
+                  onChange={handleBasicChange}
+                  min="0"
+                  placeholder="Enter price "
+                />
+              </div>
+              <div className="form-group"></div>
             </div>
           </>
         );
@@ -1737,6 +1768,20 @@ const PropertyForm = ({ editData, onClose }) => {
                   placeholder="Enter price per sqft"
                 />
               </div>
+            </div>
+              <div className="form-row">
+               <div className="form-group">
+                <label>Rental Return</label>
+                <input
+                  type="number"
+                  name="rental_return"
+                  value={basic.rental_return}
+                  onChange={handleBasicChange}
+                  min="0"
+                  placeholder="Enter price "
+                />
+              </div>
+              <div className="form-group"></div>
             </div>
           </>
         );
@@ -2060,6 +2105,20 @@ const PropertyForm = ({ editData, onClose }) => {
                 />
               </div>
             </div>
+              <div className="form-row">
+               <div className="form-group">
+                <label>Rental Return</label>
+                <input
+                  type="number"
+                  name="rental_return"
+                  value={basic.rental_return}
+                  onChange={handleBasicChange}
+                  min="0"
+                  placeholder="Enter price "
+                />
+              </div>
+              <div className="form-group"></div>
+            </div> 
           </>
         );
       default:
