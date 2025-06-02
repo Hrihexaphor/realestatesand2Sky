@@ -108,7 +108,7 @@ router.get('/blog/:id', async (req, res) => {
 });
 
 // Route to delete a blog post
-router.delete('/blogs/:id', isAuthenticated(),async (req, res) => {
+router.delete('/blogs/:id',async (req, res) => {
   try {
     const blogId = req.params.id;
     const deletedBlog = await deleteBlog(blogId);
