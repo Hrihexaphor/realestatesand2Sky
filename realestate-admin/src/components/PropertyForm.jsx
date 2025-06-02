@@ -1269,7 +1269,7 @@ const PropertyForm = ({ editData, onClose }) => {
                 <input
                   type="number"
                   name="rental_return"
-                  value={basic.rental_return}
+                  value={details.rental_return}
                   onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
@@ -1473,7 +1473,7 @@ const PropertyForm = ({ editData, onClose }) => {
                 <input
                   type="number"
                   name="rental_return"
-                  value={basic.rental_return}
+                  value={details.rental_return}
                   onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
@@ -1775,7 +1775,7 @@ const PropertyForm = ({ editData, onClose }) => {
                 <input
                   type="number"
                   name="rental_return"
-                  value={basic.rental_return}
+                  value={details.rental_return}
                   onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
@@ -2111,7 +2111,7 @@ const PropertyForm = ({ editData, onClose }) => {
                 <input
                   type="number"
                   name="rental_return"
-                  value={basic.rental_return}
+                  value={details.rental_return}
                   onChange={handleDetailsChange}
                   min="0"
                   placeholder="Enter price "
