@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 export function AdvertisementForm() {
   const [form, setForm] = useState({
@@ -19,7 +19,7 @@ export function AdvertisementForm() {
   const [cities, setCities] = useState([]);
   const [ads, setAds] = useState([]);
   const [editingId, setEditingId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // Dropdown options
   const imageSizes = [
     { value: '500x500', label: '500 x 500 (Square)' },
@@ -36,6 +36,7 @@ useEffect(() => {
   const fetchCities = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/api/cities`);
+      console.log(response.data)
       // Ensure cities is always an array
       setCities(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
@@ -50,7 +51,7 @@ useEffect(() => {
 
   const fetchAdvertisements = async () => {
     try {
-      const res = await axios.get('${BASE_URL}/api/advertisement');
+      const res = await axios.get(`${BASE_URL}/api/advertisement`);
       console.log("Hii hritesh")
       console.log(res.data);
       setAds(res.data);
