@@ -85,20 +85,24 @@ const CategoryManager = () => {
     e.preventDefault();
     try {
       if (editingSubcategoryId) {
-        // Update subcategory
-        await axios.put(`${BASE_URL}/api/subcategory/${editingSubcategoryId}`, {
-          name: subcategoryName,
-          category_id: subcategoryCategoryId
-        });
-        toast.success('Subcategory updated');
-      } else {
-        // Add subcategory
-        await axios.post(`${BASE_URL}/api/subcategory`, {
-          name: subcategoryName,
-          category_id: subcategoryCategoryId
-        });
-        toast.success('Subcategory added');
-      }
+  // Update subcategory
+          await axios.put(`${BASE_URL}/api/subcategory/${editingSubcategoryId}`, {
+            name: subcategoryName,
+            category_id: subcategoryCategoryId
+          }, {
+            withCredentials: true
+          });
+          toast.success('Subcategory updated');
+        } else {
+          // Add subcategory
+          await axios.post(`${BASE_URL}/api/subcategory`, {
+            name: subcategoryName,
+            category_id: subcategoryCategoryId
+          }, {
+            withCredentials: true
+          });
+          toast.success('Subcategory added');
+        }
       setSubcategoryName('');
       setSubcategoryCategoryId('');
       setEditingSubcategoryId(null);

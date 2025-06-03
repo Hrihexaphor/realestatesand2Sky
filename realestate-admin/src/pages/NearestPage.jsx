@@ -46,13 +46,17 @@ const NearestToPage = () => {
 
     setSubmitting(true);
     try {
-      if (editId) {
-        await axios.put(`${BASE_URL}/api/nearest/${editId}`, form);
-        toast.success('Nearest location updated');
-      } else {
-        await axios.post(`${BASE_URL}/api/nearest`, form);
-        toast.success('Nearest location added');
-      }
+        if (editId) {
+          await axios.put(`${BASE_URL}/api/nearest/${editId}`, form, {
+            withCredentials: true,
+          });
+          toast.success('Nearest location updated');
+        } else {
+          await axios.post(`${BASE_URL}/api/nearest`, form, {
+            withCredentials: true,
+          });
+          toast.success('Nearest location added');
+        }
       setForm({ name: '' });
       setEditId(null);
       fetchNearest();
