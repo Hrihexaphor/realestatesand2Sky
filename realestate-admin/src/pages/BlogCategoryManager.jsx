@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
 export default function BlogCategoryManager() {
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ name: '', slug: '' });
@@ -30,25 +30,29 @@ export default function BlogCategoryManager() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingId) {
-        await axios.put(`${BASE_URL}/api/blog-categories/${editingId}`, form,{
-    withCredentials: true
-  });
-      } else {
-        await axios.post(`$${BASE_URL}/api/blogCategories`, form,{
-    withCredentials: true
-  });
-      }
-      setForm({ name: '', slug: '' });
-      setEditingId(null);
-      fetchCategories();
-    } catch (error) {
-      console.error('Error saving category:', error);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    if (editingId) {
+      await axios.put(`${BASE_URL}/api/blog-categories/${editingId}`, form, {
+        withCredentials: true
+      });
+      toast.success('Blog category updated');
+    } else {
+      await axios.post(`${BASE_URL}/api/blogCategories`, form, {
+        withCredentials: true
+      });
+      toast.success('Blog category added');
     }
-  };
+
+    setForm({ name: '', slug: '' });
+    setEditingId(null);
+    fetchCategories();
+  } catch (error) {
+    console.error('Error saving category:', error);
+    toast.error('Failed to save blog category');
+  }
+};
 
   const handleEdit = (cat) => {
     setForm({ name: cat.name, slug: cat.slug });
