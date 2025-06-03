@@ -6,7 +6,7 @@ const router = express.Router();
 import { isAuthenticated } from '../middleware/auth.js';
 // create developer
 
-router.post('/developer',isAuthenticated(), (req, res) => {
+router.post('/developer', (req, res) => {
   uploadDeveloperLogo.single('developerImage')(req, res, async function (err) {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
@@ -40,7 +40,7 @@ router.get('/developer', async (req, res) => {
 });
 
 // PUT /api/developers/:id - Update a developer
-router.put('/developer/:id',isAuthenticated(), async (req, res) => {
+router.put('/developer/:id', async (req, res) => {
     const { id } = req.params;
     const developerData = req.body;
   
@@ -57,7 +57,7 @@ router.put('/developer/:id',isAuthenticated(), async (req, res) => {
   });
 
   // DELETE /api/developers/:id - Delete a developer
-router.delete('/developer/:id',isAuthenticated(), async (req, res) => {
+router.delete('/developer/:id', async (req, res) => {
     const { id } = req.params;
   
     try {
