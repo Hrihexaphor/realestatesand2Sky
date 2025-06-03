@@ -3,7 +3,7 @@ import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,g
 import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
-router.post('/addtofeatured', isAuthenticated(),async (req, res) => {
+router.post('/addtofeatured', async (req, res) => {
   const { property_id, start_date, end_date, cities } = req.body;
   
   if (!property_id) {
@@ -29,7 +29,7 @@ router.post('/addtofeatured', isAuthenticated(),async (req, res) => {
 
 
 // Remove a property from featured
-router.delete('/featured/:property_id',isAuthenticated(), async (req, res) => {
+router.delete('/featured/:property_id', async (req, res) => {
   const { property_id } = req.params;
   
   try {
