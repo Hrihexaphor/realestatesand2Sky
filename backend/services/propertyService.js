@@ -484,10 +484,10 @@ export async function updatePropertyById(id, data) {
 
     // 6. Update nearest_to
     if (Array.isArray(nearest_to)) {
-      await pool.query(`DELETE FROM property_nearestto WHERE property_id = $1`, [id]);
+      await pool.query(`DELETE FROM property_nearest_to WHERE property_id = $1`, [id]);
       for (const { nearest_to_id, distance_km } of nearest_to) {
         await pool.query(
-          `INSERT INTO property_nearestto (property_id, nearest_to_id, distance_km) VALUES ($1, $2, $3)`,
+          `INSERT INTO property_nearest_to (property_id, nearest_to_id, distance_km) VALUES ($1, $2, $3)`,
           [id, nearest_to_id, distance_km]
         );
       }
