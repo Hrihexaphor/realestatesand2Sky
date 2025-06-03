@@ -11,12 +11,15 @@ router.post('/developer', (req, res) => {
     if (err instanceof multer.MulterError || err) {
       return res.status(400).json({ error: err.message });
     }
-
-    try {
-      const image_url = req.file ? req.file.path : null; // image path from multer
-      const developerData = {
-        ...req.body,
-        developer_logo: image_url,
+     try {
+        const image_url = req.file ? req.file.path : null;
+        const developerData = {
+          ...req.body,
+          developer_logo: image_url,
+          // Convert empty string to null for partial_amount
+          partial_amount: req.body.partial_amount && req.body.partial_amount.trim() !== '' 
+            ? req.body.partial_amount 
+            : null,
       };
 
       const developer = await createDevloper(developerData);
