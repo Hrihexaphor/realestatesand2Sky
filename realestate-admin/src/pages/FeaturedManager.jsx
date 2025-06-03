@@ -79,7 +79,7 @@ const FeaturedManager = () => {
   const fetchGalleryData = async () => {
     try {
       const galleryRes = await axios.get(`${BASE_URL}/api/activegallary`);
-      
+      console.log('Gallery response:', galleryRes.data); 
       const galleryMap = {};
       const galleryIdSet = [];
       

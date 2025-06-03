@@ -627,3 +627,28 @@
 .main-image-btn.active {
   background: #52c41a;
 }
+/* Add these CSS styles for the error messages */
+.file-errors {
+  background-color: #fee;
+  border: 1px solid #f99;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 10px 0;
+}
+
+.file-errors h4 {
+  color: #c33;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.file-errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.error-item {
+  color: #c33;
+  font-size: 13px;
+  margin-bottom: 4px;
+}

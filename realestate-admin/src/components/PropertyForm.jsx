@@ -76,6 +76,8 @@ const PropertyForm = ({ editData, onClose }) => {
   const [documents, setDocuments] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const addressInputRef = useRef(null);
+  const [documentErrors, setDocumentErrors] = useState([]);
+  const [imageErrors, setImageErrors] = useState([]);
 
   // edit property
   useEffect(() => {
@@ -628,19 +630,38 @@ const PropertyForm = ({ editData, onClose }) => {
   };
 
   const handleImageChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
+  const selectedFiles = Array.from(e.target.files);
+  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+  const validFiles = [];
+  const errors = [];
 
-    // Filter duplicates
-    const filtered = selectedFiles.filter(
-      (newFile) =>
-        !images.some(
-          (existing) =>
-            existing.name === newFile.name && existing.size === newFile.size
-        )
-    );
+  // First check file sizes
+  selectedFiles.forEach((file) => {
+    if (file.size > maxSize) {
+      errors.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 10MB limit`);
+    } else {
+      validFiles.push(file);
+    }
+  });
 
+  // Then filter duplicates from valid files
+  const filtered = validFiles.filter(
+    (newFile) =>
+      !images.some(
+        (existing) =>
+          existing.name === newFile.name && existing.size === newFile.size
+      )
+  );
+
+  setImageErrors(errors);
+  
+  if (filtered.length > 0) {
     setImages((prev) => [...prev, ...filtered]);
-  };
+  }
+  
+  // Clear the input
+  e.target.value = '';
+};
 
   const removeImage = (idx) => {
     setImages((prev) => {
@@ -658,11 +679,32 @@ const PropertyForm = ({ editData, onClose }) => {
     });
   };
 
-  const handleDocumentChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    const newDocs = selectedFiles.map((file) => ({ file, type: "brochure" })); // default type
-    setDocuments((prev) => [...prev, ...newDocs]);
-  };
+const handleDocumentChange = (e) => {
+  const selectedFiles = Array.from(e.target.files);
+  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+  const validFiles = [];
+  const errors = [];
+
+  selectedFiles.forEach((file) => {
+    if (file.size > maxSize) {
+      errors.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 10MB limit`);
+    } else {
+      validFiles.push({
+        file: file,
+        type: "brochure" // default type
+      });
+    }
+  });
+
+  setDocumentErrors(errors);
+  
+  if (validFiles.length > 0) {
+    setDocuments((prev) => [...prev, ...validFiles]);
+  }
+  
+  // Clear the input
+  e.target.value = '';
+};
   const updateDocumentType = (index, newType) => {
     setDocuments((prev) => {
       const updated = [...prev];
@@ -2449,143 +2491,172 @@ const PropertyForm = ({ editData, onClose }) => {
         </div>
         {/* Images */}
         <div className="form-section image-section">
-          <div className="section-header">
-            <h3>Images</h3>
-            <p>Upload high-quality images of the property</p>
-          </div>
+  <div className="section-header">
+    <h3>Images</h3>
+    <p>Upload high-quality images of the property</p>
+  </div>
 
-          <div className="form-row">
-            <div className="form-group full-width">
-              <input
-                id="property-images"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="file-input"
-              />
-              <label
-                htmlFor="property-images"
-                className="file-upload-container"
-              >
-                <svg
-                  className="file-upload-icon"
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
-                  <rect x="16" y="5" width="6" height="6" rx="1"></rect>
-                  <circle cx="10" cy="14" r="2"></circle>
-                  <line x1="20" y1="11" x2="20" y2="11"></line>
-                </svg>
-                <div className="file-upload-text">
-                  Drop images here or click to upload
+  <div className="form-row">
+    <div className="form-group full-width">
+      <input
+        id="property-images"
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleImageChange}
+        className="file-input"
+      />
+      <label
+        htmlFor="property-images"
+        className="file-upload-container"
+      >
+        <svg
+          className="file-upload-icon"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+          <rect x="16" y="5" width="6" height="6" rx="1"></rect>
+          <circle cx="10" cy="14" r="2"></circle>
+          <line x1="20" y1="11" x2="20" y2="11"></line>
+        </svg>
+        <div className="file-upload-text">
+          Drop images here or click to upload
+        </div>
+        <p className="file-help">
+          Select multiple images (JPG, PNG). Max size: 10MB each.
+        </p>
+      </label>
+    </div>
+  </div>
+
+  {/* Error messages for images */}
+  {imageErrors.length > 0 && (
+    <div className="file-errors">
+      <h4>Images not accepted:</h4>
+      <ul>
+        {imageErrors.map((error, idx) => (
+          <li key={idx} className="error-item">
+            {error}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {images.length > 0 && (
+    <div className="image-preview-container">
+      {images.map((img, idx) => (
+        <div key={idx} className="image-preview">
+          <img
+            src={
+              img instanceof File
+                ? URL.createObjectURL(img)
+                : img.url || img
+            }
+            alt={`Preview ${idx}`}
+          />
+          <div className="image-actions">
+            <button
+              type="button"
+              className="remove-image-btn"
+              onClick={() => removeImage(idx)}
+            >
+              ×
+            </button>
+
+            <button
+              type="button"
+              className={`main-image-btn ${
+                mainImageIndex === idx ? "active" : ""
+              }`}
+              onClick={() => setMainImageIndex(idx)}
+            >
+              {mainImageIndex === idx ? "Main Image ✓" : "Set as Main"}
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+       {/* Updated JSX for Document Section */}
+          <div className="form-section">
+            <div className="section-header">
+              <h3>Documents</h3>
+              {editData && (
+                <span className="helper-text">
+                  Optional - Upload only if you want to replace existing documents
+                </span>
+              )}
+            </div>
+
+            <div className="document-upload">
+              <label htmlFor="property-documents" className="upload-label">
+                <input
+                  id="property-documents"
+                  type="file"
+                  multiple
+                  onChange={handleDocumentChange}
+                />
+                <div className="upload-placeholder">
+                  <span>Drop documents here or click to upload</span>
+                  <small>
+                    Accepted: PDF, DOCX, JPG, PNG, MP4 (max 10 MB each)
+                  </small>
                 </div>
-                <p className="file-help">
-                  Select multiple images (JPG, PNG). Max size: 10MB each.
-                </p>
               </label>
-            </div>
-          </div>
 
-          {images.length > 0 && (
-            <div className="image-preview-container">
-              {images.map((img, idx) => (
-                <div key={idx} className="image-preview">
-                  <img
-                    src={
-                      img instanceof File
-                        ? URL.createObjectURL(img)
-                        : img.url || img
-                    }
-                    alt={`Preview ${idx}`}
-                  />
-                  <div className="image-actions">
-                    <button
-                      type="button"
-                      className="remove-image-btn"
-                      onClick={() => removeImage(idx)}
-                    >
-                      ×
-                    </button>
-
-                    <button
-                      type="button"
-                      className={`main-image-btn ${
-                        mainImageIndex === idx ? "active" : ""
-                      }`}
-                      onClick={() => setMainImageIndex(idx)}
-                    >
-                      {mainImageIndex === idx ? "Main Image ✓" : "Set as Main"}
-                    </button>
-                  </div>
+              {/* Error messages for documents */}
+              {documentErrors.length > 0 && (
+                <div className="file-errors">
+                  <h4>Files not accepted:</h4>
+                  <ul>
+                    {documentErrors.map((error, idx) => (
+                      <li key={idx} className="error-item">
+                        {error}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              )}
+
+              {documents.map((docObj, idx) => (
+                <li key={idx} className="file-item">
+                  {docObj.file.name}
+                  <select
+                    value={docObj.type}
+                    onChange={(e) => updateDocumentType(idx, e.target.value)}
+                  >
+                    <option value="brochure">Brochure</option>
+                    <option value="floorplan">Floor Plan</option>
+                    <option value="Masterplan">Master Plan</option>
+                    <option value="Approval">Approval</option>
+                    <option value="rerecirtificate">RERA Certificate</option>
+                  </select>
+                  <button
+                    type="button"
+                    className="remove-btn"
+                    onClick={() => removeDocument(idx)}
+                  >
+                    ❌
+                  </button>
+                </li>
               ))}
+              
+              {editData && documents.length === 0 && (
+                <div className="current-images-notice">
+                  <p>Using existing documents - new files not selected</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        {/* document add section */}
-        <div className="form-section">
-          <div className="section-header">
-            <h3>Documents</h3>
-            {editData && (
-              <span className="helper-text">
-                Optional - Upload only if you want to replace existing documents
-              </span>
-            )}
           </div>
-
-          <div className="document-upload">
-            <label htmlFor="property-documents" className="upload-label">
-              <input
-                id="property-documents"
-                type="file"
-                multiple
-                onChange={handleDocumentChange}
-              />
-              <div className="upload-placeholder">
-                <span>Drop documents here or click to upload</span>
-                <small>
-                  Accepted: PDF, DOCX, JPG, PNG, MP4 (max 10 MB each)
-                </small>
-              </div>
-            </label>
-
-            {documents.map((docObj, idx) => (
-              <li key={idx} className="file-item">
-                {docObj.file.name}
-                <select
-                  value={docObj.type}
-                  onChange={(e) => updateDocumentType(idx, e.target.value)}
-                >
-                  <option value="brochure">Brochure</option>
-                  <option value="floorplan">Floor Plan</option>
-                  <option value="Masterplan">Master Plan</option>
-                  <option value="Approval">Approva</option>
-                  <option value="rerecirtificate">RERA Cirtificate</option>
-                </select>
-                <button
-                  type="button"
-                  className="remove-btn"
-                  onClick={() => removeDocument(idx)}
-                >
-                  ❌
-                </button>
-              </li>
-            ))}
-            {editData && documents.length === 0 && (
-              <div className="current-images-notice">
-                <p>Using existing documents - new files not selected</p>
-              </div>
-            )}
-          </div>
-        </div>
         <div className="form-section">
           <div className="section-header">
             <h3>Youtube Link</h3>
