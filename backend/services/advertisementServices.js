@@ -1,11 +1,10 @@
-import pool from '../config/db.js'
+import pool from '../config/db.js';
 
 export async function createAdvertisement(ad) {
   const {
     link,
     image_url,
     image_size,
-    position,
     location,
     start_date,
     end_date,
@@ -17,11 +16,11 @@ export async function createAdvertisement(ad) {
     await client.query('BEGIN');
 
     const adQuery = `
-        INSERT INTO advertisements (link, image_url, image_size, image_position, location, start_date, end_date)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING *;
-      `;
-    const adValues = [link, image_url, image_size, position, location, start_date, end_date];
+      INSERT INTO advertisements (link, image_url, image_size, location, start_date, end_date, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      RETURNING *;
+    `;
+    const adValues = [link, image_url, image_size, location, start_date, end_date];
     const { rows } = await client.query(adQuery, adValues);
     const newAd = rows[0];
 
@@ -72,36 +71,31 @@ export async function getAdvertisementsByLocation(location) {
 }
 
 export async function deleteAdvertisement(id) {
-  const query = `DELETE FROM advertisements WHERE id = $1`;
-  await pool.query(query, [id]);
+  await pool.query(`DELETE FROM advertisements WHERE id = $1`, [id]);
 }
-// edit advertisement
-export async function updateAdvertisement(id, link, image_url, image_size, position, location, start_date, end_date, cityIds = []) {
+
+export async function updateAdvertisement(id, link, image_url, image_size, location, start_date, end_date, cityIds = []) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Update the advertisement
     const updateQuery = `
       UPDATE advertisements
       SET link = $1,
           image_url = $2,
           image_size = $3,
-          image_position = $4,
-          location = $5,
-          start_date = $6,
-          end_date = $7
-      WHERE id = $8
+          location = $4,
+          start_date = $5,
+          end_date = $6
+      WHERE id = $7
       RETURNING *;
     `;
-    const updateValues = [link, image_url, image_size, position, location, start_date, end_date, id];
+    const updateValues = [link, image_url, image_size, location, start_date, end_date, id];
     const { rows } = await client.query(updateQuery, updateValues);
     const updatedAd = rows[0];
 
-    // Delete previous city mappings
     await client.query(`DELETE FROM advertisement_cities WHERE advertisement_id = $1`, [id]);
 
-    // Insert new city mappings
     for (const cityId of cityIds) {
       await client.query(
         `INSERT INTO advertisement_cities (advertisement_id, city_id) VALUES ($1, $2)`,
