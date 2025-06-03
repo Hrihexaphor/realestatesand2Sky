@@ -21,6 +21,7 @@ const AdvertisementForm = () => {
   const [isDeleting, setIsDeleting] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editAdId, setEditAdId] = useState(null);
+  const [imageError, setImageError] = useState("");
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -44,38 +45,54 @@ const AdvertisementForm = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAdvertisementImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const file = e.target.files[0];
+  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+  
+  if (file) {
+    // Check file size
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      setImageError(`File size (${fileSizeMB}MB) exceeds 10MB limit`);
+      // Clear the input
+      e.target.value = '';
+      return;
     }
-  };
+    
+    // Clear any previous errors
+    setImageError("");
+    
+    setAdvertisementImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
-  const removeImage = () => {
-    setAdvertisementImage(null);
-    setImagePreview(null);
-    const fileInput = document.getElementById("adImageInput");
-    if (fileInput) fileInput.value = "";
-  };
+ const removeImage = () => {
+  setAdvertisementImage(null);
+  setImagePreview(null);
+  setImageError(""); // Clear any errors
+  const fileInput = document.getElementById("adImageInput");
+  if (fileInput) fileInput.value = "";
+};
 
-  const resetForm = () => {
-    setFormData({
-      link: "",
-      position: "",
-      location: "",
-      start_date: "",
-      end_date: "",
-      cityIds: [],
-      image_size: "",
-    });
-    removeImage();
-    setIsEditing(false);
-    setEditAdId(null);
-  };
+ const resetForm = () => {
+  setFormData({
+    link: "",
+    position: "",
+    location: "",
+    start_date: "",
+    end_date: "",
+    cityIds: [],
+    image_size: "",
+  });
+  removeImage();
+  setIsEditing(false);
+  setEditAdId(null);
+  setImageError(""); // Clear any errors
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -121,7 +138,7 @@ const AdvertisementForm = () => {
           });
         } else {
           // No new image, send JSON data
-          await axios.put(`http://localhost:3001/api/advertisement/api/advertisement/${editAdId}`, updateData, {
+          await axios.put(`http://localhost:3001/api/advertisement/${editAdId}`, updateData, {
             headers: {
               'Content-Type': 'application/json'
             },
@@ -293,11 +310,34 @@ const AdvertisementForm = () => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"
                       />
                     </svg>
                     Advertisement Image {!isEditing && "*"}
                   </label>
+                  
+                  {/* File size error message */}
+                  {imageError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-2">
+                      <div className="flex items-center">
+                        <svg 
+                          className="w-4 h-4 text-red-500 mr-2" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                          />
+                        </svg>
+                        <span className="text-sm text-red-600">{imageError}</span>
+                      </div>
+                    </div>
+                  )}
+                  
                   {!imagePreview ? (
                     <div className="relative">
                       <input
@@ -326,6 +366,9 @@ const AdvertisementForm = () => {
                         </svg>
                         <p className="text-sm text-gray-500">
                           Click to upload image
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Max size: 10MB
                         </p>
                       </label>
                     </div>

@@ -1307,7 +1307,7 @@ const handleDocumentChange = (e) => {
             </div>
             <div className="form-row">
                <div className="form-group">
-                <label>Rental Return</label>
+                <label>Expected Rental Return</label>
                 <input
                   type="number"
                   name="rental_return"
@@ -1511,7 +1511,7 @@ const handleDocumentChange = (e) => {
             </div>
               <div className="form-row">
                <div className="form-group">
-                <label>Rental Return</label>
+                <label>Expected Rental Return</label>
                 <input
                   type="number"
                   name="rental_return"
@@ -1813,7 +1813,7 @@ const handleDocumentChange = (e) => {
             </div>
               <div className="form-row">
                <div className="form-group">
-                <label>Rental Return</label>
+                <label>Expected Rental Return</label>
                 <input
                   type="number"
                   name="rental_return"
@@ -2149,7 +2149,7 @@ const handleDocumentChange = (e) => {
             </div>
               <div className="form-row">
                <div className="form-group">
-                <label>Rental Return</label>
+                <label>Expected Rental Return</label>
                 <input
                   type="number"
                   name="rental_return"

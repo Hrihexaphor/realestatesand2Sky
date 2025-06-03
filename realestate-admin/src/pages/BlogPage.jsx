@@ -20,6 +20,7 @@ export default function BlogPage() {
   const [editingId, setEditingId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [category, setCategory] = useState([]);
+  const [imageError, setImageError] = useState("");
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
   // CKEditor custom configuration
@@ -80,29 +81,44 @@ export default function BlogPage() {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image') {
-      const selectedFile = files[0];
-      if (selectedFile) {
-        setForm({ ...form, image: selectedFile });
+    const handleChange = (e) => {
+      const { name, value, files } = e.target;
+      if (name === 'image') {
+        const selectedFile = files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
         
-        // Create image preview
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(selectedFile);
+        if (selectedFile) {
+          // Check file size
+          if (selectedFile.size > maxSize) {
+            const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(1);
+            setImageError(`File size (${fileSizeMB}MB) exceeds 10MB limit`);
+            // Clear the input
+            e.target.value = '';
+            return;
+          }
+          
+          // Clear any previous errors
+          setImageError("");
+          
+          setForm({ ...form, image: selectedFile });
+          
+          // Create image preview
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setImagePreview(reader.result);
+          };
+          reader.readAsDataURL(selectedFile);
+        }
+      } else {
+        setForm({ ...form, [name]: value });
       }
-    } else {
-      setForm({ ...form, [name]: value });
-    }
-  };
+    };
 
-  const removeImage = () => {
-    setForm({ ...form, image: null });
-    setImagePreview(null);
-  };
+          const removeImage = () => {
+            setForm({ ...form, image: null });
+            setImagePreview(null);
+            setImageError(""); // Clear any errors
+          };
 
   const handleEditorChange = (event, editor) => {
     const data = editor.getData();
@@ -110,18 +126,19 @@ export default function BlogPage() {
   };
 
   const resetForm = () => {
-    setForm({
-      title: '',
-      description: '',
-      blog_category_id: '',
-      youtube_link:'',
-      image: null,
-      meta_title: '',
-      meta_description: ''
-    });
-    setImagePreview(null);
-    setEditingId(null);
-  };
+  setForm({
+    title: '',
+    description: '',
+    blog_category_id: '',
+    youtube_link:'',
+    image: null,
+    meta_title: '',
+    meta_description: ''
+  });
+  setImagePreview(null);
+  setEditingId(null);
+  setImageError(""); // Clear any errors
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -327,11 +344,33 @@ export default function BlogPage() {
                 />
               </div>
             </div>
-
+                  {/* upload blog images here */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Blog Image
               </label>
+              
+              {/* File size error message */}
+              {imageError && (
+                <div className="mb-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center">
+                    <svg 
+                      className="w-5 h-5 text-red-500 mr-2" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                      />
+                    </svg>
+                    <span className="text-sm text-red-600">{imageError}</span>
+                  </div>
+                </div>
+              )}
               
               {!imagePreview ? (
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">

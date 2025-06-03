@@ -5,7 +5,7 @@ import cloudinary from "../utils/cloudinary.js";
 const uploadAdvertisementImage = multer({
     storage: cloudinary.advertisementStorage,
     limits:{
-         fileSize: 5 * 1024 * 1024 // 5MB limit
+         fileSize: 10 * 1024 * 1024 // 10MB limit
     }
 })
 export default uploadAdvertisementImage;
