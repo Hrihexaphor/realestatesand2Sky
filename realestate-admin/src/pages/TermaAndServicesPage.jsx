@@ -59,16 +59,19 @@ const TermaAndServicesPage = () => {
     setEditId(policy.id);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this policy?')) return;
-    try {
-      await axios.delete(`${BASE_URL}/api/termsandservice/${id}`);
-      toast.success('Policy deleted');
-      fetchPolicies();
-    } catch (err) {
-      toast.error('Delete failed');
-    }
-  };
+const handleDelete = async (id) => {
+  if (!window.confirm('Delete this policy?')) return;
+
+  try {
+    await axios.delete(`${BASE_URL}/api/termsandservice/${id}`, {
+      withCredentials: true,
+    });
+    toast.success('Policy deleted');
+    fetchPolicies();
+  } catch (err) {
+    toast.error('Delete failed');
+  }
+};
 
   return (
     <div className="space-y-6">
