@@ -11,7 +11,7 @@ const LeadInquiriesPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [stats, setStats] = useState({ total: 0, contacted: 0, pending: 0 });
-  
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchInquiries();
@@ -27,7 +27,7 @@ const LeadInquiriesPage = () => {
       
       // Uncomment and modify this section for your actual implementation:
     
-      const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+      
       const res = await fetch(`${BASE_URL}/api/propinquiry`);
       
       if (!res.ok) {
@@ -96,12 +96,26 @@ const LeadInquiriesPage = () => {
     calculateStats(filtered);
   };
 
-  const handleToggleContacted = (id) => {
-    const updatedInquiries = inquiries.map(inq =>
-      inq.id === id ? { ...inq, contacted: !inq.contacted } : inq
-    );
-    setInquiries(updatedInquiries);
-  };
+const handleToggleContacted = async (id) => {
+  // Update local state first for immediate UI feedback
+  const updatedInquiries = inquiries.map(inq =>
+    inq.id === id ? { ...inq, contacted: !inq.contacted } : inq
+  );
+  setInquiries(updatedInquiries);
+
+  // Also update the backend
+  try {
+    await fetch(`${BASE_URL}/api/propinquiry/${id}/contacted`, {
+     method: 'PATCH',  // Use PATCH instead of PUT
+       headers: { 'Content-Type': 'application/json' },
+      // body: JSON.stringify({ contacted: !inquiries.find(inq => inq.id === id).contacted })
+    });
+  } catch (error) {
+    console.error('Failed to update:', error);
+    // Revert local state if API call fails
+    setInquiries(inquiries);
+  }
+};
 
   const handleDownloadExcel = () => {
     if (!startDate || !endDate) {
