@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const ContactManager = () => {
   const [contacts, setContacts] = useState([]);
@@ -30,8 +31,10 @@ const ContactManager = () => {
   try {
     if (editId) {
       await axios.put(`${BASE_URL}/api/contactpage/${editId}`, formData);
+      toast.success("Contact updated successfully");
     } else {
       await axios.post(`${BASE_URL}/api/addcontactpage`, formData);
+      toast.success("Contact added successfully");
     }
 
     setFormData({ email: '', phone_number: '', address: '' });
@@ -54,6 +57,7 @@ const ContactManager = () => {
     withCredentials: true
   });
         fetchContacts();
+        toast.success("Contact deleted successfully");
       } catch (err) {
         console.error('Delete failed', err);
       }
