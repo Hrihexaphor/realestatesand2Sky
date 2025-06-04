@@ -518,13 +518,13 @@ export default function BlogPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex space-x-3">
-                          <button
+                          {/* <button
                             onClick={() => handleEdit(blog)}
                             className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition-colors flex items-center"
                           >
                             <PencilIcon className="h-4 w-4 mr-1" />
                             Edit
-                          </button>
+                          </button> */}
                           <button
                             onClick={() => handleDelete(blog.id)}
                             className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center"
