@@ -9,7 +9,8 @@ const ContactManager = () => {
 
   const fetchContacts = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/contact`);
+      const res = await axios.get(`${BASE_URL}/api/contactpage`);
+      console.log(res.data);
       setContacts(res.data);
     } catch (err) {
       console.error('Failed to fetch contacts', err);
@@ -25,24 +26,21 @@ const ContactManager = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editId) {
-        await axios.put(`${BASE_URL}/api/contact/${editId}`, formData,{
-    withCredentials: true
-  });
-      } else {
-        await axios.post(`${BASE_URL}/api/addcontact`, formData,{
-    withCredentials: true
-  });
-      }
-      setFormData({ email: '', phone_number: '', address: '' });
-      setEditId(null);
-      fetchContacts();
-    } catch (err) {
-      console.error('Submit failed', err);
+  e.preventDefault();
+  try {
+    if (editId) {
+      await axios.put(`${BASE_URL}/api/contactpage/${editId}`, formData);
+    } else {
+      await axios.post(`${BASE_URL}/api/addcontactpage`, formData);
     }
-  };
+
+    setFormData({ email: '', phone_number: '', address: '' });
+    setEditId(null);
+    fetchContacts();
+  } catch (err) {
+    console.error('Submit failed', err);
+  }
+};
 
   const handleEdit = (contact) => {
     setFormData({ email: contact.email, phone_number: contact.phone_number, address: contact.address });
@@ -52,7 +50,7 @@ const ContactManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this contact?')) {
       try {
-        await axios.delete(`${BASE_URL}/api/contact/${id}`,{
+        await axios.delete(`${BASE_URL}/api/contactpage/${id}`,{
     withCredentials: true
   });
         fetchContacts();

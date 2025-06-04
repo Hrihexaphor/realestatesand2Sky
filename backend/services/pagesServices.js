@@ -142,7 +142,6 @@ const addPrivacyPolicy = async ({ title, description }) => {
     );
     return result.rows[0];
   };
-
 export default { addAboutpage,getAboutUs,updateAboutPage,deleteAboutPage,addPrivacyPolicy,
     getPrivacyPolicies,
     updatePrivacyPolicy,

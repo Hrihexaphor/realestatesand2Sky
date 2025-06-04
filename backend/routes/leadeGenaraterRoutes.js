@@ -102,7 +102,7 @@ router.patch('/propinquiry/:id/contacted', async (req, res) => {
     res.status(500).json({ error: 'Failed to update contacted status' });
   }
 });
-
+ 
 // getInfo routes
 // POST /api/get-info
 router.post("/getinfo", async (req, res) => {

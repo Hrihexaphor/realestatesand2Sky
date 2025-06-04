@@ -3,7 +3,7 @@ import { addContact,getAllContacts,getContactById,updateContact,deleteContact } 
 const router = express.Router()
 
 // Create new contact
-router.post('/addcontact', async (req, res) => {
+router.post('/addcontactpage', async (req, res) => {
   try {
     const contact = await addContact(req.body);
     res.status(201).json(contact);
@@ -13,7 +13,7 @@ router.post('/addcontact', async (req, res) => {
 });
 
 // Get all contacts
-router.get('/contact', async (req, res) => {
+router.get('/contactpage', async (req, res) => {
   try {
     const contacts = await getAllContacts();
     res.json(contacts);
@@ -37,7 +37,7 @@ router.get('/contact/:id', async (req, res) => {
 });
 
 // Update contact
-router.put('/contact/:id', async (req, res) => {
+router.put('/contactpage/:id', async (req, res) => {
   try {
     const updated = await updateContact(req.params.id, req.body);
     if (updated) {
@@ -51,7 +51,7 @@ router.put('/contact/:id', async (req, res) => {
 });
 
 // Delete contact
-router.delete('/contact/:id', async (req, res) => {
+router.delete('/contactpage/:id', async (req, res) => {
   try {
     const deleted = await deleteContact(req.params.id);
     if (deleted) {
