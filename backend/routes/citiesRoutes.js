@@ -39,7 +39,7 @@ router.get("/cities/:id", async (req, res) => {
 });
 
 // Create new city
-router.post("/cities",isAuthenticated(), async (req, res) => {
+router.post("/cities", async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -57,7 +57,7 @@ router.post("/cities",isAuthenticated(), async (req, res) => {
 });
 
 // Update city
-router.put("/cities/:id", isAuthenticated(),async (req, res) => {
+router.put("/cities/:id",async (req, res) => {
   const { name } = req.body;
   const { id } = req.params;
 
@@ -81,7 +81,7 @@ router.put("/cities/:id", isAuthenticated(),async (req, res) => {
 });
 
 // Delete city
-router.delete("/cities/:id",isAuthenticated(), async (req, res) => {
+router.delete("/cities/:id", async (req, res) => {
   try {
     const deletedCity = await deleteCity(req.params.id);
 

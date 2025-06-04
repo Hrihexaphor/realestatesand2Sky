@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from 'react-toastify';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -11,53 +12,39 @@ export default function CityManager() {
   const [editingCityId, setEditingCityId] = useState(null);
 
   const fetchCities = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/api/cities`);
-      setCities(res.data);
-    } catch (err) {
-      console.error("Failed to fetch cities:", err);
+      try {
+    if (editingCityId) {
+      const res = await axios.put(`${BASE_URL}/api/cities/${editingCityId}`, {
+        name: cityName,
+      }, {
+        withCredentials: true
+      });
+
+      setCities(
+        cities.map((city) => (city.id === editingCityId ? res.data : city))
+      );
+      setEditingCityId(null);
+      toast.success("City updated successfully");
+    } else {
+      const res = await axios.post(`${BASE_URL}/api/cities`, {
+        name: cityName,
+      }, {
+        withCredentials: true
+      });
+
+      setCities([...cities, res.data]);
+      toast.success("City added successfully");
     }
-  };
 
-  useEffect(() => {
-    fetchCities();
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!cityName.trim()) {
-      setError("City name is required");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      if (editingCityId) {
-        const res = await axios.put(`${BASE_URL}/api/cities/${editingCityId}`, {
-          name: cityName,
-        });
-        setCities(
-          cities.map((city) => (city.id === editingCityId ? res.data : city))
-        );
-        setEditingCityId(null);
-      } else {
-        const res = await axios.post(`${BASE_URL}/api/cities`, {
-          name: cityName,
-        },{
-    withCredentials: true
-  });
-        setCities([...cities, res.data]);
-      }
-      setCityName("");
-    } catch (err) {
-      console.error("Error saving city:", err);
-      setError(err.response?.data?.message || "Failed to save city");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setCityName("");
+  } catch (err) {
+    console.error("Error saving city:", err);
+    setError(err.response?.data?.message || "Failed to save city");
+    toast.error(err.response?.data?.message || "Failed to save city");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleEdit = (city) => {
     setCityName(city.name);
@@ -70,6 +57,7 @@ export default function CityManager() {
     try {
       await axios.delete(`${BASE_URL}/api/cities/${id}`);
       setCities(cities.filter((city) => city.id !== id));
+      toast.success('city deleted successfully');
     } catch (err) {
       console.error("Error deleting city:", err);
       alert("Failed to delete city");
