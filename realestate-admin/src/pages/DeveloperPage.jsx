@@ -152,9 +152,9 @@ const DeveloperPage = () => {
       });
       
       if (editingId) {
-          await axios.put(`${BASE_URL}/${editingId}`, formData, {
+          await axios.put(`${BASE_URL}/api/developer/${editingId}`, formData, {
             headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'application/json'
             },
             withCredentials: true
           });
