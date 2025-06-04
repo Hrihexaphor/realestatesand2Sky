@@ -221,12 +221,12 @@ const AboutUsPage = () => {
                 </td>
                 <td className="py-3 px-4 border">
                   <div className="flex items-center justify-center space-x-3">
-                    <button
+                    {/* <button
                       className="text-blue-500 hover:text-blue-700 transition"
                       onClick={() => toast.info('Edit feature coming soon')}
                     >
                       <FaEdit size={18} />
-                    </button>
+                    </button> */}
                     <button
                       className="text-red-500 hover:text-red-700 transition"
                       onClick={() => handleDelete(item.id)}
