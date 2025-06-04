@@ -292,7 +292,7 @@ const FeaturedManager = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured Period</th>
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured Period</th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery Period</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
@@ -322,13 +322,13 @@ const FeaturedManager = () => {
                   )}
                 </td>
                 
-                <td className="px-6 py-4 whitespace-nowrap">
+                {/* <td className="px-6 py-4 whitespace-nowrap">
                   {featuredIds.includes(property.id) && featuredProperties[property.id] && (
                     <span className="text-sm text-green-600">
                       {formatDate(featuredProperties[property.id].featured_from)} <br/> - {formatDate(featuredProperties[property.id].featured_to)}
                     </span>
                   )}
-                </td>
+                </td> */}
                 
                 <td className="px-6 py-4 whitespace-nowrap">
                   {galleryIds.includes(property.id) ? (
