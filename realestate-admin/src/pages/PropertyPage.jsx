@@ -31,7 +31,7 @@ export default function PropertyPage() {
     try {
       await axios.delete(`${BASE_URL}/api/property/${id}`);
       toast.success("Property deleted");
-      fetchProperties();
+      await fetchProperties();
     } catch (err) {
       toast.error("Failed to delete");
     }
