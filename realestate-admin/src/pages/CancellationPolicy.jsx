@@ -30,16 +30,18 @@ const CancellationPolicy = () => {
 
     try {
       if (editId) {
-        await axios.put(`${BASE_URL}/api/cancelpolicy/${editId}`,{
-    withCredentials: true
-  }, { title, description });
-        toast.success('Policy updated');
-      } else {
-        await axios.post(`${BASE_URL}/api/addcancelpolicy`,{
-    withCredentials: true
-  }, { title, description });
-        toast.success('Policy added');
-      }
+    await axios.put(`${BASE_URL}/api/cancelpolicy/${editId}`, 
+      { title, description }, // request body
+      { withCredentials: true } // config
+    );
+    toast.success('Policy updated');
+  } else {
+    await axios.post(`${BASE_URL}/api/addcancelpolicy`, 
+      { title, description }, // request body
+      { withCredentials: true } // config
+    );
+    toast.success('Policy added');
+  }
       setTitle('');
       setDescription('');
       setEditId(null);
