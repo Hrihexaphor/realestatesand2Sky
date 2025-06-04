@@ -45,7 +45,7 @@ router.put('/amenities/:id', isAuthenticated(), async (req, res) => {
 });
 
 // DELETE /api/amenities/:id - Delete an amenity
-router.delete('/amenities/:id', isAuthenticated(), async (req, res) => {
+router.delete('/amenities/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
