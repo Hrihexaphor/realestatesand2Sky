@@ -26,7 +26,7 @@ router.get('/nearest', async (req, res) => {
 
 
 // PUT /api/nearest-to/:id - Update a nearest_to entry
-router.put('/nearest/:id',isAuthenticated(), async (req, res) => {
+router.put('/nearest/:id', async (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
   
@@ -44,7 +44,7 @@ router.put('/nearest/:id',isAuthenticated(), async (req, res) => {
 
   
 // DELETE /api/nearest-to/:id - Delete a nearest_to entry
-router.delete('/nearest/:id',isAuthenticated(), async (req, res) => {
+router.delete('/nearest/:id', async (req, res) => {
     const { id } = req.params;
   
     try {

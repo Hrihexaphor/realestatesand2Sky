@@ -34,7 +34,7 @@ router.get('/keyfeature', async (req, res) => {
 });
 
 // Update
-router.put('/keyfeature/:id',isAuthenticated(), async (req, res) => {
+router.put('/keyfeature/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
