@@ -21,7 +21,7 @@ cloudinary.config({
   api_key: apiKey,
   api_secret: apiSecret,
 });
-
+const allowedPdfMimeTypes = ['application/pdf', 'application/x-pdf', 'application/acrobat', 'text/pdf'];
 // Set up storage
 const blogStorage = new CloudinaryStorage({
   cloudinary,
@@ -70,7 +70,7 @@ const aboutStorage = new CloudinaryStorage({
 const propertyStorage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
-    const isPDF = file.mimetype === 'application/pdf';
+    const isPDF = allowedPdfMimeTypes.includes(file.mimetype);
     const filename = file.originalname.split('.')[0];
     // Get the file extension
     const fileExtension = file.originalname.split('.').pop().toLowerCase();
