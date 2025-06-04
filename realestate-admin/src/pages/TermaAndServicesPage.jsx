@@ -29,13 +29,21 @@ const TermaAndServicesPage = () => {
     if (!title || !description) return toast.warn('All fields are required');
 
     try {
-      if (editId) {
-        await axios.put(`${BASE_URL}/api/termsandservice/${editId}`, { title, description });
-        toast.success('Policy updated');
-      } else {
-        await axios.post(`${BASE_URL}/api/addtermsandservice`, { title, description });
-        toast.success('Policy added');
-      }
+       if (editId) {
+    await axios.put(
+      `${BASE_URL}/api/termsandservice/${editId}`,
+      { title, description },
+      { withCredentials: true }
+    );
+    toast.success('Policy updated');
+  } else {
+    await axios.post(
+      `${BASE_URL}/api/addtermsandservice`,
+      { title, description },
+      { withCredentials: true }
+    );
+    toast.success('Policy added');
+  }
       setTitle('');
       setDescription('');
       setEditId(null);
