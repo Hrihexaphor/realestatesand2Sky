@@ -152,7 +152,7 @@ const DeveloperPage = () => {
       });
       
       if (editingId) {
-          await axios.put(`${BASE_URL}/api/developer/${editingId}`, formData, {
+          await axios.put(`${BASE_URL}/${editingId}`, formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             },
@@ -180,7 +180,7 @@ const DeveloperPage = () => {
 
   const resetForm = () => {
     setForm({
-      name: '',
+      name: '', 
       company_name: '',
       contact_email: '',
       phone_number: '',
@@ -642,7 +642,7 @@ const DeveloperPage = () => {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-start space-x-4 mb-4 md:mb-0">
                       {/* Developer Logo */}
-                      <div className="flex-shrink-0">
+                      {/* <div className="flex-shrink-0">
                         {dev.developer_logo ? (
                           <img 
                             src={`${BASE_URL}/${dev.developer_logo}`} 
@@ -656,7 +656,7 @@ const DeveloperPage = () => {
                             </svg>
                           </div>
                         )}
-                      </div>
+                      </div> */}
                       
                       {/* Developer Info */}
                       <div className="flex-1">

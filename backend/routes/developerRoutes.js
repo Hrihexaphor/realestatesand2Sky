@@ -44,20 +44,22 @@ router.get('/developer', async (req, res) => {
 
 // PUT /api/developers/:id - Update a developer
 router.put('/developer/:id', async (req, res) => {
-    const { id } = req.params;
-    const developerData = req.body;
-  
-    try {
-      const updatedDeveloper = await updateDeveloper(id, developerData);
-      if (!updatedDeveloper) {
-        return res.status(404).json({ error: 'Developer not found' });
-      }
-      res.status(200).json(updatedDeveloper);
-    } catch (err) {
-      console.error('Error updating developer:', err);
-      res.status(500).json({ error: 'Failed to update developer' });
+  const { id } = req.params;
+  const developerData = req.body;
+
+  console.log('Incoming developer update data:', developerData); // ✅ Helpful log
+
+  try {
+    const updatedDeveloper = await updateDeveloper(id, developerData);
+    if (!updatedDeveloper) {
+      return res.status(404).json({ error: 'Developer not found' });
     }
-  });
+    res.status(200).json(updatedDeveloper);
+  } catch (err) {
+    console.error('Error updating developer:', err);
+    res.status(500).json({ error: 'Failed to update developer' });
+  }
+});
 
   // DELETE /api/developers/:id - Delete a developer
 router.delete('/developer/:id', async (req, res) => {

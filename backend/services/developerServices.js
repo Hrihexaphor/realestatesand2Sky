@@ -27,8 +27,31 @@ export async function getAllDeveloper(){
     return result.rows;
 }
 // Update a developer by ID
-export const updateDeveloper = async (id, developerData) => {
-    const {
+export const updateDeveloper = async (id, developerData = {}) => {
+  const {
+    name,
+    company_name,
+    contact_email,
+    phone_number,
+    address,
+    city,
+    state,
+    partial_amount, // ✅ include this
+  } = developerData;
+
+  const result = await pool.query(
+    `UPDATE developer
+     SET name = $1,
+         company_name = $2,
+         contact_email = $3,
+         phone_number = $4,
+         address = $5,
+         city = $6,
+         state = $7,
+         partial_amount = $8
+     WHERE id = $9
+     RETURNING *`,
+    [
       name,
       company_name,
       contact_email,
@@ -36,25 +59,13 @@ export const updateDeveloper = async (id, developerData) => {
       address,
       city,
       state,
-    } = developerData;
-  
-    const result = await pool.query(
-      `UPDATE developer
-       SET name = $1,
-           company_name = $2,
-           contact_email = $3,
-           phone_number = $4,
-           address = $5,
-           city = $6,
-           state = $7
-           partial_amount=$8
-       WHERE id = $9
-       RETURNING *`,
-      [name, company_name, contact_email, phone_number, address, city, state, id]
-    );
-  
-    return result.rows[0];
-  };
+      partial_amount, // ✅ included here
+      id // ✅ now in 9th position
+    ]
+  );
+
+  return result.rows[0];
+};
   
   // Delete a developer by ID
 export const deleteDeveloper = async (id) => {
