@@ -57,7 +57,7 @@ const KeyFeatureManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this feature?')) return;
     try {
-      await axios.delete(`${API_URL}/api/keyfeature/${id}`);
+      await axios.delete(`${BASE_URL}/api/keyfeature/${id}`);
       toast.success('Feature deleted');
       fetchFeatures();
     } catch (err) {
