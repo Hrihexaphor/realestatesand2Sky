@@ -47,7 +47,7 @@ router.put('/keyfeature/:id', async (req, res) => {
 });
 
 // Delete
-router.delete('/keyfeature/:id',isAuthenticated(), async (req, res) => {
+router.delete('/keyfeature/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await deleteKeyFeature(id);

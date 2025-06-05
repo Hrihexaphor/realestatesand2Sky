@@ -135,7 +135,7 @@ const DashboardLayout = () => {
           >
             <FaBuilding className="text-amber-400 mr-2" /> Admin Portal
           </h2>
-          <button
+          {/* <button
             onClick={toggleSidebar}
             className="p-2 rounded-full hover:bg-gray-700 focus:outline-none"
           >
@@ -144,7 +144,7 @@ const DashboardLayout = () => {
             ) : (
               <FaArrowLeft className="text-amber-400" />
             )}
-          </button>
+          </button> */}
         </div>
 
         <div className="py-4 overflow-y-auto h-[calc(100%-4rem)]">
