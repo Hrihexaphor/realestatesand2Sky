@@ -967,7 +967,7 @@ const AmenityPage = () => {
                         <h3 className="font-medium text-gray-800">
                           {amenity.name}
                         </h3>
-                        <p className="text-sm text-gray-500">{amenity.icon}</p>
+                        {/* <p className="text-sm text-gray-500">{amenity.icon}</p> */}
                       </div>
                     </div>
                     <button
