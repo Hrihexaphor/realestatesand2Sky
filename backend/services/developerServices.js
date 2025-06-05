@@ -38,7 +38,9 @@ export const updateDeveloper = async (id, developerData = {}) => {
     state,
     partial_amount, // ✅ include this
   } = developerData;
-
+  const sanitizedPartialAmount = partial_amount === '' || partial_amount === undefined 
+    ? null 
+    : partial_amount;
   const result = await pool.query(
     `UPDATE developer
      SET name = $1,
@@ -59,7 +61,7 @@ export const updateDeveloper = async (id, developerData = {}) => {
       address,
       city,
       state,
-      partial_amount, // ✅ included here
+      sanitizedPartialAmount, // ✅ included here
       id // ✅ now in 9th position
     ]
   );
