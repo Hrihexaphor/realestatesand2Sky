@@ -67,6 +67,7 @@ import {
   FaHeart,
   FaGamepad,
   FaWrench,
+  FaTrashAlt,
 } from "react-icons/fa";
 import {
   MdLocalLaundryService,
@@ -91,6 +92,7 @@ import {
   MdTempleHindu,
   MdRoofing,
   MdVideocam,
+  MdEvent,
 } from "react-icons/md";
 import {
   GiLockers,
@@ -101,6 +103,10 @@ import {
   GiGolfFlag,
   GiMeditation,
   GiGasStove,
+  GiJumpingRope,
+  GiCompass,
+  GiTheaterCurtains,
+  GiFootprint
 } from "react-icons/gi";
 import { BsFillTelephoneFill, BsFillShieldLockFill } from "react-icons/bs";
 import { IoGameControllerOutline, IoWater } from "react-icons/io5";
@@ -178,6 +184,7 @@ const AmenityPage = () => {
     FaPhone: FaPhone,
     FaPaintRoller: FaPaintRoller,
     FaPlug: FaPlug,
+    FaTrashAlt:FaTrashAlt,
     MdSecurity: MdSecurity,
     MdSportsBasketball: MdSportsBasketball,
     MdPool: MdPool,
@@ -186,6 +193,7 @@ const AmenityPage = () => {
     MdNature: MdNature,
     MdWaterDrop: MdWaterDrop,
     MdCleaningServices: MdCleaningServices,
+    MdEvent:MdEvent,
     GiCctvCamera: GiCctvCamera,
     GiFireplace: GiFireplace,
     BsFillShieldLockFill: BsFillShieldLockFill,
@@ -228,6 +236,10 @@ const AmenityPage = () => {
     GiGolfFlag: GiGolfFlag,
     GiMeditation: GiMeditation,
     GiGasStove: GiGasStove,
+    GiJumpingRope:GiJumpingRope,
+    GiCompass:GiCompass,
+    GiTheaterCurtains:GiTheaterCurtains,
+    GiFootprint:GiFootprint,
     HiOutlineSpeakerphone: HiOutlineSpeakerphone,
     BiWind: BiWind,
   };
