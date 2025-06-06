@@ -166,15 +166,24 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
         p.id,
         p.title,
         pd.project_name,
+        pd.location,
         pd.city,
         pd.locality,
         p.expected_price AS price,
-        pd.built_up_area,
+        p.price_per_sqft,
+        pd.super_built_up_area,
+        pd.carpet_area,
+        pd.bedrooms,
+        pd.bathrooms,
+        pd.balconies,
+        pd.furnished_status,
+        pd.available_from,
+        d.id AS developer_id,
         d.name AS developer_name,
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
-           (
+        (
           SELECT pi.image_url
           FROM property_images pi
           WHERE pi.property_id = p.id AND pi.is_primary = true
@@ -209,23 +218,23 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
 
       WHERE pd.transaction_types = $1
 
-      GROUP BY p.id, pd.project_name, pd.city, pd.locality, pd.built_up_area,
-               d.name, pc.name, psc.name
+      GROUP BY 
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
+        d.id, d.name, pc.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
       LIMIT $2 OFFSET $3
     `,
-      ["Resale", limit, offset]
-    );
+    ["Resale", limit, offset]);
 
     return rows;
   } catch (error) {
     console.error("Failed to fetch resale property summaries:", error);
-    throw new Error(
-      `Failed to fetch resale property summaries: ${error.message}`
-    );
+    throw new Error(`Failed to fetch resale property summaries: ${error.message}`);
   }
 };
+
 
 // ready to move property with minimum details
 export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
@@ -359,12 +368,12 @@ export const getPropertiesInPriceRangeSummaryOnetotwo = async (
 };
 
 // services to get property from top project from top builder
-export const getTopProjectsFromTopBuilders = async (limitBuilders = 5) => {
+export const getTopProjectsFromTopBuilders = async (limit = 5) => {
   try {
     const { rows } = await pool.query(
       `
       WITH top_builders AS (
-        SELECT d.id AS developer_id, d.name AS developer_name, COUNT(p.id) AS property_count
+        SELECT d.id AS developer_id, COUNT(p.id) AS property_count
         FROM developer d
         JOIN property p ON p.developer_id = d.id
         GROUP BY d.id
@@ -375,28 +384,39 @@ export const getTopProjectsFromTopBuilders = async (limitBuilders = 5) => {
         p.id,
         p.title,
         pd.project_name,
+        pd.location,
         pd.city,
         pd.locality,
         p.expected_price AS price,
-        pd.built_up_area,
+        p.price_per_sqft,
+        pd.super_built_up_area,
+        pd.carpet_area,
+        pd.bedrooms,
+        pd.bathrooms,
+        pd.balconies,
+        pd.furnished_status,
+        pd.available_from,
         d.id AS developer_id,
         d.name AS developer_name,
         pc.name AS category_name,
         psc.name AS subcategory_name,
+
         (
           SELECT pi.image_url
           FROM property_images pi
-          WHERE pi.property_id = p.id
-          ORDER BY pi.id ASC
+          WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
+
         EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
         ) AS is_featured,
+
         COALESCE(
           json_agg(
             jsonb_build_object(
+              'id', config.id,
               'bhk_type', config.bhk_type,
               'bedrooms', config.bedrooms,
               'bathrooms', config.bathrooms,
@@ -406,6 +426,7 @@ export const getTopProjectsFromTopBuilders = async (limitBuilders = 5) => {
             )
           ) FILTER (WHERE config.id IS NOT NULL), '[]'
         ) AS configurations
+
       FROM property p
       JOIN top_builders tb ON p.developer_id = tb.developer_id
       LEFT JOIN property_details pd ON pd.property_id = p.id
@@ -413,17 +434,22 @@ export const getTopProjectsFromTopBuilders = async (limitBuilders = 5) => {
       LEFT JOIN property_category pc ON p.category_id = pc.id
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN property_configurations config ON config.property_id = p.id
+
       WHERE p.id IN (
         SELECT DISTINCT ON (p2.developer_id) p2.id
         FROM property p2
         WHERE p2.developer_id IN (SELECT developer_id FROM top_builders)
         ORDER BY p2.developer_id, p2.id DESC
       )
-      GROUP BY p.id, pd.project_name, pd.city, pd.locality, pd.built_up_area,
-               d.id, d.name, pc.name, psc.name
-      ORDER BY p.id DESC;
+
+      GROUP BY 
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
+        d.id, d.name, pc.name, psc.name, p.price_per_sqft
+
+      ORDER BY p.id DESC
     `,
-      [limitBuilders]
+      [limit]
     );
 
     return rows;
@@ -432,6 +458,7 @@ export const getTopProjectsFromTopBuilders = async (limitBuilders = 5) => {
     throw new Error(`Failed to fetch top projects: ${error.message}`);
   }
 };
+
 
 // services for project gallary
 
