@@ -20,7 +20,7 @@ export default function PropertyCard({ properties = [], onEdit, onDelete, onView
 
   // Filter properties based on search
   const filteredProperties = properties.filter(property =>
-    property.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.property_category_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.locality?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -120,7 +120,7 @@ export default function PropertyCard({ properties = [], onEdit, onDelete, onView
               </svg>
               <input
                 type="text"
-                placeholder="Search by title, city, category, or locality..."
+                placeholder="Search by project name, city, category, or locality..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => {
@@ -173,7 +173,7 @@ export default function PropertyCard({ properties = [], onEdit, onDelete, onView
               <thead className="bg-gradient-to-r from-gray-800 to-gray-700">
                 <tr>
                   <th className="px-4 py-3 text-xs font-medium tracking-wider text-center text-white uppercase">Actions</th>
-                  <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Property</th>
+                  <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-white uppercase">Project Name</th>
                   <th className="px-4 py-3 text-xs font-medium tracking-wider text-center text-white uppercase">FAQ</th>
                   <SortableHeader field="property_category_name">Category</SortableHeader>
                   <SortableHeader field="city">City</SortableHeader>
@@ -217,7 +217,7 @@ export default function PropertyCard({ properties = [], onEdit, onDelete, onView
                       <td className="px-4 py-4">
                         <div className="flex items-center">
                           <div className="flex items-center">
-                            <div className="text-sm font-medium text-gray-900 mb-1">{property.title || '—'}</div>
+                            <div className="text-sm font-medium text-gray-900 mb-1">{property.project_name || '—'}</div>
                           </div>
                         </div>
                       </td>
