@@ -68,6 +68,11 @@ import {
   FaGamepad,
   FaWrench,
   FaTrashAlt,
+   FaToriiGate,
+  // FaRoadSpikes,
+  // FaPeopleRoof,
+  // FaHelicopterSymbol,
+  FaSkyatlas,
 } from "react-icons/fa";
 import {
   MdLocalLaundryService,
@@ -93,6 +98,9 @@ import {
   MdRoofing,
   MdVideocam,
   MdEvent,
+  MdSportsGymnastics,
+  MdOutlineHomeMini,
+  MdAirlineSeatReclineExtra,
 } from "react-icons/md";
 import {
   GiLockers,
@@ -106,14 +114,30 @@ import {
   GiJumpingRope,
   GiCompass,
   GiTheaterCurtains,
-  GiFootprint
+  GiFootprint,
+  GiPowerGenerator,
+  GiCryptEntrance,
+  GiLift,
+  GiGolfTee,
 } from "react-icons/gi";
 import { BsFillTelephoneFill, BsFillShieldLockFill } from "react-icons/bs";
 import { IoGameControllerOutline, IoWater } from "react-icons/io5";
 import { ImOffice } from "react-icons/im";
 import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { BiWind } from "react-icons/bi";
-
+import { 
+  TbAirConditioning, 
+  TbClubsFilled, 
+  TbParking, 
+  TbGymnastics 
+} from "react-icons/tb";
+import { 
+  RiLandscapeLine, 
+  RiEarthquakeLine, 
+  RiHomeOfficeLine 
+} from "react-icons/ri";
+import { GrYoga, GrLounge } from "react-icons/gr";
+import { PiPark } from "react-icons/pi";
 const AmenityPage = () => {
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -242,6 +266,27 @@ const AmenityPage = () => {
     GiFootprint:GiFootprint,
     HiOutlineSpeakerphone: HiOutlineSpeakerphone,
     BiWind: BiWind,
+
+    // NEW ICONS ADDED BASED ON YOUR REQUEST
+    MdSportsGymnastics: MdSportsGymnastics, // Aerobics Studio
+    TbAirConditioning: TbAirConditioning, // Central Air Conditioning
+    TbClubsFilled: TbClubsFilled, // Club House
+    GiPowerGenerator: GiPowerGenerator, // Power Backup
+    RiLandscapeLine: RiLandscapeLine, // Landscape
+    FaToriiGate: FaToriiGate, // Torii Gate
+    MdOutlineHomeMini: MdOutlineHomeMini, // Vastu
+    GiCryptEntrance: GiCryptEntrance, // Lobby
+    GiLift: GiLift, // High Speed Lift
+    RiEarthquakeLine: RiEarthquakeLine, // Earthquake-Resistant Structure
+    MdAirlineSeatReclineExtra: MdAirlineSeatReclineExtra, // Senior Citizen Seating
+    GiGolfTee: GiGolfTee, // Mini Golf
+    GrYoga: GrYoga, // Yoga
+    TbGymnastics: TbGymnastics, // Open Gym
+    GrLounge: GrLounge, // Business Lounge
+    PiPark: PiPark, // Park
+    RiHomeOfficeLine: RiHomeOfficeLine, // Society Office
+    TbParking: TbParking, // Reserved Parking
+    FaSkyatlas: FaSkyatlas, // Sky Lounge
   };
 
   // Category definitions
@@ -256,7 +301,7 @@ const AmenityPage = () => {
     { id: "technology", name: "Technology" },
   ];
 
-  // Predefined amenities with categories and icons
+  // Predefined amenities with categories and icons (updated with new icons)
   const predefinedAmenities = [
     // General
     { name: "24X7 Water Supply", icon: "FaWater", category: "General" },
@@ -272,7 +317,7 @@ const AmenityPage = () => {
     { name: "Children Playing Zone", icon: "FaChild", category: "General" },
     {
       name: "Senior Citizen Sitting Area",
-      icon: "FaUserTie",
+      icon: "MdAirlineSeatReclineExtra",
       category: "General",
     },
     { name: "Crèche", icon: "FaBaby", category: "General" },
@@ -286,15 +331,19 @@ const AmenityPage = () => {
       icon: "FaRunning",
       category: "General",
     },
-    { name: "Clubhouse", icon: "FaHome", category: "General" },
-    { name: "Society Office", icon: "ImOffice", category: "General" },
+    { name: "Clubhouse", icon: "TbClubsFilled", category: "General" },
+    { name: "Society Office", icon: "RiHomeOfficeLine", category: "General" },
     { name: "Convenience Store", icon: "FaStore", category: "General" },
     { name: "Lift", icon: "MdElevator", category: "General" },
+    { name: "High Speed Lift", icon: "GiLift", category: "General" },
     { name: "Intercom", icon: "FaIntercom", category: "General" },
     { name: "Gated Community", icon: "FaShieldAlt", category: "General" },
+    { name: "Grand Entrance Lobby", icon: "GiCryptEntrance", category: "General" },
+    { name: "Landscape Garden", icon: "RiLandscapeLine", category: "General" },
+    { name: "Park", icon: "PiPark", category: "General" },
 
     // Safety
-    { name: "Reserved Parking", icon: "FaParking", category: "Safety" },
+    { name: "Reserved Parking", icon: "TbParking", category: "Safety" },
     { name: "CCTV Surveillance", icon: "GiCctvCamera", category: "Safety" },
     {
       name: "Entrance Gate With Security",
@@ -310,7 +359,7 @@ const AmenityPage = () => {
     { name: "Video Door Phones", icon: "MdVideocam", category: "Safety" },
     {
       name: "Earthquake-Resistant Structure",
-      icon: "FaBuilding",
+      icon: "RiEarthquakeLine",
       category: "Safety",
     },
 
@@ -332,12 +381,12 @@ const AmenityPage = () => {
     { name: "Badminton Court", icon: "FaTrophy", category: "Sports" },
     { name: "Children Play Area", icon: "FaChild", category: "Sports" },
     { name: "Kids' Play Area", icon: "FaChild", category: "Sports" },
-    { name: "Mini Golf", icon: "FaGolfBall", category: "Sports" },
-    { name: "Open-Air Gym", icon: "FaDumbbell", category: "Sports" },
+    { name: "Mini Golf", icon: "GiGolfTee", category: "Sports" },
+    { name: "Open-Air Gym", icon: "TbGymnastics", category: "Sports" },
 
     // Leisure
     { name: "Community Club", icon: "FaHome", category: "Leisure" },
-    { name: "Club House", icon: "FaHome", category: "Leisure" },
+    { name: "Club House", icon: "TbClubsFilled", category: "Leisure" },
     { name: "Recreation/Kids Club", icon: "FaChild", category: "Leisure" },
     { name: "Swimming Pool", icon: "FaSwimmingPool", category: "Leisure" },
     {
@@ -357,9 +406,12 @@ const AmenityPage = () => {
     { name: "Kids' Pool", icon: "FaSwimmingPool", category: "Leisure" },
     { name: "Nature Walkway", icon: "FaTree", category: "Leisure" },
     { name: "Green Wall", icon: "MdNature", category: "Leisure" },
-    { name: "Aerobics Studio", icon: "FaMusic", category: "Leisure" },
+    { name: "Aerobics Studio", icon: "MdSportsGymnastics", category: "Leisure" },
     { name: "Amphitheatre", icon: "GiTheater", category: "Leisure" },
-    { name: "Mini Theatre", icon: "FaFilm", category: "Leisure" },
+    { name: "Mini Theatre", icon: "GiTheaterCurtains", category: "Leisure" },
+    { name: "Yoga Center", icon: "GrYoga", category: "Leisure" },
+    { name: "Meditation Area", icon: "GiMeditation", category: "Leisure" },
+    { name: "Sky Lounge", icon: "FaSkyatlas", category: "Leisure" },
 
     // Environment
     {
@@ -433,14 +485,13 @@ const AmenityPage = () => {
     },
     {
       name: "Central Air Conditioning",
-      icon: "FaWind",
+      icon: "TbAirConditioning",
       category: "Home Specifications",
     },
     { name: "Piped Gas", icon: "GiGasStove", category: "Home Specifications" },
-
     {
       name: "Vaastu Compliant",
-      icon: "MdTempleHindu",
+      icon: "MdOutlineHomeMini",
       category: "Home Specifications",
     },
 
@@ -450,23 +501,19 @@ const AmenityPage = () => {
     { name: "Multipurpose Hall", icon: "MdBusiness", category: "Facilities" },
     { name: "Party Hall", icon: "FaGlassCheers", category: "Facilities" },
     { name: "Coworking Spaces", icon: "FaLaptop", category: "Facilities" },
-    { name: "Business Lounge", icon: "MdBusiness", category: "Facilities" },
-    { name: "Temple", icon: "MdTempleHindu", category: "Facilities" },
+    { name: "Business Lounge", icon: "GrLounge", category: "Facilities" },
+    { name: "Temple", icon: "FaToriiGate", category: "Facilities" },
     {
       name: "Grand Entrance Lobby",
-      icon: "FaDoorOpen",
+      icon: "GiCryptEntrance",
       category: "Facilities",
     },
-    // {
-    //   name: "High-Speed Elevators",
-    //   icon: "FaElevator",
-    //   category: "Facilities",
-    // },
     {
       name: "Senior Citizen Seating Areas",
-      icon: "FaUserTie",
+      icon: "MdAirlineSeatReclineExtra",
       category: "Facilities",
     },
+  
 
     // Technology
     {
@@ -474,17 +521,18 @@ const AmenityPage = () => {
       icon: "FaWrench",
       category: "Technology",
     },
-    { name: "Power Backup", icon: "FaBolt", category: "Technology" },
+    { name: "Power Backup", icon: "GiPowerGenerator", category: "Technology" },
     { name: "Video Door Phones", icon: "MdVideocam", category: "Technology" },
   ];
 
-  // Icon categories
+  // Icon categories (updated with new icons)
   const iconCategories = [
     {
       name: "Basic Amenities",
       icons: [
         "FaWifi",
         "FaParking",
+        "TbParking",
         "FaSnowflake",
         "FaUtensils",
         "FaBed",
@@ -492,6 +540,7 @@ const AmenityPage = () => {
         "FaCoffee",
         "FaWater",
         "MdElevator",
+        "GiLift",
         "FaIntercom",
       ],
     },
@@ -500,6 +549,7 @@ const AmenityPage = () => {
       icons: [
         "FaSwimmingPool",
         "FaDumbbell",
+        "TbGymnastics",
         "FaUmbrellaBeach",
         "FaHotTub",
         "FaBicycle",
@@ -510,6 +560,10 @@ const AmenityPage = () => {
         "FaRunning",
         "FaMusic",
         "FaGolfBall",
+        "GiGolfTee",
+        "MdSportsGymnastics",
+        "GrYoga",
+        "GiMeditation",
       ],
     },
     {
@@ -527,6 +581,7 @@ const AmenityPage = () => {
         "FaStore",
         "FaHandsHelping",
         "FaWrench",
+        "MdAirlineSeatReclineExtra",
       ],
     },
     {
@@ -539,6 +594,7 @@ const AmenityPage = () => {
         "GiFireplace",
         "MdVideocam",
         "FaShieldAlt",
+        "RiEarthquakeLine",
       ],
     },
     {
@@ -552,6 +608,8 @@ const AmenityPage = () => {
         "MdWaterDrop",
         "MdCleaningServices",
         "FaSolarPanel",
+        "RiLandscapeLine",
+        "PiPark",
       ],
     },
     {
@@ -561,25 +619,37 @@ const AmenityPage = () => {
         "FaGlassCheers",
         "FaTheaterMasks",
         "GiTheater",
+        "GiTheaterCurtains",
         "FaFilm",
         "HiOutlineSpeakerphone",
+        "FaSkyatlas",
       ],
     },
     {
       name: "Business & Work",
-      icons: ["MdMeetingRoom", "MdBusiness", "FaLaptop", "FaUsers", "ImOffice"],
+      icons: [
+        "MdMeetingRoom", 
+        "MdBusiness", 
+        "FaLaptop", 
+        "FaUsers", 
+        "ImOffice",
+        "RiHomeOfficeLine",
+        "GrLounge",
+      ],
     },
     {
       name: "Room & Facility",
       icons: [
         "MdLocalLaundryService",
         "MdAir",
+        "TbAirConditioning",
         "MdSpa",
         "MdOutdoorGrill",
         "GiLockers",
         "BsFillTelephoneFill",
         "FaTv",
         "FaHome",
+        "TbClubsFilled",
         "FaSquareFull",
         "FaDoorClosed",
         "FaSink",
@@ -590,11 +660,24 @@ const AmenityPage = () => {
         "FaKitchen",
         "FaWind",
         "GiGasStove",
+        "GiCryptEntrance",
       ],
     },
     {
       name: "Religious & Cultural",
-      icons: ["MdTempleHindu", "MdOutlinedFlag", "FaHeart"],
+      icons: [
+        "MdTempleHindu", 
+        "FaToriiGate",
+        "MdOutlinedFlag", 
+        "FaHeart",
+        "MdOutlineHomeMini",
+      ],
+    },
+    {
+      name: "Technology & Power",
+      icons: [
+        "GiPowerGenerator",
+      ],
     },
   ];
 
@@ -652,9 +735,7 @@ const AmenityPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleBulkImport = () => {
+  };  const handleBulkImport = () => {
     // Simulate adding all predefined amenities
     toast.info("Bulk importing predefined amenities...");
 
