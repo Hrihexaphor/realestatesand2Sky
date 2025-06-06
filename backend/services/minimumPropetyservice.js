@@ -25,6 +25,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         pd.available_from,
         d.id AS developer_id,
         d.name AS developer_name,
+        pc.name AS category_name,
         psc.name AS subcategory_name,
 
        (
@@ -55,12 +56,13 @@ export async function getMinimalProperties(page = 1, limit = 10) {
       FROM property p
       LEFT JOIN property_details pd ON pd.property_id = p.id
       LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN property_configurations config ON config.property_id = p.id
 
       GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
                pd.carpet_area, pd.bedrooms, pd.bathrooms,pd.balconies, pd.furnished_status, pd.available_from,
-               d.id, d.name, psc.name, p.price_per_sqft
+               d.id, d.name, pc.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
       LIMIT $1 OFFSET $2
