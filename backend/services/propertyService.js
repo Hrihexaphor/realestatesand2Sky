@@ -104,7 +104,8 @@ export async function insertPropertyDetails(property_id, details) {
       "super_built_up_area",
       "corner_plot",
       "other_rooms",
-      "rental_return"
+      "rental_return",
+      "property_status"
     ];
 
     // Filter out undefined fields

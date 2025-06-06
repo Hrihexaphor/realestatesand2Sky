@@ -15,11 +15,12 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         pd.locality,
         pd.city,
         p.expected_price,
-        pd.built_up_area,
+        pd.super_built_up_area,
         p.price_per_sqft,
         pd.carpet_area,
         pd.bedrooms,
         pd.bathrooms,
+        pd.balconies,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -57,8 +58,8 @@ export async function getMinimalProperties(page = 1, limit = 10) {
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN property_configurations config ON config.property_id = p.id
 
-      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.built_up_area,
-               pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
+      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
+               pd.carpet_area, pd.bedrooms, pd.bathrooms,pd.balconies, pd.furnished_status, pd.available_from,
                d.id, d.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
@@ -89,10 +90,11 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
         pd.locality,
         p.expected_price AS price,
         p.price_per_sqft,
-        pd.built_up_area,
+        pd.super_built_up_area,
         pd.carpet_area,
         pd.bedrooms,
         pd.bathrooms,
+        pd.balconies,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -100,7 +102,7 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
-             (
+        (
           SELECT pi.image_url
           FROM property_images pi
           WHERE pi.property_id = p.id AND pi.is_primary = true
@@ -132,17 +134,17 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN property_configurations config ON config.property_id = p.id
 
-      WHERE pd.transaction_types = $1
+      WHERE pd.property_status = 'active' AND pd.transaction_types = 'New property'
 
       GROUP BY 
-        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.built_up_area,
-        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
         d.id, d.name, pc.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
-      LIMIT $2 OFFSET $3
+      LIMIT $1 OFFSET $2
     `,
-      ["New property", limit, offset]
+      [limit, offset]
     );
 
     return rows;
@@ -237,10 +239,11 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
         pd.locality,
         p.expected_price AS price,
         p.price_per_sqft,
-        pd.built_up_area,
+        pd.super_built_up_area,
         pd.carpet_area,
         pd.bedrooms,
         pd.bathrooms,
+        pd.balconies,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -284,8 +287,8 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
       WHERE p.possession_status = $1
 
       GROUP BY 
-        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.built_up_area,
-        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
         d.id, d.name, pc.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
@@ -556,7 +559,7 @@ export const getPropertiesByLocality = async (
   }
 };
 
-// get property by developer name
+// get property by developer id
 export const getPropertiesByDeveloperId = async (
   developerId,
   limit = 10,
@@ -571,11 +574,12 @@ export const getPropertiesByDeveloperId = async (
       pd.locality,
       pd.city,
       p.expected_price,
-      pd.built_up_area,
+      pd.super_built_up_area,
       p.price_per_sqft,
       pd.carpet_area,
       pd.bedrooms,
       pd.bathrooms,
+      pd.balconies,
       pd.furnished_status,
       pd.available_from,
       d.name AS developer_name,
@@ -614,8 +618,8 @@ export const getPropertiesByDeveloperId = async (
 
     WHERE d.id = $3
 
-    GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.built_up_area,
-             pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.furnished_status, pd.available_from,
+    GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
+             pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
              d.name, d.developer_logo, psc.name
 
     ORDER BY p.id DESC
@@ -655,5 +659,82 @@ export async function getPopularSearchOptions() {
   } catch (err) {
     console.error("Error in getPopularSearchOptions:", err);
     throw err;
+  }
+}
+// services for get only old project
+export async function getOldProjects(page = 1, limit = 10) {
+  const offset = (page - 1) * limit;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+        p.id,
+        p.title,
+        pd.project_name,
+        pd.location,
+        pd.locality,
+        pd.city,
+        p.expected_price,
+        pd.super_built_up_area,
+        p.price_per_sqft,
+        pd.carpet_area,
+        pd.bedrooms,
+        pd.bathrooms,
+        pd.balconies,
+        pd.furnished_status,
+        pd.available_from,
+        d.id AS developer_id,
+        d.name AS developer_name,
+        psc.name AS subcategory_name,
+
+        (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id AND pi.is_primary = true
+          LIMIT 1
+        ) AS primary_image,
+
+        EXISTS (
+          SELECT 1 FROM featured_properties fp 
+          WHERE fp.property_id = p.id
+        ) AS is_featured,
+
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'id', config.id,
+              'bhk_type', config.bhk_type,
+              'bedrooms', config.bedrooms,
+              'bathrooms', config.bathrooms,
+              'super_built_up_area', config.super_built_up_area,
+              'carpet_area', config.carpet_area,
+              'balconies', config.balconies
+            )
+          ) FILTER (WHERE config.id IS NOT NULL), '[]'
+        ) AS configurations
+
+      FROM property p
+      LEFT JOIN property_details pd ON pd.property_id = p.id
+      LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
+      LEFT JOIN property_configurations config ON config.property_id = p.id
+
+      WHERE pd.property_status = 'inactive'
+
+      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
+               pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status,
+               pd.available_from, d.id, d.name, psc.name, p.price_per_sqft
+
+      ORDER BY p.id DESC
+      LIMIT $1 OFFSET $2
+    `,
+      [limit, offset]
+    );
+
+    return result.rows;
+  } catch (error) {
+    console.error("Error getting old/inactive project data:", error);
+    throw new Error(`Failed to get old projects: ${error.message}`);
   }
 }

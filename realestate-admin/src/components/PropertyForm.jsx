@@ -141,7 +141,8 @@ const PropertyForm = ({ editData, onClose }) => {
             "about_location",
             "available_from",
             "other_rooms",
-            "rental_return"
+            "rental_return",
+            "property_status"
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -181,7 +182,8 @@ const PropertyForm = ({ editData, onClose }) => {
             "plot_length",
             "corner_plot",
             "other_rooms",
-            "rental_return"
+            "rental_return",
+            "property_status"
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -218,7 +220,8 @@ const PropertyForm = ({ editData, onClose }) => {
             "youtube_link",
             "about_location",
             "available_from",
-            "rental_return"
+            "rental_return",
+            "property_status"
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -358,7 +361,7 @@ const PropertyForm = ({ editData, onClose }) => {
 
     try {
       const response = await axios.get(
-        `${BASE_URL}/api/subcategory/${categoryId}`,
+        `http://localhost:3001/api/subcategory/${categoryId}`,
         {
           withCredentials: true,
         }
@@ -775,7 +778,7 @@ const handleDocumentChange = (e) => {
 
         // Send the update request with the fixed data structure
         await axios.put(
-          `${BASE_URL}/api/property/${editData.id}`,
+          `http://localhost:3001/api/property/${editData.id}`,
           propertyData,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -811,7 +814,7 @@ const handleDocumentChange = (e) => {
           formData.append("documents", doc.file);
         });
 
-        await axios.post(`${BASE_URL}/api/property`, formData, {
+        await axios.post(`http://localhost:3001/api/property`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -2201,7 +2204,7 @@ const handleDocumentChange = (e) => {
                 value={basic.transaction_type}
                 onChange={handleBasicChange}
               >
-                <option value="Sale">sale</option>
+                <option value="Sale">Sale</option>
                 <option value="Rent">Rent</option>
               </select>
             </div>
@@ -2258,6 +2261,34 @@ const handleDocumentChange = (e) => {
                 ))}
               </div>
             </div>
+            {/* propety status check */}
+          <div className="form-group mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Property Status
+            </label>
+            <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-600">Inactive</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  name="property_status"
+                  checked={details.property_status === 'active'}
+                  onChange={(e) =>
+                    handleDetailsChange({
+                      target: {
+                        name: 'property_status',
+                        value: e.target.checked ? 'active' : 'inactive',
+                      },
+                    })
+                  }
+                />
+                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
+                <span className="absolute left-1 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-full"></span>
+              </label>
+              <span className="text-sm text-gray-600">Active</span>
+            </div>
+          </div>
           </div>
         </div>
         {/* Enter Society details */}

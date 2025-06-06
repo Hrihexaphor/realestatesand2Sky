@@ -11,6 +11,7 @@ import {
   getPropertiesByLocality,
   getPropertiesByDeveloperId,
   getPopularSearchOptions,
+  getOldProjects
 } from "../services/minimumPropetyservice.js";
 
 const router = express.Router();
@@ -151,6 +152,16 @@ router.get("/search/popular-options", async (req, res) => {
   } catch (error) {
     console.error("Error fetching popular options:", error);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+// routes for get the old propject
+router.get("/getoldproperty", async (req, res) => {
+  try {
+    const oldPropertydetails = await getOldProjects();
+    res.status(201).json(oldPropertydetails);
+  } catch (err) {
+    console.log("geting old porperty details id failed", err);
+    res.status(500).json({ error: "Failed to fetch old property details" });
   }
 });
 export default router;
