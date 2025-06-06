@@ -34,7 +34,85 @@ export async function addToFeatured(property_id, start_date, end_date, cities = 
     client.release();
   }
 }
+// edit functionality for the featured properties
+export async function updateFeaturedProperty(featured_property_id, start_date, end_date, cities = []) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
+    // Update featured property dates
+    await client.query(
+      `UPDATE featured_properties 
+       SET featured_from = $1, featured_to = $2 
+       WHERE id = $3`,
+      [start_date, end_date, featured_property_id]
+    );
+
+    // Clear previous city links
+    await client.query(
+      `DELETE FROM featured_property_cities 
+       WHERE featured_property_id = $1`,
+      [featured_property_id]
+    );
+
+    // Re-insert city links if provided
+    if (cities && cities.length > 0) {
+      for (const cityId of cities) {
+        await client.query(
+          `INSERT INTO featured_property_cities (featured_property_id, city_id) 
+           VALUES ($1, $2)`,
+          [featured_property_id, cityId]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+    return { message: "Featured property updated successfully" };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// only featured details get services
+export async function getFeaturedPropertyDetails(featured_property_id) {
+  const client = await pool.connect();
+  try {
+    // Fetch featured property main info
+    const { rows: featuredRows } = await client.query(
+      `SELECT id, featured_from, featured_to 
+       FROM featured_properties 
+       WHERE id = $1`,
+      [featured_property_id]
+    );
+
+    if (featuredRows.length === 0) {
+      return null;
+    }
+
+    // Fetch associated cities
+    const { rows: cityRows } = await client.query(
+      `SELECT city_id FROM featured_property_cities 
+       WHERE featured_property_id = $1`,
+      [featured_property_id]
+    );
+
+    const cityIds = cityRows.map(row => row.city_id);
+
+    return {
+      id: featured_property_id,
+      start_date: featuredRows[0].featured_from,
+      end_date: featuredRows[0].featured_to,
+      cities: cityIds
+    };
+  } catch (err) {
+    throw err;
+  } finally {
+    client.release();
+  }
+}
 
 export async function removeFromFeatured(property_id) {
   const client = await pool.connect();
@@ -90,11 +168,15 @@ export async function checkIfFeatured(property_id) {
 
 export async function getFeaturedProperties(cityIds = []) {
   let query = `
-    SELECT p.*, fp.featured_from, fp.featured_to 
+    SELECT 
+      p.*, 
+      fp.id AS feature_id, 
+      fp.featured_from, 
+      fp.featured_to 
     FROM property p
     JOIN featured_properties fp ON p.id = fp.property_id
   `;
-  
+
   // If cities are specified, filter by those cities
   if (cityIds && cityIds.length > 0) {
     query += `
@@ -102,7 +184,7 @@ export async function getFeaturedProperties(cityIds = []) {
       WHERE fpc.city_id IN (${cityIds.join(',')})
     `;
   }
-  
+
   const result = await pool.query(query);
   return result.rows;
 }

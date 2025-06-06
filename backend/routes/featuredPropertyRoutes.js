@@ -1,5 +1,5 @@
 import express from 'express';
-import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,getActiveFeaturedPropertiesLite,getFeaturedProperties } from '../services/featuredProperty.js';
+import { addToFeatured, removeFromFeatured, getAllFeaturedIds, checkIfFeatured,getActiveFeaturedPropertiesLite,getFeaturedProperties,updateFeaturedProperty,getFeaturedPropertyDetails } from '../services/featuredProperty.js';
 import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 
@@ -26,8 +26,36 @@ router.post('/addtofeatured', async (req, res) => {
     res.status(500).json({ error: "Failed to add to featured", details: err.message });
   }
 });
+// edit featured property route
+router.put('/updatefeatured/:id', async (req, res) => {
+  const featured_property_id = req.params.id;
+  const { start_date, end_date, cities } = req.body;
 
+  if (!start_date || !end_date) {
+    return res.status(400).json({ message: "Start and End dates are required" });
+  }
 
+  try {
+    const result = await updateFeaturedProperty(featured_property_id, start_date, end_date, cities);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update featured property", details: err.message });
+  }
+});
+
+router.get('/getfeatured/:id', async (req, res) => {
+  const featured_property_id = req.params.id;
+
+  try {
+    const data = await getFeaturedPropertyDetails(featured_property_id);
+    if (!data) {
+      return res.status(404).json({ message: "Featured property not found" });
+    }
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch featured property", details: err.message });
+  }
+});
 // Remove a property from featured
 router.delete('/featured/:property_id', async (req, res) => {
   const { property_id } = req.params;

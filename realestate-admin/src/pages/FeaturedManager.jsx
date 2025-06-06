@@ -21,8 +21,10 @@ const FeaturedManager = () => {
   const [selectedCities, setSelectedCities] = useState([]);
   const [showDatePickerFor, setShowDatePickerFor] = useState(null);
   const [showGalleryPickerFor, setShowGalleryPickerFor] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editingPropertyId, setEditingPropertyId] = useState(null);
   
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
   useEffect(() => {
     fetchAllData();
@@ -65,7 +67,8 @@ const FeaturedManager = () => {
       
       const featuredMap = {};
       featuredRes.data.forEach(item => {
-        featuredMap[item.property_id] = {
+        featuredMap[item.feature_id] = {
+          featured_id: item.id,
           featured_from: item.featured_from,
           featured_to: item.featured_to
         };
@@ -114,6 +117,46 @@ const FeaturedManager = () => {
       setCities(defaultCities);
     }
   };
+
+  const fetchFeaturedDetails = async (featuredId) => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/getfeatured/${featuredId}`);
+      console.log("get featured response:", res.data);
+      return res.data;
+    } catch (err) {
+      toast.error('Error fetching featured details');
+      return null;
+    }
+  };
+
+  const handleEditFeatured = async (propertyId) => {
+      console.log('Property ID:', propertyId);
+  console.log('Featured Properties:', featuredProperties);
+  console.log('Featured Info:', featuredProperties[propertyId]);
+    const featuredInfo = featuredProperties[propertyId];
+    console.log('Calling API with featured_id:', featuredInfo.featured_id);
+    if (!featuredInfo) {
+      toast.error('Featured property details not found');
+      return;
+    }
+
+    try {
+      const featuredDetails = await fetchFeaturedDetails(featuredInfo.featured_id);
+      if (featuredDetails) {
+        // Pre-fill the form with existing data
+        setSelectedDateRange({
+          startDate: featuredDetails.start_date.split('T')[0],
+          endDate: featuredDetails.end_date.split('T')[0]
+        });
+        setSelectedCities(featuredDetails.cities || []);
+        setEditMode(true);
+        setEditingPropertyId(propertyId);
+        setShowDatePickerFor(propertyId);
+      }
+    } catch (error) {
+      toast.error('Failed to load featured details for editing');
+    }
+  };
   
   const handleAddFeatured = async (propertyId) => {
     if (selectedCities.length === 0) {
@@ -122,18 +165,50 @@ const FeaturedManager = () => {
     }
     
     try {
-      await axios.post(`${BASE_URL}/api/addtofeatured`, { 
-        property_id: propertyId,
-        start_date: selectedDateRange.startDate,
-        end_date: selectedDateRange.endDate,
-        cities: selectedCities
-      });
-      toast.success('Added to featured');
+      if (editMode && editingPropertyId === propertyId) {
+        // Update existing featured property
+        const featuredInfo = featuredProperties[propertyId];
+        await axios.put(`${BASE_URL}/api/updatefeatured/${featuredInfo.featured_id}`, {
+          start_date: selectedDateRange.startDate,
+          end_date: selectedDateRange.endDate,
+          cities: selectedCities
+        });
+        toast.success('Featured property updated successfully');
+      } else if (featuredIds.includes(propertyId)) {
+        // This shouldn't happen in normal flow, but kept for safety
+        const featuredInfo = featuredProperties[propertyId];
+        await axios.put(`${BASE_URL}/api/updatefeatured/${featuredInfo.featured_id}`, {
+          start_date: selectedDateRange.startDate,
+          end_date: selectedDateRange.endDate,
+          cities: selectedCities
+        });
+        toast.success('Featured updated');
+      } else {
+        // Add new featured property
+        await axios.post(`${BASE_URL}/api/addtofeatured`, {
+          property_id: propertyId,
+          start_date: selectedDateRange.startDate,
+          end_date: selectedDateRange.endDate,
+          cities: selectedCities
+        });
+        toast.success('Added to featured');
+      }
+      
+      // Reset form state
       setShowDatePickerFor(null);
       setSelectedCities([]);
+      setEditMode(false);
+      setEditingPropertyId(null);
+      
+      // Reset date range to default
+      setSelectedDateRange({
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      });
+      
       await fetchFeaturedData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to add');
+      toast.error(err.response?.data?.message || 'Failed to process request');
     }
   };
   
@@ -156,7 +231,7 @@ const FeaturedManager = () => {
       });
       toast.success('Added to gallery');
       setShowGalleryPickerFor(null);
-      await fetchGalleryData(); // This will refresh the gallery data and update the UI
+      await fetchGalleryData();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add to gallery');
     }
@@ -196,10 +271,24 @@ const FeaturedManager = () => {
     });
   };
 
+  const handleModalClose = () => {
+    setShowDatePickerFor(null);
+    setSelectedCities([]);
+    setEditMode(false);
+    setEditingPropertyId(null);
+    // Reset date range to default
+    setSelectedDateRange({
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    });
+  };
+
   const DatePickerModal = ({ propertyId, onClose, onConfirm, title = "Featured Settings" }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-80 max-w-sm mx-4">
-        <h3 className="font-medium mb-4 text-gray-800">{title}</h3>
+        <h3 className="font-medium mb-4 text-gray-800">
+          {editMode && editingPropertyId === propertyId ? `Edit ${title}` : title}
+        </h3>
         
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
@@ -266,7 +355,7 @@ const FeaturedManager = () => {
             className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm"
             onClick={() => onConfirm(propertyId)}
           >
-            Confirm
+            {editMode && editingPropertyId === propertyId ? 'Update' : 'Confirm'}
           </button>
         </div>
       </div>
@@ -292,7 +381,6 @@ const FeaturedManager = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured</th>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured Period</th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery Period</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
@@ -305,30 +393,32 @@ const FeaturedManager = () => {
             {properties.map((property) => (
               <tr key={property.id} className={`${featuredIds.includes(property.id) ? 'bg-green-50' : galleryIds.includes(property.id) ? 'bg-blue-50' : 'bg-white'}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {featuredIds.includes(property.id) ? (
-                    <button
-                      className="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
-                      onClick={() => handleRemoveFeatured(property.id)}
-                    >
-                      Remove
-                    </button>
-                  ) : (
-                    <button
-                      className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
-                      onClick={() => setShowDatePickerFor(property.id)}
-                    >
-                      Add to Featured
-                    </button>
-                  )}
+                  <div className="flex gap-2 flex-wrap">
+                    {featuredIds.includes(property.id) ? (
+                      <>
+                        <button
+                          className="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
+                          onClick={() => handleRemoveFeatured(property.id)}
+                        >
+                          Remove
+                        </button>
+                        <button
+                          className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
+                          onClick={() => handleEditFeatured(property.id)}
+                        >
+                          Edit
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
+                        onClick={() => setShowDatePickerFor(property.id)}
+                      >
+                        Add to Featured
+                      </button>
+                    )}
+                  </div>
                 </td>
-                
-                {/* <td className="px-6 py-4 whitespace-nowrap">
-                  {featuredIds.includes(property.id) && featuredProperties[property.id] && (
-                    <span className="text-sm text-green-600">
-                      {formatDate(featuredProperties[property.id].featured_from)} <br/> - {formatDate(featuredProperties[property.id].featured_to)}
-                    </span>
-                  )}
-                </td> */}
                 
                 <td className="px-6 py-4 whitespace-nowrap">
                   {galleryIds.includes(property.id) ? (
@@ -422,10 +512,7 @@ const FeaturedManager = () => {
       {showDatePickerFor && (
         <DatePickerModal
           propertyId={showDatePickerFor}
-          onClose={() => {
-            setShowDatePickerFor(null);
-            setSelectedCities([]);
-          }}
+          onClose={handleModalClose}
           onConfirm={handleAddFeatured}
           title="Featured Settings"
         />
