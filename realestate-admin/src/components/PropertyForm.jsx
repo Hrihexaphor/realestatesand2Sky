@@ -361,7 +361,7 @@ const PropertyForm = ({ editData, onClose }) => {
 
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/subcategory/${categoryId}`,
+        `${BASE_URL}/api/subcategory/${categoryId}`,
         {
           withCredentials: true,
         }
@@ -778,7 +778,7 @@ const handleDocumentChange = (e) => {
 
         // Send the update request with the fixed data structure
         await axios.put(
-          `http://localhost:3001/api/property/${editData.id}`,
+          `${BASE_URL}/api/property/${editData.id}`,
           propertyData,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -814,7 +814,7 @@ const handleDocumentChange = (e) => {
           formData.append("documents", doc.file);
         });
 
-        await axios.post(`http://localhost:3001/api/property`, formData, {
+        await axios.post(`${BASE_URL}/api/property`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
