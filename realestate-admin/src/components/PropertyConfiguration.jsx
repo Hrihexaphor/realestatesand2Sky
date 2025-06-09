@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { X, Upload, Edit, Trash } from 'lucide-react';
 
-const PropertyConfiguration = ({ onAddConfiguration }) => {
+const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] }) => {
   const [showForm, setShowForm] = useState(false);
   const [selectedBHK, setSelectedBHK] = useState('');
   const [configurations, setConfigurations] = useState([]);
@@ -19,6 +19,15 @@ const PropertyConfiguration = ({ onAddConfiguration }) => {
   const [editIndex, setEditIndex] = useState(null);
 
   const bhkOptions = ['1BHK', '2BHK', '3BHK', '4BHK', '5BHK', '6BHK', '7BHK', '8BHK', '9BHK', '10BHK'];
+
+  // Initialize configurations from props when component mounts or initialConfigurations change
+  useEffect(() => {
+    console.log('hritesh')
+    if (initialConfigurations && initialConfigurations.length > 0) {
+       console.log("Received BHK configurations from parent:", initialConfigurations);
+      setConfigurations(initialConfigurations);
+    }
+  }, [initialConfigurations]);
 
   // Use useCallback to memoize event handlers
   const handleBHKSelect = useCallback((bhk) => {
@@ -308,7 +317,7 @@ const PropertyConfiguration = ({ onAddConfiguration }) => {
                   Floorplan Upload (PDF/JPG/PNG)
                 </label>
                 
-                {!currentConfiguration.file ? (
+                {!currentConfiguration.file && !currentConfiguration.file_name ? (
                   <div className="relative">
                     <input
                       type="file"

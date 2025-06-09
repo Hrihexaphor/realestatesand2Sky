@@ -418,7 +418,7 @@ export async function getAllProperties() {
  */
 export async function updatePropertyById(id, data) {
   try {
-    const { basic, details, location, nearest_to, amenities, keyfeature } = data;
+    const { basic, details, location, nearest_to, amenities, keyfeature,bhk_configurations } = data;
 
     // 1. Update basic property info
     if (basic) {
@@ -493,14 +493,23 @@ export async function updatePropertyById(id, data) {
         );
       }
     }
-
+    // 7. Update configurations
+        if (Array.isArray(bhk_configurations)) {
+          await pool.query(`DELETE FROM property_configurations WHERE property_id = $1`, [id]);
+          for (const config of bhk_configurations) {
+            await pool.query(
+              `INSERT INTO property_configurations (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, file_name) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+              [id, config.bhk_type, config.bedrooms, config.bathrooms, config.super_built_up_area, config.carpet_area, config.balconies, config.file_name]
+            );
+          }
+        }
     return { success: true, message: "Property updated successfully" };
   } catch (err) {
     console.error("Error updating property:", err);
     throw err;
   }
 }
-
 
 /**
  * Delete a property by ID

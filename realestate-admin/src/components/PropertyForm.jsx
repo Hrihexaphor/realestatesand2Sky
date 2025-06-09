@@ -78,7 +78,7 @@ const PropertyForm = ({ editData, onClose }) => {
   const addressInputRef = useRef(null);
   const [documentErrors, setDocumentErrors] = useState([]);
   const [imageErrors, setImageErrors] = useState([]);
-
+  const [existingConfigurations, setExistingConfigurations] = useState([]);
   // edit property
   useEffect(() => {
     if (editData) {
@@ -257,6 +257,27 @@ const PropertyForm = ({ editData, onClose }) => {
           id: doc.id,
         }));
         setDocuments(existingDocs);
+      }
+        // ADD THIS: Handle existing configurations
+      if (
+        editData &&
+        (Array.isArray(editData.configurations) || Array.isArray(editData.bhk_configurations))
+      ) {
+        const configs = editData.configurations || editData.bhk_configurations;
+
+        const existingConfigs = configs.map((config) => ({
+          bhk_type: config.bhk_type,
+          bedrooms: config.bedrooms,
+          bathrooms: config.bathrooms,
+          super_built_up_area: config.super_built_up_area,
+          carpet_area: config.carpet_area,
+          balconies: config.balconies,
+          file: null, // No file available for existing configs
+          file_name: config.file_name || '',
+        }));
+
+        console.log("Setting existing configurations:", existingConfigs); // 🔍 Debug log
+        setExistingConfigurations(existingConfigs);
       }
       // Rest of the existing useEffect code...
       setLocation({
@@ -1043,6 +1064,7 @@ const handleDocumentChange = (e) => {
             <section className="form-section">
               <PropertyConfiguration
                 onAddConfiguration={handleAddConfigurations}
+                initialConfigurations={existingConfigurations}
               />
             </section>
             <div className="form-row">
@@ -1331,6 +1353,7 @@ const handleDocumentChange = (e) => {
             <section className="form-section">
               <PropertyConfiguration
                 onAddConfiguration={handleAddConfigurations}
+                initialConfigurations={existingConfigurations}
               />
             </section>
             <div className="form-row">

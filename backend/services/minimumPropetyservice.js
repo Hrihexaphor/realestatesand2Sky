@@ -398,6 +398,7 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
         pd.available_from,
         d.id AS developer_id,
         d.name AS developer_name,
+        d.company_name AS developer_company_name,
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
@@ -445,7 +446,7 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
       GROUP BY 
         p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
-        d.id, d.name, pc.name, psc.name, p.price_per_sqft
+        d.id, d.name, d.company_name, pc.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
     `,
