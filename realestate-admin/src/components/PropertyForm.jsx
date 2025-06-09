@@ -2271,7 +2271,7 @@ const handleDocumentChange = (e) => {
               New Project
             </label>
             <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600">Yes</span>
+              <span className="text-sm text-gray-600">No</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -2290,7 +2290,7 @@ const handleDocumentChange = (e) => {
                 <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
                 <span className="absolute left-1 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-full"></span>
               </label>
-              <span className="text-sm text-gray-600">No</span>
+              <span className="text-sm text-gray-600">Yes</span>
             </div>
           </div>
           </div>
