@@ -458,7 +458,7 @@ const DeveloperPage = () => {
                 )}
               </div>
             </div>
-            
+       
             {formSections.map(section => (
               <div key={section.title} className="mb-6">
                 <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">{section.title}</h3>
