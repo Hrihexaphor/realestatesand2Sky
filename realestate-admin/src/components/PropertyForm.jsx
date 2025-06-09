@@ -1220,6 +1220,7 @@ const handleDocumentChange = (e) => {
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
                 >
+                  <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
                   <option value="New property">New Property</option>
                 </select>
@@ -1420,6 +1421,7 @@ const handleDocumentChange = (e) => {
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
                 >
+                  <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
                   <option value="New property">New Property</option>
                 </select>
@@ -1722,6 +1724,7 @@ const handleDocumentChange = (e) => {
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
                 >
+                  <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
                   <option value="New property">New Property</option>
                 </select>
@@ -2062,6 +2065,7 @@ const handleDocumentChange = (e) => {
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
                 >
+                  <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
                   <option value="New property">New Property</option>
                 </select>
@@ -2340,7 +2344,7 @@ const handleDocumentChange = (e) => {
                 <option value="">Select Developer</option>
                 {developers.map((d) => (
                   <option key={d.id} value={d.id}>
-                    {d.name}
+                    {d.company_name}
                   </option>
                 ))}
               </select>
