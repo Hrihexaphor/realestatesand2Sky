@@ -20,6 +20,7 @@ import generalfaqRouts from './generalfaqRouts.js';
 import userRoutes from './userRoutes.js';
 import authRoutes from './authRoutes.js';
 import contactRoutes from './contactusRoutes.js';
+import popularsearchRoutes from './popularseachRoutes.js';
 import propertyImageRoute from './propertyImagesroutes.js'
 import { isAuthenticated } from '../middleware/auth.js';
 
@@ -51,5 +52,5 @@ apiRouter.use('/', keyfeatureRoute);
 apiRouter.use('/', generalfaqRouts);
 apiRouter.use('/', contactRoutes);
 apiRouter.use('/', propertyImageRoute);
-
+apiRouter.use('/',popularsearchRoutes);
 export default apiRouter;
