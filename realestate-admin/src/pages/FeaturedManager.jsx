@@ -655,7 +655,6 @@ const FeaturedManager = () => {
             </div>
           )}
         </div>
-
         <Pagination />
       </div>
 
