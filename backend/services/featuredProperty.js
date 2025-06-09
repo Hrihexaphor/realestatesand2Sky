@@ -247,6 +247,7 @@ export async function getActiveFeaturedPropertiesLite() {
       SELECT
         p.id,
         p.title,
+        p.possession_status,
         pd.project_name,
         pd.location,
         pd.city,
@@ -258,6 +259,7 @@ export async function getActiveFeaturedPropertiesLite() {
         pd.bedrooms,
         pd.bathrooms,
         pd.balconies,
+        pd.transaction_types,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -304,10 +306,10 @@ export async function getActiveFeaturedPropertiesLite() {
         AND pd.transaction_types = 'New property'
 
       GROUP BY 
-        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area, pd.transaction_types,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
         d.id, d.name, pc.name, psc.name, p.price_per_sqft,
-        fp.featured_from, fp.featured_to
+        fp.featured_from, fp.featured_to, possession_status
 
       ORDER BY fp.featured_from DESC
     `);

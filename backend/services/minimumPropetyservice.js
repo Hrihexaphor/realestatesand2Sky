@@ -10,6 +10,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
       SELECT 
         p.id,
         p.title,
+        p.possession_status,
         pd.project_name,
         pd.location,
         pd.locality,
@@ -22,6 +23,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         pd.bathrooms,
         pd.balconies,
         pd.furnished_status,
+        pd.transaction_types,
         pd.available_from,
         d.id AS developer_id,
         d.name AS developer_name,
@@ -60,9 +62,9 @@ export async function getMinimalProperties(page = 1, limit = 10) {
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN property_configurations config ON config.property_id = p.id
 
-      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
+      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area, pd.transaction_types,
                pd.carpet_area, pd.bedrooms, pd.bathrooms,pd.balconies, pd.furnished_status, pd.available_from,
-               d.id, d.name, pc.name, psc.name, p.price_per_sqft
+               d.id, d.name, pc.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
       LIMIT $1 OFFSET $2
@@ -86,6 +88,7 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
       SELECT 
         p.id,
         p.title,
+        p.possession_status,
         pd.project_name,
         pd.location,
         pd.city,
@@ -97,6 +100,7 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
         pd.bedrooms,
         pd.bathrooms,
         pd.balconies,
+        pd.transaction_types,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -139,9 +143,9 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
       WHERE pd.property_status = 'active' AND pd.transaction_types = 'New property'
 
       GROUP BY 
-        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area, pd.transaction_types,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
-        d.id, d.name, pc.name, psc.name, p.price_per_sqft
+        d.id, d.name, pc.name, psc.name, p.price_per_sqft,  p.possession_status
 
       ORDER BY p.id DESC
       LIMIT $1 OFFSET $2
@@ -165,6 +169,7 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
       SELECT 
         p.id,
         p.title,
+        p.possession_status,
         pd.project_name,
         pd.location,
         pd.city,
@@ -176,6 +181,7 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
         pd.bedrooms,
         pd.bathrooms,
         pd.balconies,
+        pd.transaction_types,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -219,9 +225,9 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
       WHERE pd.transaction_types = $1
 
       GROUP BY 
-        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area, pd.transaction_types,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
-        d.id, d.name, pc.name, psc.name, p.price_per_sqft
+        d.id, d.name, pc.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
       LIMIT $2 OFFSET $3
@@ -244,6 +250,7 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
       SELECT 
         p.id,
         p.title,
+        p.possession_status,
         pd.project_name,
         pd.location,
         pd.city,
@@ -255,6 +262,7 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
         pd.bedrooms,
         pd.bathrooms,
         pd.balconies,
+        pd.transaction_types,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -298,9 +306,9 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
       WHERE p.possession_status = $1
 
       GROUP BY 
-        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area, pd.transaction_types,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
-        d.id, d.name, pc.name, psc.name, p.price_per_sqft
+        d.id, d.name, pc.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
       LIMIT $2 OFFSET $3
@@ -599,6 +607,7 @@ export const getPropertiesByDeveloperId = async (
     SELECT 
       p.id,
       p.title,
+      p.possession_status,
       pd.project_name,
       pd.location,
       pd.locality,
@@ -610,6 +619,7 @@ export const getPropertiesByDeveloperId = async (
       pd.bedrooms,
       pd.bathrooms,
       pd.balconies,
+      pd.transaction_types,
       pd.furnished_status,
       pd.available_from,
       d.name AS developer_name,
@@ -648,9 +658,9 @@ export const getPropertiesByDeveloperId = async (
 
     WHERE d.id = $3
 
-    GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
+    GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area, pd.transaction_types,
              pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
-             d.name, d.developer_logo, psc.name
+             d.name, d.developer_logo, psc.name, p.possession_status
 
     ORDER BY p.id DESC
     LIMIT $1 OFFSET $2
@@ -701,6 +711,7 @@ export async function getOldProjects(page = 1, limit = 10) {
       SELECT 
         p.id,
         p.title,
+        p.possession_status,
         pd.project_name,
         pd.location,
         pd.locality,
@@ -712,6 +723,7 @@ export async function getOldProjects(page = 1, limit = 10) {
         pd.bedrooms,
         pd.bathrooms,
         pd.balconies,
+        pd.transaction_types,
         pd.furnished_status,
         pd.available_from,
         d.id AS developer_id,
@@ -752,9 +764,9 @@ export async function getOldProjects(page = 1, limit = 10) {
 
       WHERE pd.property_status = 'inactive'
 
-      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area,
+      GROUP BY p.id, pd.project_name, pd.location, pd.locality, pd.city, pd.super_built_up_area, pd.transaction_types,
                pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status,
-               pd.available_from, d.id, d.name, psc.name, p.price_per_sqft
+               pd.available_from, d.id, d.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
       LIMIT $1 OFFSET $2
