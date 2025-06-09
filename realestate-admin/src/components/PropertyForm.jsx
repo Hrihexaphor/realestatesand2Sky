@@ -2264,10 +2264,10 @@ const handleDocumentChange = (e) => {
             {/* propety status check */}
           <div className="form-group mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Property Status
+              New Project
             </label>
             <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600">Inactive</span>
+              <span className="text-sm text-gray-600">Yes</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -2286,7 +2286,7 @@ const handleDocumentChange = (e) => {
                 <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
                 <span className="absolute left-1 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-full"></span>
               </label>
-              <span className="text-sm text-gray-600">Active</span>
+              <span className="text-sm text-gray-600">No</span>
             </div>
           </div>
           </div>
