@@ -367,7 +367,7 @@ const DeveloperPage = () => {
   const formSections = [
     {
       title: "Personal Information",
-      fields: ["name", "company_name"]
+      fields: ["name","company_name"]
     },
     {
       title: "Contact Details",
@@ -467,7 +467,7 @@ const DeveloperPage = () => {
                     <div key={field} className="flex flex-col">
                       <label className="text-sm font-medium text-gray-700 mb-1 capitalize">
                         {field.replace(/_/g, ' ')}
-                        {(field === 'name' || field === 'company_name' || field === 'contact_email' || field === 'phone_number') && (
+                        {(field === 'name' || field === 'company_name' || field === 'contact_email' || field === 'phone_number' || field === 'address' || field === 'city' || field === 'state') && (
                           <span className="text-red-500 ml-1">*</span>
                         )}
                       </label>
