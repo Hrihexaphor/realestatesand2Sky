@@ -243,38 +243,75 @@ export async function getFeaturedProperties(cityIds = []) {
 // }
 export async function getActiveFeaturedPropertiesLite() {
   try {
-    // Using a prepared statement with parameterized query
     const result = await pool.query(`
       SELECT
         p.id,
-        pd.project_name,
         p.title,
+        pd.project_name,
+        pd.location,
         pd.city,
         pd.locality,
-        p.expected_price,
+        p.expected_price AS price,
+        p.price_per_sqft,
+        pd.super_built_up_area,
+        pd.carpet_area,
+        pd.bedrooms,
+        pd.bathrooms,
+        pd.balconies,
+        pd.furnished_status,
+        pd.available_from,
+        d.id AS developer_id,
         d.name AS developer_name,
-        pi.image_url AS primary_image,
-        fp.featured_from,
+        pc.name AS category_name,
         psc.name AS subcategory_name,
+
+        (
+          SELECT pi.image_url
+          FROM property_images pi
+          WHERE pi.property_id = p.id AND pi.is_primary = true
+          LIMIT 1
+        ) AS primary_image,
+
+        COALESCE(
+          json_agg(
+            jsonb_build_object(
+              'id', config.id,
+              'bhk_type', config.bhk_type,
+              'bedrooms', config.bedrooms,
+              'bathrooms', config.bathrooms,
+              'super_built_up_area', config.super_built_up_area,
+              'carpet_area', config.carpet_area,
+              'balconies', config.balconies
+            )
+          ) FILTER (WHERE config.id IS NOT NULL), '[]'
+        ) AS configurations,
+
+        fp.featured_from,
         fp.featured_to
+
       FROM featured_properties fp
       INNER JOIN property p ON fp.property_id = p.id
       LEFT JOIN property_details pd ON pd.property_id = p.id
       LEFT JOIN developer d ON p.developer_id = d.id
+      LEFT JOIN property_category pc ON p.category_id = pc.id
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
-      LEFT JOIN LATERAL (
-        SELECT image_url
-        FROM property_images
-        WHERE property_id = p.id
-        ORDER BY id ASC
-        LIMIT 1
-      ) pi ON true
+      LEFT JOIN property_configurations config ON config.property_id = p.id
+
       WHERE fp.featured_from IS NOT NULL
         AND fp.featured_to IS NOT NULL
         AND CURRENT_DATE BETWEEN fp.featured_from AND fp.featured_to
-      ORDER BY fp.featured_from DESC;
+        AND pd.property_status = 'active'
+        AND pd.transaction_types = 'New property'
+
+      GROUP BY 
+        p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
+        pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
+        d.id, d.name, pc.name, psc.name, p.price_per_sqft,
+        fp.featured_from, fp.featured_to
+
+      ORDER BY fp.featured_from DESC
     `);
-    
+
     return result.rows;
   } catch (error) {
     console.error("Error fetching lite featured properties:", error);

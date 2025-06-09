@@ -548,12 +548,12 @@ const FeaturedManager = () => {
                           >
                             Remove
                           </button>
-                          <button
+                          {/* <button
                             className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
                             onClick={() => handleEditFeatured(property.id)}
                           >
                             Edit
-                          </button>
+                          </button> */}
                         </>
                       ) : (
                         <button
