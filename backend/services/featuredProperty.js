@@ -172,18 +172,25 @@ export async function getFeaturedProperties(cityIds = []) {
       p.*, 
       fp.id AS feature_id, 
       fp.featured_from, 
-      fp.featured_to 
+      fp.featured_to,
+      ARRAY_AGG(c.name) AS city_names,
+      ARRAY_AGG(c.id) AS city_ids
     FROM property p
     JOIN featured_properties fp ON p.id = fp.property_id
+    JOIN featured_property_cities fpc ON fp.id = fpc.featured_property_id
+    JOIN cities c ON fpc.city_id = c.id
   `;
 
   // If cities are specified, filter by those cities
   if (cityIds && cityIds.length > 0) {
     query += `
-      JOIN featured_property_cities fpc ON fp.id = fpc.featured_property_id
       WHERE fpc.city_id IN (${cityIds.join(',')})
     `;
   }
+
+  query += `
+    GROUP BY p.id, fp.id, fp.featured_from, fp.featured_to
+  `;
 
   const result = await pool.query(query);
   return result.rows;
@@ -237,7 +244,10 @@ export async function getActiveFeaturedPropertiesLite() {
         ) AS configurations,
 
         fp.featured_from,
-        fp.featured_to
+        fp.featured_to,
+
+        ARRAY_AGG(DISTINCT c.name) AS city_names,
+        ARRAY_AGG(DISTINCT c.id) AS city_ids
 
       FROM featured_properties fp
       INNER JOIN property p ON fp.property_id = p.id
@@ -246,6 +256,8 @@ export async function getActiveFeaturedPropertiesLite() {
       LEFT JOIN property_category pc ON p.category_id = pc.id
       LEFT JOIN property_subcategory psc ON p.subcategory_id = psc.id
       LEFT JOIN property_configurations config ON config.property_id = p.id
+      LEFT JOIN featured_property_cities fpc ON fp.id = fpc.featured_property_id
+      LEFT JOIN cities c ON fpc.city_id = c.id
 
       WHERE fp.featured_from IS NOT NULL
         AND fp.featured_to IS NOT NULL

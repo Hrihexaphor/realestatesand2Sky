@@ -31,7 +31,7 @@ const FeaturedManager = () => {
   const [editingPropertyId, setEditingPropertyId] = useState(null);
   
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  
+
   useEffect(() => {
     fetchAllData();
   }, []);
@@ -106,11 +106,12 @@ const FeaturedManager = () => {
       
       const featuredMap = {};
       featuredRes.data.forEach(item => {
-        // console.log("hritesh");
+        console.log(item);
         featuredMap[item.feature_id] = {
           featured_id: item.id,
           featured_from: item.featured_from,
-          featured_to: item.featured_to
+          featured_to: item.featured_to,
+          city_names: item.city_names
         };
       });
       setFeaturedProperties(featuredMap);
@@ -528,6 +529,7 @@ const FeaturedManager = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured</th>
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Featured city</th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery Period</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
@@ -567,6 +569,21 @@ const FeaturedManager = () => {
                     </div>
                   </td>
                   
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
+                        {featuredIds.includes(property.id) && featuredProperties[property.id] && (
+                          <span className="text-sm text-blue-600">
+                          
+                            {featuredProperties[property.id].city_names && 
+                              featuredProperties[property.id].city_names.length > 0 && (
+                              <span className="font-medium">
+                                {featuredProperties[property.id].city_names.join(', ')} | 
+                              </span>
+                            )}
+                            {formatDate(featuredProperties[property.id].featured_from)} <br/> 
+                            - {formatDate(featuredProperties[property.id].featured_to)}
+                          </span>
+                        )}
+                      </td> */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     {galleryIds.includes(property.id) ? (
                       <button
