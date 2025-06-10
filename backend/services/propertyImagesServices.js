@@ -4,11 +4,13 @@ export async function getPropertiesWithImages() {
     SELECT 
       p.id AS property_id,
       p.title,
+      pd.project_name,
       pi.id AS image_id,
       pi.image_url,
       pi.is_primary
     FROM property p
     JOIN property_images pi ON pi.property_id = p.id
+    JOIN property_details pd ON pd.id = p.id
     ORDER BY p.id DESC, pi.id ASC
   `;
   const result = await pool.query(query);

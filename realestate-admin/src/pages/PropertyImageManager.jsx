@@ -14,8 +14,12 @@ const PropertyImageManager = () => {
 
   useEffect(() => {
     axios.get(`${BASE_URL}/api/with-images`)
-      .then(res => setData(res.data))
+      .then(res =>{
+        //  console.log("Fetched image data:", res.data);
+        setData(res.data);
+      } )
       .catch(err => toast.error("Failed to load images"));
+      
   }, []);
 
   const handleSetPrimary = async (propertyId, imageId) => {
