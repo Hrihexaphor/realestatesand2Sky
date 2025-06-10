@@ -909,68 +909,127 @@ export async function sendNewPropertyEmails(property_id) {
 
     for (let inquiry of inquiries.rows) {
       const html = `
-       <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <title>Property Alert</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        </head>
-        <body style="margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background-color:#f5f5f5;line-height:1.6;">
-          <div style="max-width:600px;margin:0 auto;background-color:#ffffff;box-shadow:0 0 20px rgba(0,0,0,0.1);">
-            
-            <!-- Header -->
-            <div style="background:linear-gradient(135deg,#FFA500 0%,#FF8C00 100%);color:#ffffff;padding:30px 20px;text-align:center;position:relative;">
-              <h1 style="font-size:24px;font-weight:600;margin-bottom:15px;text-transform:uppercase;letter-spacing:1px;">Hi ${inquiry.name.toUpperCase()},</h1>
-              <p style="font-size:16px;font-weight:400;opacity:0.95;">Here are some <strong>${subcategoryName}</strong> matching your budget and requirements</p>
-            </div>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Property Alert</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f5f5f5; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+  
+  <!-- Main Container Table -->
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0; padding: 0; background-color: #f5f5f5;">
+    <tr>
+      <td align="center" style="padding: 20px 0;">
+        
+        <!-- Email Content Table -->
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-collapse: collapse;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #FFA500; background-image: linear-gradient(to bottom right, #FFA500 0%, #FF8C00 100%); color: #ffffff; padding: 30px 20px; text-align: center;">
+              <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; font-family: Arial, Helvetica, sans-serif;">Hi ${inquiry.name.toUpperCase()},</h1>
+              <p style="font-size: 16px; font-weight: 400; margin: 0; opacity: 0.95; font-family: Arial, Helvetica, sans-serif;">Here are some <strong>${subcategoryName}</strong> matching your budget and requirements</p>
+            </td>
+          </tr>
 
-            <!-- Property Card -->
-            <div style="background-color:#E8B4B8;margin:0;padding:0;">
-              <div style="background-color:rgba(0,0,0,0.1);color:#2c3e50;padding:20px;text-align:center;font-size:18px;font-weight:600;">
-                It's time to find your dream property
-              </div>
+          <!-- Property Card Header -->
+          <tr>
+            <td style="background-color: #E8B4B8; margin: 0; padding: 0;">
+              <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="background-color: rgba(0,0,0,0.1); color: #2c3e50; padding: 20px; text-align: center; font-size: 18px; font-weight: 600; font-family: Arial, Helvetica, sans-serif;">
+                    It's time to find your dream property
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Property Content -->
+          <tr>
+            <td style="background-color: #E8B4B8; padding: 30px 20px; text-align: center;">
               
-              <div style="padding:30px 20px;text-align:center;">
-                
-                <!-- Property Image -->
-                <div style="background-color:#f8f9fa;border:2px dashed #dee2e6;border-radius:8px;padding:20px;margin-bottom:30px;min-height:200px;display:flex;align-items:center;justify-content:center;">
-                  ${imageUrl ? 
-                    `<img src="${imageUrl}" alt="${title}" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1);">` :
-                    `<div style="color:#6c757d;font-size:48px;opacity:0.5;">🏠</div>`
-                  }
-                </div>
-                
-                <!-- Property Title -->
-                <div style="font-size:20px;font-weight:600;color:#2c3e50;margin-bottom:20px;">${title}</div>
-                
-                <!-- View Details Button -->
-                <a href="${landingPageUrl}" style="display:inline-block;background-color:#34495e;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:0.5px;transition:all 0.3s ease;margin-bottom:30px;">View Details</a>
-                
-                <!-- Social Links -->
-                <div style="display:flex;justify-content:center;gap:15px;margin-top:20px;">
-                  <a href="${fbLink}" style="width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;color:white;font-weight:bold;font-size:18px;background-color:#3b5998;" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
-                  <a href="${instaLink}" style="width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;color:white;font-weight:bold;font-size:18px;background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                  <a href="${twitterLink}" style="width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;color:white;font-weight:bold;font-size:18px;background-color:#1da1f2;" target="_blank"><i class="fa-brands fa-twitter"></i></a>
-                </div>
-              </div>
-            </div>
+              <!-- Property Image Container -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 30px;">
+                <tr>
+                  <td style="background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; min-height: 200px;">
+                    ${imageUrl ? 
+                      `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">` :
+                      `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
+                    }
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Property Title -->
+              <div style="font-size: 20px; font-weight: 600; color: #2c3e50; margin-bottom: 20px; font-family: Arial, Helvetica, sans-serif;">${title}</div>
+              
+              <!-- View Details Button -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 30px auto;">
+                <tr>
+                  <td style="background-color: #34495e; border-radius: 5px;">
+                    <a href="${landingPageUrl}" style="display: block; color: #ffffff; padding: 12px 30px; text-decoration: none; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif;" target="_blank">View Details</a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Social Links -->
+              <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto 0 auto;">
+                <tr>
+                  <td style="padding: 0 7px;">
+                    <a href="${fbLink}" style="display: block; width: 45px; height: 45px; border-radius: 50%; background-color: #3b5998; text-align: center; text-decoration: none;" target="_blank">
+                      <span style="color: #ffffff; font-weight: bold; font-size: 18px; line-height: 45px; font-family: Arial, sans-serif;">
+                        <i class="fa-brands fa-facebook-f"></i>
+                      </span>
+                    </a>
+                  </td>
+                  <td style="padding: 0 7px;">
+                    <a href="${instaLink}" style="display: block; width: 45px; height: 45px; border-radius: 50%; background-color: #e6683c; text-align: center; text-decoration: none;" target="_blank">
+                      <span style="color: #ffffff; font-weight: bold; font-size: 18px; line-height: 45px; font-family: Arial, sans-serif;">
+                        <i class="fa-brands fa-instagram"></i>
+                      </span>
+                    </a>
+                  </td>
+                  <td style="padding: 0 7px;">
+                    <a href="${twitterLink}" style="display: block; width: 45px; height: 45px; border-radius: 50%; background-color: #1da1f2; text-align: center; text-decoration: none;" target="_blank">
+                      <span style="color: #ffffff; font-weight: bold; font-size: 18px; line-height: 45px; font-family: Arial, sans-serif;">
+                        <i class="fa-brands fa-twitter"></i>
+                      </span>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+            </td>
+          </tr>
 
-            <!-- Contact Info -->
-            <div style="background-color:#ecf0f1;padding:20px;text-align:center;color:#2c3e50;">
-              <p><strong>Need help?</strong> Contact us at <strong>${contactNumber}</strong></p>
-              <p>Visit our website for more amazing properties!</p>
-            </div>
+          <!-- Contact Info -->
+          <tr>
+            <td style="background-color: #ecf0f1; padding: 20px; text-align: center; color: #2c3e50; font-family: Arial, Helvetica, sans-serif;">
+              <p style="margin: 0 0 10px 0;"><strong>Need help?</strong> Contact us at <strong>${contactNumber}</strong></p>
+              <p style="margin: 0;">Visit our website for more amazing properties!</p>
+            </td>
+          </tr>
 
-            <!-- Footer -->
-            <div style="background-color:#2c3e50;color:white;padding:20px;text-align:center;font-size:12px;">
-              <p>&copy; 2025 Your Property Company. All rights reserved.</p>
-              <p>You're receiving this email because you showed interest in our properties.</p>
-            </div>
-          </div>
-        </body>
-        </html>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #2c3e50; color: #ffffff; padding: 20px; text-align: center; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+              <p style="margin: 0 0 10px 0;">&copy; 2025 Your Property Company. All rights reserved.</p>
+              <p style="margin: 0;">You're receiving this email because you showed interest in our properties.</p>
+            </td>
+          </tr>
+          
+        </table>
+        
+      </td>
+    </tr>
+  </table>
+  
+</body>
+</html>
       `;
 
       await transporter.sendMail({
