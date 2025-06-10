@@ -106,6 +106,7 @@ const FeaturedManager = () => {
       
       const featuredMap = {};
       featuredRes.data.forEach(item => {
+        // console.log("hritesh");
         featuredMap[item.feature_id] = {
           featured_id: item.id,
           featured_from: item.featured_from,
