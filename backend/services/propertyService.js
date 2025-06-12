@@ -5,11 +5,11 @@ dotenv.config();
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT, 10),
-  secure: false, // Brevo uses STARTTLS, not SSL
+  secure: false, // STARTTLS (Brevo) - don't use SSL here
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    pass: process.env.EMAIL_PASS,
+  },
 });
 /**
  * Insert a new property into the database
@@ -1033,7 +1033,7 @@ export async function sendNewPropertyEmails(property_id) {
       `;
 
       await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: '"Sand2Sky" <project@sand2sky.com>',
         to: inquiry.email,
         subject: `🏠 New ${subcategoryName} Alert: ${title}`,
         html,
