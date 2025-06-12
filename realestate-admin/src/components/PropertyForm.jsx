@@ -398,7 +398,7 @@ const PropertyForm = ({ editData, onClose }) => {
     if (!window.google) {
       // Google Maps script isn't loaded yet
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyD5wm8v-1UOn3-5Dtwr2tKyTwGpUTHaEeU&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
