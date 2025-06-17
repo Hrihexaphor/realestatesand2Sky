@@ -177,8 +177,8 @@ export const updateContactedStatus = async (id, contacted) => {
 
 export  async function createInquiry(data){
     const {
-    property_id, visitor_id, phone, project_name,
-    title, name, email
+    property_id, phone, project_name,
+    title, name, email,  lead_source
   } = data;
 
   const inquiry_time = new Date();
@@ -186,9 +186,9 @@ export  async function createInquiry(data){
 
   const result = await pool.query(
     `INSERT INTO property_inquiries 
-     (property_id,phone, project_name, title, name, email, inquiry_time, contacted) 
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-    [property_id, phone, project_name, title, name, email, inquiry_time, contacted]
+     (property_id,phone, project_name, title, name, email, inquiry_time, contacted,lead_source) 
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9) RETURNING *`,
+    [property_id, phone, project_name, title, name, email, inquiry_time, contacted,lead_source]
   );
 
   // await sendAdminEmail({ title, project_name, name, phone, email });
