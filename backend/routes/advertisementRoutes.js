@@ -26,7 +26,8 @@ router.post('/advertisement',  (req, res) => {
         start_date,
         end_date,
         image_size,
-        cityIds
+        cityIds,
+        project_name
       } = req.body;
 
       const parsedCityIds = Array.isArray(cityIds)
@@ -47,6 +48,7 @@ router.post('/advertisement',  (req, res) => {
         end_date,
         image_size,
         cityIds: parsedCityIds,
+        project_name
       });
 
       res.status(201).json({ message: 'Advertisement created successfully', newAd });
@@ -88,7 +90,8 @@ router.put('/advertisement/:id',  (req, res) => {
         end_date,
         image_size,
         cityIds,
-        image_url: oldImageUrl
+        image_url: oldImageUrl,
+        project_name 
       } = req.body;
 
       const parsedCityIds = Array.isArray(cityIds)
@@ -107,7 +110,8 @@ router.put('/advertisement/:id',  (req, res) => {
         location,
         start_date,
         end_date,
-        parsedCityIds
+        parsedCityIds,
+        project_name 
       );
 
       res.json(updatedAd);

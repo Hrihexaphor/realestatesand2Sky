@@ -8,19 +8,20 @@ export async function createAdvertisement(ad) {
     location,
     start_date,
     end_date,
-    cityIds = []
+    cityIds = [],
+    project_name
   } = ad;
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    const adQuery = `
-      INSERT INTO advertisements (link, image_url, image_size, location, start_date, end_date, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+        const adQuery = `
+      INSERT INTO advertisements (link, image_url, image_size, location, start_date, end_date, project_name, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
       RETURNING *;
     `;
-    const adValues = [link, image_url, image_size, location, start_date, end_date];
+    const adValues = [link, image_url, image_size, location, start_date, end_date,project_name];
     const { rows } = await client.query(adQuery, adValues);
     const newAd = rows[0];
 
@@ -74,7 +75,7 @@ export async function deleteAdvertisement(id) {
   await pool.query(`DELETE FROM advertisements WHERE id = $1`, [id]);
 }
 
-export async function updateAdvertisement(id, link, image_url, image_size, location, start_date, end_date, cityIds = []) {
+export async function updateAdvertisement(id, link, image_url, image_size, location, start_date, end_date, cityIds = [],project_name) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -86,11 +87,12 @@ export async function updateAdvertisement(id, link, image_url, image_size, locat
           image_size = $3,
           location = $4,
           start_date = $5,
-          end_date = $6
-      WHERE id = $7
+          end_date = $6,
+          project_name = $7
+      WHERE id = $8
       RETURNING *;
     `;
-    const updateValues = [link, image_url, image_size, location, start_date, end_date, id];
+    const updateValues = [link, image_url, image_size, location, start_date, end_date,project_name, id];
     const { rows } = await client.query(updateQuery, updateValues);
     const updatedAd = rows[0];
 

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { format } from 'date-fns';
-import { toast } from 'react-toastify';
-
-
-
+import axios from "axios";
+import { toast } from "react-toastify";
 export function AdvertisementForm() {
   const [form, setForm] = useState({
     link: '',
@@ -15,73 +11,73 @@ export function AdvertisementForm() {
     start_date: '',
     end_date: '',
     cityIds: [],
+    project_name: ''
   });
   const [cities, setCities] = useState([]);
   const [ads, setAds] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  // Dropdown options
+  
   const imageSizes = [
-    { value: '500x500', label: '500 x 500 (Square)' },
-    { value: '1920x1080', label: '1920 x 1080 (Landscape)' },
+    { value: '368x219', label: '368 x 219 (Square for side ad)' },
+    { value: '856x72', label: '856 x 72 (for banner in buy page)' },
   ];
 
   const locations = [
     { value: 'home', label: 'Home' },
     { value: 'property_details', label: 'Property Details' },
     { value: 'blog', label: 'Blog' },
+    { value: 'buy', label: 'Buy' },
   ];
 
-useEffect(() => {
-  const fetchCities = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/api/cities`);
-      console.log(response.data)
-      // Ensure cities is always an array
-      setCities(Array.isArray(response.data) ? response.data : []);
-    } catch (err) {
-      console.error('Failed to fetch cities:', err);
-      setCities([]); // fallback to empty array on error
-    }
-  };
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/api/cities`);
+        setCities(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        console.error('Failed to fetch cities:', err);
+        setCities([]);
+      }
+    };
 
-  fetchCities();
-  fetchAdvertisements()
-}, [])
+    fetchCities();
+    fetchAdvertisements();
+  }, []);
 
   const fetchAdvertisements = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/advertisement`);
-      console.log("Hii hritesh")
-      console.log(res.data);
       setAds(res.data);
     } catch (err) {
       toast.error('Failed to load advertisements');
     }
   };
 
- const handleInputChange = (e) => {
-  const { name, value, type, files } = e.target;
-  
-  if (type === 'file') {
-    const file = files[0];
-    if (file) {
-      // Check file size (10MB = 10 * 1024 * 1024 bytes)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-      
-      if (file.size > maxSize) {
-        toast.error('File size exceeds 10MB. Please choose a smaller file.');
-        // Clear the file input
-        e.target.value = '';
-        return;
+  const handleInputChange = (e) => {
+    const { name, value, type, files } = e.target;
+    
+    if (type === 'file') {
+      const file = files[0];
+      if (file) {
+        const maxSize = 10 * 1024 * 1024;
+        
+        if (file.size > maxSize) {
+          toast.error('File size exceeds 10MB. Please choose a smaller file.');
+          e.target.value = '';
+          return;
+        }
+        
+        setForm({ ...form, image: file });
       }
-      
-      setForm({ ...form, image: file });
+    } else {
+      setForm({ ...form, [name]: value });
     }
-  } else {
-    setForm({ ...form, [name]: value });
-  }
-};
+  };
 
   const handleCityToggle = (cityId) => {
     setForm((prev) => ({
@@ -102,6 +98,7 @@ useEffect(() => {
       start_date: '',
       end_date: '',
       cityIds: [],
+      project_name: ''
     });
     setEditingId(null);
   };
@@ -145,6 +142,7 @@ useEffect(() => {
         start_date: '',
         end_date: '',
         cityIds: [],
+        project_name: ''
       });
       setEditingId(null);
     } catch (err) {
@@ -153,18 +151,19 @@ useEffect(() => {
   };
 
   const handleEdit = (ad) => {
-  setForm({
-    link: ad.link || '',
-    image: null,
-    image_url: ad.image_url || '',
-    image_size: ad.image_size || '',
-    location: ad.location || '',
-    start_date: ad.start_date ? ad.start_date.slice(0, 10) : '',
-    end_date: ad.end_date ? ad.end_date.slice(0, 10) : '',
-    cityIds: ad.cities?.map((c) => c.id) || [],
-  });
-  setEditingId(ad.id);
-};
+    setForm({
+      link: ad.link || '',
+      image: null,
+      image_url: ad.image_url || '',
+      image_size: ad.image_size || '',
+      location: ad.location || '',
+      start_date: ad.start_date ? ad.start_date.slice(0, 10) : '',
+      end_date: ad.end_date ? ad.end_date.slice(0, 10) : '',
+      cityIds: ad.cities?.map((c) => c.id) || [],
+      project_name: ad.project_name || ''
+    });
+    setEditingId(ad.id);
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this advertisement?')) return;
@@ -175,6 +174,63 @@ useEffect(() => {
     } catch (err) {
       toast.error('Deletion failed');
     }
+  };
+
+  // Filter and search logic
+  const filteredAds = ads.filter(ad => {
+    const matchesSearch = !searchTerm || 
+      ad.project_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    let matchesDateRange = true;
+    if (filterStartDate || filterEndDate) {
+      const adStartDate = new Date(ad.start_date);
+      const adEndDate = new Date(ad.end_date);
+      
+      if (filterStartDate) {
+        const filterStart = new Date(filterStartDate);
+        matchesDateRange = matchesDateRange && adStartDate >= filterStart;
+      }
+      
+      if (filterEndDate) {
+        const filterEnd = new Date(filterEndDate);
+        matchesDateRange = matchesDateRange && adEndDate <= filterEnd;
+      }
+    }
+    
+    return matchesSearch && matchesDateRange;
+  });
+
+  // Download Excel function
+  const downloadExcel = () => {
+    const headers = ['Project Name', 'Link', 'Location', 'Cities', 'Start Date', 'End Date', 'Image Size'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredAds.map(ad => [
+        ad.project_name || '',
+        ad.link || '',
+        ad.location?.replace('_', ' ') || '',
+        ad.cities?.map(c => c.name).join('; ') || '',
+        ad.start_date ? new Date(ad.start_date).toLocaleDateString() : '',
+        ad.end_date ? new Date(ad.end_date).toLocaleDateString() : '',
+        ad.image_size || ''
+      ].map(field => `"${field}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `advertisements_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setFilterStartDate('');
+    setFilterEndDate('');
   };
 
   return (
@@ -200,9 +256,7 @@ useEffect(() => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Form Grid */}
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-              {/* Link Input */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Advertisement Link</label>
                 <input 
@@ -214,7 +268,6 @@ useEffect(() => {
                 />
               </div>
 
-              {/* Image Size Dropdown */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Image Size</label>
                 <select 
@@ -230,7 +283,6 @@ useEffect(() => {
                 </select>
               </div>
 
-              {/* Location Dropdown */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Location</label>
                 <select 
@@ -246,7 +298,6 @@ useEffect(() => {
                 </select>
               </div>
 
-              {/* Start Date */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Start Date</label>
                 <input 
@@ -258,7 +309,6 @@ useEffect(() => {
                 />
               </div>
 
-              {/* End Date */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">End Date</label>
                 <input 
@@ -269,9 +319,19 @@ useEffect(() => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" 
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Project Name</label>
+                <input
+                  type="text"
+                  name="project_name"
+                  value={form.project_name}
+                  onChange={handleInputChange} 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" 
+                />
+              </div>
             </div>
 
-            {/* Cities Selection */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700">Select Cities</label>
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -291,7 +351,6 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Image Upload Section */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700">Advertisement Image</label>
               {form.image_url && !form.image ? (
@@ -359,7 +418,6 @@ useEffect(() => {
               )}
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-4 pt-6">
               <button 
                 type="submit" 
@@ -381,8 +439,58 @@ useEffect(() => {
         {/* Advertisements Table Card */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800">All Advertisements</h3>
-            <p className="text-gray-600 mt-1">Manage your existing advertisements</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800">All Advertisements</h3>
+                <p className="text-gray-600 mt-1">Manage your existing advertisements</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={downloadExcel}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                >
+                  Download Excel
+                </button>
+                <button
+                  onClick={clearFilters}
+                  className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+            
+            {/* Search and Filter Controls */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Search Project Name</label>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by project name..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                <input
+                  type="date"
+                  value={filterStartDate}
+                  onChange={(e) => setFilterStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                <input
+                  type="date"
+                  value={filterEndDate}
+                  onChange={(e) => setFilterEndDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
           </div>
           
           <div className="overflow-x-auto">
@@ -391,14 +499,14 @@ useEffect(() => {
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Name/Link</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cities</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {ads.map((ad, index) => (
+                {filteredAds.map((ad, index) => (
                   <tr key={ad.id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {index + 1}
@@ -411,6 +519,7 @@ useEffect(() => {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <p className="font-medium text-gray-900">{ad.project_name}</p>
                       <a 
                         href={ad.link} 
                         target="_blank" 
@@ -449,13 +558,17 @@ useEffect(() => {
               </tbody>
             </table>
             
-            {ads.length === 0 && (
+            {filteredAds.length === 0 && (
               <div className="text-center py-12">
                 <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No advertisements found</h3>
-                <p className="text-gray-500">Create your first advertisement to get started.</p>
+                <p className="text-gray-500">
+                  {searchTerm || filterStartDate || filterEndDate 
+                    ? 'No advertisements match your search criteria.' 
+                    : 'Create your first advertisement to get started.'}
+                </p>
               </div>
             )}
           </div>
