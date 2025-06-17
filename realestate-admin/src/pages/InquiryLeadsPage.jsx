@@ -23,6 +23,7 @@ const InquiryLeadsPage = () => {
   const fetchLeads = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/inquiryleads`);
+      console.log(res.data);
       setLeads(res.data);
       setFilteredLeads(res.data);
     } catch (err) {
@@ -150,7 +151,7 @@ const InquiryLeadsPage = () => {
             <tr>
               <th className="p-2 border">#</th>
               <th className="p-2 border">Name</th>
-              <th className="p-2 border">Email</th>
+              <th className="p-2 border">Inquiry_for</th>
               <th className="p-2 border">Phone</th>
               <th className="p-2 border">City</th>
               <th className="p-2 border">Budget</th>
@@ -165,7 +166,7 @@ const InquiryLeadsPage = () => {
               <tr key={lead.id} className="hover:bg-gray-50">
                 <td className="p-2 border">{index + 1}</td>
                 <td className="p-2 border">{lead.name}</td>
-                <td className="p-2 border">{lead.email}</td>
+                <td className="p-2 border">{lead.inquiry_for}</td>
                 <td className="p-2 border">{lead.phone_number}</td>
                 <td className="p-2 border">{lead.city}</td>
                 <td className="p-2 border">{lead.budget}</td>
