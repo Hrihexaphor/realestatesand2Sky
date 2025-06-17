@@ -533,9 +533,9 @@ const FeaturedManager = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Gallery Period</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Property</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Location/price</th>
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Price</th> */}
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -563,7 +563,7 @@ const FeaturedManager = () => {
                           className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
                           onClick={() => setShowDatePickerFor(property.id)}
                         >
-                          Add to Featured
+                          Add <br /> featured
                         </button>
                       )}
                     </div>
@@ -597,7 +597,7 @@ const FeaturedManager = () => {
                         className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
                         onClick={() => setShowGalleryPickerFor(property.id)}
                       >
-                        Add to Gallery
+                        Add <br /> gallery
                       </button>
                     )}
                   </td>
@@ -611,7 +611,7 @@ const FeaturedManager = () => {
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
+                    <div className="flex flex-col items-center justify-center">
                       <div className="h-16 w-16 flex-shrink-0 mr-4 overflow-hidden rounded">
                         {property.images && property.images.length > 0 ? (
                           <img 
@@ -628,7 +628,7 @@ const FeaturedManager = () => {
                       <div>
                         <div className="text-sm font-medium text-gray-900">{property.project_name}</div>
                         <div className="text-xs text-gray-500">{property.property_category_name}</div>
-                        <div className="text-xs text-gray-500">ID: {property.id}</div>
+                        {/* <div className="text-xs text-gray-500">ID: {property.id}</div> */}
                       </div>
                     </div>
                   </td>
@@ -643,23 +643,24 @@ const FeaturedManager = () => {
                       <span>•</span>
                       <span>{property.carpet_area || property.built_up_area || '-'} Sq.ft</span>
                     </div>
-                  </td>
-                  
-                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{formatPrice(property.expected_price)}</div>
                     {property.price_per_sqft && (
                       <div className="text-xs text-gray-500">{formatPrice(property.price_per_sqft)}/sq.ft</div>
                     )}
                   </td>
                   
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
+                    
+                  </td> */}
+                  
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
                       {property.transaction_type}
                     </span>
                     <span className="ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
                       {property.possession_status}
                     </span>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
