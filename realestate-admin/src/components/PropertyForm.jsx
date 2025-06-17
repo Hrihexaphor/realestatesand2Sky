@@ -983,6 +983,7 @@ const handleDocumentChange = (e) => {
             <input
               type="number"
               name="bedrooms"
+              required
               value={details.bedrooms || ""}
               onChange={handleDetailsChange}
               min="0"
@@ -1083,6 +1084,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOtherroomsChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1098,6 +1100,7 @@ const handleDocumentChange = (e) => {
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="1"
                 />
               </div>
@@ -1117,6 +1120,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1132,6 +1136,7 @@ const handleDocumentChange = (e) => {
                   name="furnished_status"
                   value={details.furnished_status || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select</option>
                   <option value="Unfurnished">Unfurnished</option>
@@ -1146,6 +1151,7 @@ const handleDocumentChange = (e) => {
                   name="covered_parking"
                   value={details.covered_parking || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1164,6 +1170,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1179,6 +1186,7 @@ const handleDocumentChange = (e) => {
                   name="plot_area"
                   value={details.plot_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1204,6 +1212,7 @@ const handleDocumentChange = (e) => {
                         value={value}
                         checked={details.corner_plot === value}
                         onChange={handleDetailsChange}
+                        required
                         style={{ accentColor: "#4a90e2" }}
                       />
                       <span style={{ marginLeft: "4px" }}>{value}</span>
@@ -1220,6 +1229,7 @@ const handleDocumentChange = (e) => {
                   name="plot_breadth"
                   value={details.plot_breadth || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1230,6 +1240,7 @@ const handleDocumentChange = (e) => {
                   name="plot_length"
                   value={details.plot_length || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1241,6 +1252,7 @@ const handleDocumentChange = (e) => {
                   name="transaction_types"
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
@@ -1253,6 +1265,7 @@ const handleDocumentChange = (e) => {
                   name="possession_status"
                   value={basic.possession_status}
                   onChange={handleBasicChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Ready to Move">Ready to Move</option>
@@ -1272,6 +1285,7 @@ const handleDocumentChange = (e) => {
                   name="available_from"
                   value={details.available_from || ""}
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -1301,6 +1315,7 @@ const handleDocumentChange = (e) => {
                   name="price_per_sqft"
                   value={basic.price_per_sqft}
                   onChange={handleBasicChange}
+                  required
                   min="0"
                   placeholder="Enter price per sqft"
                 />
@@ -1326,6 +1341,7 @@ const handleDocumentChange = (e) => {
                   name="maintenance_charge"
                   value={details.maintenance_charge}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price"
                 />
@@ -1339,6 +1355,7 @@ const handleDocumentChange = (e) => {
                   name="rental_return"
                   value={details.rental_return}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price "
                 />
@@ -1370,6 +1387,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1385,6 +1403,7 @@ const handleDocumentChange = (e) => {
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="1"
                 />
               </div>
@@ -1397,6 +1416,7 @@ const handleDocumentChange = (e) => {
                   name="furnished_status"
                   value={details.furnished_status || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select</option>
                   <option value="Unfurnished">Unfurnished</option>
@@ -1411,6 +1431,7 @@ const handleDocumentChange = (e) => {
                   name="covered_parking"
                   value={details.covered_parking || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1429,6 +1450,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1443,6 +1465,7 @@ const handleDocumentChange = (e) => {
                   name="transaction_types"
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
@@ -1455,6 +1478,7 @@ const handleDocumentChange = (e) => {
                   name="possession_status"
                   value={basic.possession_status}
                   onChange={handleBasicChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Ready to Move">Ready to Move</option>
@@ -1478,6 +1502,7 @@ const handleDocumentChange = (e) => {
                       : ""
                   }
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -1507,6 +1532,7 @@ const handleDocumentChange = (e) => {
                   name="price_per_sqft"
                   value={basic.price_per_sqft}
                   onChange={handleBasicChange}
+                  required
                   min="0"
                   placeholder="Enter price per sqft"
                 />
@@ -1532,6 +1558,7 @@ const handleDocumentChange = (e) => {
                   name="maintenance_charge"
                   value={details.maintenance_charge}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price"
                 />
@@ -1545,6 +1572,7 @@ const handleDocumentChange = (e) => {
                   name="rental_return"
                   value={details.rental_return}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price "
                 />
@@ -1564,6 +1592,7 @@ const handleDocumentChange = (e) => {
                   name="bedrooms"
                   value={details.bedrooms || ""}
                   onChange={handleDetailsChange}
+                  required
                   min={0}
                   className="form-control"
                   placeholder="Enter number of bedrooms"
@@ -1576,6 +1605,7 @@ const handleDocumentChange = (e) => {
                   name="bathrooms"
                   value={details.bathrooms || ""}
                   onChange={handleDetailsChange}
+                  required
                   min={0}
                   className="form-control"
                   placeholder="Enter number of bathrooms"
@@ -1598,6 +1628,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOtherroomsChange(option, e.target.checked)
                         }
+                      
                       />
                       {option}
                     </label>
@@ -1613,6 +1644,7 @@ const handleDocumentChange = (e) => {
                   name="balconies"
                   value={details.balconies || ""}
                   onChange={handleDetailsChange}
+                  required
                   min={0}
                   className="form-control"
                   placeholder="Enter number of bathrooms"
@@ -1625,6 +1657,7 @@ const handleDocumentChange = (e) => {
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="1"
                 />
               </div>
@@ -1637,6 +1670,7 @@ const handleDocumentChange = (e) => {
                   name="floor"
                   value={details.floor || ""}
                   onChange={handleDetailsChange}
+                  required
                   className="form-control"
                   placeholder='e.g., "Ground", "1", "3+", "Upper Basement"'
                 />
@@ -1648,6 +1682,7 @@ const handleDocumentChange = (e) => {
                   name="covered_parking"
                   value={details.covered_parking || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1659,6 +1694,7 @@ const handleDocumentChange = (e) => {
                   name="furnished_status"
                   value={details.furnished_status || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select</option>
                   <option value="Unfurnished">Unfurnished</option>
@@ -1679,6 +1715,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1700,6 +1737,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1715,6 +1753,7 @@ const handleDocumentChange = (e) => {
                   name="super_built_up_area"
                   value={details.super_built_up_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1725,6 +1764,7 @@ const handleDocumentChange = (e) => {
                   name="built_up_area"
                   value={details.built_up_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1735,6 +1775,7 @@ const handleDocumentChange = (e) => {
                   name="carpet_area"
                   value={details.carpet_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1746,6 +1787,7 @@ const handleDocumentChange = (e) => {
                   name="transaction_types"
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
@@ -1758,6 +1800,7 @@ const handleDocumentChange = (e) => {
                   name="possession_status"
                   value={basic.possession_status}
                   onChange={handleBasicChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Ready to Move">Ready to Move</option>
@@ -1781,6 +1824,7 @@ const handleDocumentChange = (e) => {
                       : ""
                   }
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -1810,6 +1854,7 @@ const handleDocumentChange = (e) => {
                   name="price_per_sqft"
                   value={basic.price_per_sqft}
                   onChange={handleBasicChange}
+                  required
                   min="0"
                   placeholder="Enter price per sqft"
                 />
@@ -1835,6 +1880,7 @@ const handleDocumentChange = (e) => {
                   name="maintenance_charge"
                   value={details.maintenance_charge}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price per sqft"
                 />
@@ -1848,6 +1894,7 @@ const handleDocumentChange = (e) => {
                   name="rental_return"
                   value={details.rental_return}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price "
                 />
@@ -1868,6 +1915,7 @@ const handleDocumentChange = (e) => {
                   name="bedrooms"
                   value={details.bedrooms || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="1"
                 />
               </div>
@@ -1878,6 +1926,7 @@ const handleDocumentChange = (e) => {
                   name="bathrooms"
                   value={details.bathrooms || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="1"
                 />
               </div>
@@ -1898,6 +1947,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOtherroomsChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -1913,6 +1963,7 @@ const handleDocumentChange = (e) => {
                   name="balconies"
                   value={details.balconies || ""}
                   onChange={handleDetailsChange}
+                  required  
                   min="1"
                 />
               </div>
@@ -1923,6 +1974,7 @@ const handleDocumentChange = (e) => {
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="1"
                 />
               </div>
@@ -1941,6 +1993,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
+                      
                       />
                       {option}
                     </label>
@@ -1956,6 +2009,7 @@ const handleDocumentChange = (e) => {
                   name="furnished_status"
                   value={details.furnished_status || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select</option>
                   <option value="Unfurnished">Unfurnished</option>
@@ -1970,6 +2024,7 @@ const handleDocumentChange = (e) => {
                   name="covered_parking"
                   value={details.covered_parking || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -1988,6 +2043,7 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
+                        
                       />
                       {option}
                     </label>
@@ -2003,6 +2059,7 @@ const handleDocumentChange = (e) => {
                   name="plot_area"
                   value={details.plot_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -2013,6 +2070,7 @@ const handleDocumentChange = (e) => {
                   name="super_built_up_area"
                   value={details.super_built_up_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -2025,6 +2083,7 @@ const handleDocumentChange = (e) => {
                   name="carpet_area"
                   value={details.carpet_area || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -2035,6 +2094,7 @@ const handleDocumentChange = (e) => {
                   name="plot_length"
                   value={details.plot_length || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -2047,6 +2107,7 @@ const handleDocumentChange = (e) => {
                   name="plot_breadth"
                   value={details.plot_breadth || ""}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                 />
               </div>
@@ -2072,6 +2133,7 @@ const handleDocumentChange = (e) => {
                         value={value}
                         checked={details.corner_plot === value}
                         onChange={handleDetailsChange}
+                        required
                         style={{ accentColor: "#4a90e2" }}
                       />
                       <span style={{ marginLeft: "4px" }}>{value}</span>
@@ -2087,6 +2149,7 @@ const handleDocumentChange = (e) => {
                   name="transaction_types"
                   value={details.transaction_types || ""}
                   onChange={handleDetailsChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Resale">Resale</option>
@@ -2099,6 +2162,7 @@ const handleDocumentChange = (e) => {
                   name="possession_status"
                   value={basic.possession_status}
                   onChange={handleBasicChange}
+                  required
                 >
                   <option value="">Select Status</option>
                   <option value="Ready to Move">Ready to Move</option>
@@ -2118,6 +2182,7 @@ const handleDocumentChange = (e) => {
                   name="available_from"
                   value={details.available_from || ""}
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -2147,6 +2212,7 @@ const handleDocumentChange = (e) => {
                   name="price_per_sqft"
                   value={basic.price_per_sqft}
                   onChange={handleBasicChange}
+                  required
                   min="0"
                   placeholder="Enter price per sqft"
                 />
@@ -2172,6 +2238,7 @@ const handleDocumentChange = (e) => {
                   name="maintenance_charge"
                   value={details.maintenance_charge}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price per sqft"
                 />
@@ -2185,6 +2252,7 @@ const handleDocumentChange = (e) => {
                   name="rental_return"
                   value={details.rental_return}
                   onChange={handleDetailsChange}
+                  required
                   min="0"
                   placeholder="Enter price "
                 />
@@ -2343,6 +2411,7 @@ const handleDocumentChange = (e) => {
                 name="locality"
                 value={details.locality || ""}
                 onChange={handleDetailsChange}
+                required
                 placeholder="Enter locality or area"
               />
             </div>
@@ -2354,6 +2423,7 @@ const handleDocumentChange = (e) => {
                 name="project_name"
                 value={details.project_name || ""}
                 onChange={handleDetailsChange}
+                required
                 placeholder="Enter project name"
               />
             </div>
@@ -2363,6 +2433,7 @@ const handleDocumentChange = (e) => {
                 name="developer_id"
                 value={basic.developer_id}
                 onChange={handleBasicChange}
+                required
               >
                 <option value="">Select Developer</option>
                 {developers.map((d) => (
