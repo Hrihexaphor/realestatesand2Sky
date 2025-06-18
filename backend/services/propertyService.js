@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
-import dotenv from 'dotenv';
-import nodemailer from 'nodemailer';  
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 dotenv.config();
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -105,7 +105,7 @@ export async function insertPropertyDetails(property_id, details) {
       "corner_plot",
       "other_rooms",
       "rental_return",
-      "property_status"
+      "property_status",
     ];
 
     // Filter out undefined fields
@@ -394,16 +394,15 @@ export async function getAllProperties() {
     `);
 
     // Ensure arrays are never null for each property
-    return result.rows.map(property => ({
+    return result.rows.map((property) => ({
       ...property,
       images: property.images || [],
       documents: property.documents || [],
       amenities: property.amenities || [],
       key_features: property.key_features || [],
       nearest_to: property.nearest_to || [],
-      bhk_configurations: property.bhk_configurations || []
+      bhk_configurations: property.bhk_configurations || [],
     }));
-
   } catch (error) {
     console.error("Error getting all properties:", error);
     throw new Error(`Failed to get properties: ${error.message}`);
@@ -418,39 +417,56 @@ export async function getAllProperties() {
  */
 export async function updatePropertyById(id, data) {
   try {
-    const { basic, details, location, nearest_to, amenities, keyfeature,bhk_configurations } = data;
+    const {
+      basic,
+      details,
+      location,
+      nearest_to,
+      amenities,
+      keyfeature,
+      bhk_configurations,
+    } = data;
 
     // 1. Update basic property info
     if (basic) {
       const fields = Object.keys(basic);
       const values = Object.values(basic);
-      const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(", ");
-      await pool.query(
-        `UPDATE property SET ${setClause} WHERE id = $1`,
-        [id, ...values]
-      );
+      const setClause = fields
+        .map((field, index) => `${field} = $${index + 2}`)
+        .join(", ");
+      await pool.query(`UPDATE property SET ${setClause} WHERE id = $1`, [
+        id,
+        ...values,
+      ]);
     }
 
     // 2. Update property details
-  if (details) {
-  const fields = Object.keys(details);
-  const values = Object.values(details);
-  const placeholders = fields.map((_, idx) => `$${idx + 2}`);
-  const setClause = fields.map((field, idx) => `${field} = $${idx + 2}`).join(", ");
+    if (details) {
+      const fields = Object.keys(details);
+      const values = Object.values(details);
+      const placeholders = fields.map((_, idx) => `$${idx + 2}`);
+      const setClause = fields
+        .map((field, idx) => `${field} = $${idx + 2}`)
+        .join(", ");
 
-  const check = await pool.query(`SELECT 1 FROM property_details WHERE property_id = $1`, [id]);
-  if (check.rowCount > 0) {
-    await pool.query(
-      `UPDATE property_details SET ${setClause} WHERE property_id = $1`,
-      [id, ...values]
-    );
-  } else {
-    await pool.query(
-      `INSERT INTO property_details (property_id, ${fields.join(", ")}) VALUES ($1, ${placeholders.join(", ")})`,
-      [id, ...values]
-    );
-  }
-}
+      const check = await pool.query(
+        `SELECT 1 FROM property_details WHERE property_id = $1`,
+        [id]
+      );
+      if (check.rowCount > 0) {
+        await pool.query(
+          `UPDATE property_details SET ${setClause} WHERE property_id = $1`,
+          [id, ...values]
+        );
+      } else {
+        await pool.query(
+          `INSERT INTO property_details (property_id, ${fields.join(
+            ", "
+          )}) VALUES ($1, ${placeholders.join(", ")})`,
+          [id, ...values]
+        );
+      }
+    }
 
     // 3. Update location
     if (location) {
@@ -463,7 +479,9 @@ export async function updatePropertyById(id, data) {
 
     // 4. Update amenities
     if (Array.isArray(amenities)) {
-      await pool.query(`DELETE FROM property_amenity WHERE property_id = $1`, [id]);
+      await pool.query(`DELETE FROM property_amenity WHERE property_id = $1`, [
+        id,
+      ]);
       for (const amenityId of amenities) {
         await pool.query(
           `INSERT INTO property_amenity (property_id, amenity_id) VALUES ($1, $2)`,
@@ -473,19 +491,25 @@ export async function updatePropertyById(id, data) {
     }
 
     // 5. Update key features
-        if (Array.isArray(keyfeature)) {
-        await pool.query(`DELETE FROM property_key_feature WHERE property_id = $1`, [id]);
-        for (const featureId of keyfeature) {
-          await pool.query(
-            `INSERT INTO property_key_feature (property_id, key_feature_id) VALUES ($1, $2)`,
-            [id, featureId]
-          );
-        }
+    if (Array.isArray(keyfeature)) {
+      await pool.query(
+        `DELETE FROM property_key_feature WHERE property_id = $1`,
+        [id]
+      );
+      for (const featureId of keyfeature) {
+        await pool.query(
+          `INSERT INTO property_key_feature (property_id, key_feature_id) VALUES ($1, $2)`,
+          [id, featureId]
+        );
       }
+    }
 
     // 6. Update nearest_to
     if (Array.isArray(nearest_to)) {
-      await pool.query(`DELETE FROM property_nearest_to WHERE property_id = $1`, [id]);
+      await pool.query(
+        `DELETE FROM property_nearest_to WHERE property_id = $1`,
+        [id]
+      );
       for (const { nearest_to_id, distance_km } of nearest_to) {
         await pool.query(
           `INSERT INTO property_nearest_to (property_id, nearest_to_id, distance_km) VALUES ($1, $2, $3)`,
@@ -494,16 +518,28 @@ export async function updatePropertyById(id, data) {
       }
     }
     // 7. Update configurations
-        if (Array.isArray(bhk_configurations)) {
-          await pool.query(`DELETE FROM property_configurations WHERE property_id = $1`, [id]);
-          for (const config of bhk_configurations) {
-            await pool.query(
-              `INSERT INTO property_configurations (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, file_name) 
+    if (Array.isArray(bhk_configurations)) {
+      await pool.query(
+        `DELETE FROM property_configurations WHERE property_id = $1`,
+        [id]
+      );
+      for (const config of bhk_configurations) {
+        await pool.query(
+          `INSERT INTO property_configurations (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, file_name) 
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-              [id, config.bhk_type, config.bedrooms, config.bathrooms, config.super_built_up_area, config.carpet_area, config.balconies, config.file_name]
-            );
-          }
-        }
+          [
+            id,
+            config.bhk_type,
+            config.bedrooms,
+            config.bathrooms,
+            config.super_built_up_area,
+            config.carpet_area,
+            config.balconies,
+            config.file_name,
+          ]
+        );
+      }
+    }
     return { success: true, message: "Property updated successfully" };
   } catch (err) {
     console.error("Error updating property:", err);
@@ -706,7 +742,7 @@ export const searchProperty = async (filters) => {
 //  get properyt by id function
 
 export const getpropertyById = async (propertyId) => {
-     try {
+  try {
     // 1. Basic + developer + category + subcategory
     const { rows: basicRows } = await pool.query(
       `SELECT 
@@ -756,7 +792,7 @@ export const getpropertyById = async (propertyId) => {
       `SELECT id, type, file_url FROM property_documents WHERE property_id = $1`,
       [propertyId]
     );
-     // 6. AmenitiesAdd commentMore actions
+    // 6. AmenitiesAdd commentMore actions
     const { rows: amenitiesRows } = await pool.query(
       `SELECT a.id, a.name, a.icon
          FROM property_amenity pa
@@ -766,10 +802,10 @@ export const getpropertyById = async (propertyId) => {
     );
     // 7.key feature
     const { rows: keyfeatureRows } = await pool.query(
-      `SELECT kf.id, kf.name
-         FROM property_key_feature pk
-         JOIN key_feature kf ON pk.key_feature_id = kf.id
-         WHERE pk.property_id = $1`,
+      `SELECT kf.id, kf.name, kf.description
+   FROM property_key_feature pk
+   JOIN key_feature kf ON pk.key_feature_id = kf.id
+   WHERE pk.property_id = $1`,
       [propertyId]
     );
     // 8. Nearest To
@@ -778,14 +814,14 @@ export const getpropertyById = async (propertyId) => {
          FROM property_nearest_to pnt
          JOIN nearest_to nt ON pnt.nearest_to_id = nt.id
          WHERE pnt.property_id = $1`,
-          [propertyId]
+      [propertyId]
     );
-          // 9. FAQsAdd commentMore actions
+    // 9. FAQsAdd commentMore actions
     const { rows: faqRows } = await pool.query(
       `SELECT id, question, answer FROM faqs WHERE property_id = $1 ORDER BY created_at ASC`,
       [propertyId]
     );
-     return {
+    return {
       basic,
       details: detailsRows[0] || null,
       location: locationRows[0] || null,
@@ -796,7 +832,7 @@ export const getpropertyById = async (propertyId) => {
       nearest_to: nearestRows,
       faqs: faqRows,
       bhk_configurations: bhkRows,
-      };
+    };
   } catch (error) {
     console.error("Error fetching property by ID:", error);
     throw new Error(`Failed to fetch property by ID: ${error.message}`);
@@ -888,23 +924,31 @@ export const getReadyToMoveProperties = async () => {
 // send a mail to all email present in the property_inquiries table
 
 export async function sendNewPropertyEmails(property_id) {
- try {
+  try {
     const [property, primaryImage, subcategory, inquiries] = await Promise.all([
-      pool.query(`SELECT title, subcategory_id FROM property WHERE id = $1`, [property_id]),
-      pool.query(`SELECT image_url FROM property_images WHERE property_id = $1 AND is_primary = true LIMIT 1`, [property_id]),
-      pool.query(`SELECT name FROM property_subcategory WHERE id = (
+      pool.query(`SELECT title, subcategory_id FROM property WHERE id = $1`, [
+        property_id,
+      ]),
+      pool.query(
+        `SELECT image_url FROM property_images WHERE property_id = $1 AND is_primary = true LIMIT 1`,
+        [property_id]
+      ),
+      pool.query(
+        `SELECT name FROM property_subcategory WHERE id = (
         SELECT subcategory_id FROM property WHERE id = $1
-      )`, [property_id]),
-      pool.query(`SELECT DISTINCT name, email FROM property_inquiries`)
+      )`,
+        [property_id]
+      ),
+      pool.query(`SELECT DISTINCT name, email FROM property_inquiries`),
     ]);
 
     const title = property.rows[0]?.title;
-    const imageUrl = primaryImage.rows[0]?.image_url || '';
-    const subcategoryName = subcategory.rows[0]?.name || 'Residential Houses';
-    const contactNumber = '+91-1234567890';
-    const instaLink = 'https://instagram.com/example';
-    const fbLink = 'https://facebook.com/example';
-    const twitterLink = 'https://twitter.com/example';
+    const imageUrl = primaryImage.rows[0]?.image_url || "";
+    const subcategoryName = subcategory.rows[0]?.name || "Residential Houses";
+    const contactNumber = "+91-1234567890";
+    const instaLink = "https://instagram.com/example";
+    const fbLink = "https://facebook.com/example";
+    const twitterLink = "https://twitter.com/example";
     const landingPageUrl = `https://yourwebsite.com/property/${property_id}`; // Replace with your actual landing page URL
 
     for (let inquiry of inquiries.rows) {
@@ -956,9 +1000,10 @@ export async function sendNewPropertyEmails(property_id) {
               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 30px;">
                 <tr>
                   <td style="background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; min-height: 200px;">
-                    ${imageUrl ? 
-                      `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">` :
-                      `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
+                    ${
+                      imageUrl
+                        ? `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">`
+                        : `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
                     }
                   </td>
                 </tr>
@@ -1041,8 +1086,11 @@ export async function sendNewPropertyEmails(property_id) {
     }
 
     console.log(`📧 Enhanced emails sent for property ID ${property_id}`);
-    return { success: true, message: `Emails sent to ${inquiries.rows.length} recipients` };
+    return {
+      success: true,
+      message: `Emails sent to ${inquiries.rows.length} recipients`,
+    };
   } catch (err) {
-    console.error('Failed to send property emails:', err.message);
+    console.error("Failed to send property emails:", err.message);
   }
 }

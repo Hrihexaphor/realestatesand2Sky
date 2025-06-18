@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-// const API_URL = 'http://localhost:3001';
+// const BASE_URL = "http://localhost:3001";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const KeyFeatureManager = () => {
   const [features, setFeatures] = useState([]);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     fetchFeatures();
@@ -18,50 +19,58 @@ const KeyFeatureManager = () => {
       const res = await axios.get(`${BASE_URL}/api/keyfeature`);
       setFeatures(res.data);
     } catch (err) {
-      toast.error('Failed to load features');
+      toast.error("Failed to load features");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.warning('Name is required');
+      toast.warning("Name is required");
       return;
     }
 
     try {
       if (editingId) {
-        await axios.put(`${BASE_URL}/api/keyfeature/${editingId}`, { name },{
-          withCredentials:true
-        });
-        toast.success('Feature updated');
+        await axios.put(
+          `${BASE_URL}/api/keyfeature/${editingId}`,
+          { name, description },
+          { withCredentials: true }
+        );
+        toast.success("Feature updated");
       } else {
-        await axios.post(`${BASE_URL}/api/keyfeature`, { name },{
-          withCredentials:true
-        });
-        toast.success('Feature added');
+        await axios.post(
+          `${BASE_URL}/api/keyfeature`,
+          { name, description },
+          {
+            withCredentials: true,
+          }
+        );
+        toast.success("Feature added");
       }
-      setName('');
+      setName("");
       setEditingId(null);
       fetchFeatures();
     } catch (err) {
-      toast.error('Operation failed');
+      toast.error("Operation failed");
     }
   };
 
   const handleEdit = (feature) => {
     setName(feature.name);
+    setDescription(feature.description || "");
     setEditingId(feature.id);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this feature?')) return;
+    if (!window.confirm("Are you sure you want to delete this feature?"))
+      return;
     try {
       await axios.delete(`${BASE_URL}/api/keyfeature/${id}`);
-      toast.success('Feature deleted');
+      toast.success("Feature deleted");
       fetchFeatures();
     } catch (err) {
-      toast.error('Delete failed');
+      toast.error("Delete failed");
     }
   };
 
@@ -78,11 +87,18 @@ const KeyFeatureManager = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          <input
+            type="text"
+            className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter feature description (hover text)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            {editingId ? 'Update' : 'Add'}
+            {editingId ? "Update" : "Add"}
           </button>
         </div>
       </form>
@@ -92,6 +108,7 @@ const KeyFeatureManager = () => {
           <tr>
             <th className="px-4 py-2 border">#</th>
             <th className="px-4 py-2 border">Feature Name</th>
+            <th className="px-4 py-2 border">Feature Description</th>
             <th className="px-4 py-2 border">Actions</th>
           </tr>
         </thead>
@@ -100,6 +117,7 @@ const KeyFeatureManager = () => {
             <tr key={feature.id} className="hover:bg-gray-50">
               <td className="px-4 py-2 border">{index + 1}</td>
               <td className="px-4 py-2 border">{feature.name}</td>
+              <td className="px-4 py-2 border">{feature.description}</td>
               <td className="px-4 py-2 border space-x-2">
                 <button
                   onClick={() => handleEdit(feature)}

@@ -1,10 +1,10 @@
-import pool from '../config/db.js'
+import pool from "../config/db.js";
 
 // CREATE
-export async function createKeyFeature(name) {
+export async function createKeyFeature(name, description) {
   const result = await pool.query(
-    `INSERT INTO key_feature (name) VALUES ($1) RETURNING *`,
-    [name]
+    `INSERT INTO key_feature (name, description) VALUES ($1, $2) RETURNING *`,
+    [name, description]
   );
   return result.rows[0];
 }
@@ -16,10 +16,10 @@ export async function getAllKeyFeatures() {
 }
 
 // UPDATE
-export async function updateKeyFeature(id, name) {
+export async function updateKeyFeature(id, name, description) {
   const result = await pool.query(
-    `UPDATE key_feature SET name = $1 WHERE id = $2 RETURNING *`,
-    [name, id]
+    `UPDATE key_feature SET name = $1, description = $2 WHERE id = $3 RETURNING *`,
+    [name, description, id]
   );
   return result.rows[0];
 }
