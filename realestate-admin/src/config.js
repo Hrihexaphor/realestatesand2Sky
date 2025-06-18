@@ -51,25 +51,30 @@ export const ROUTES = [
     element: "ContactManager",
   },
   { path: "citymanager", label: "City Manager", element: "CityManager" },
-   {
+  {
     path: "generatelead",
     label: "Property Inquiry",
     element: "LeadInquiriesPage",
   },
-   {
+  {
     path: "getinfolead",
     label: "GetInfo",
     element: "GetInfoLeads",
   },
-   {
+  {
     path: "contactuslead",
     label: "Contactus",
     element: "ContactLeads",
   },
   {
-    path:"primaryimage",
-    label:'primaryimage',
-    element:'PropertyImageManager',
+    path: "primaryimage",
+    label: "primaryimage",
+    element: "PropertyImageManager",
+  },
+  {
+    path: "heroimage",
+    label: "heroimage",
+    element: "HeroSectionManager",
   },
   {
     path: "usermanager",
@@ -77,7 +82,6 @@ export const ROUTES = [
     element: "UserManager",
     adminOnly: true,
   },
-  
 ];
 
 export const USER_ROLES = {
