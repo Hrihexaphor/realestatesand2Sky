@@ -1,9 +1,9 @@
 import express from 'express';
 import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
-import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities,insertPropertyDocuments,insertPropertyConfigurations,insertKeyfeature } from '../services/propertyService.js';
-import { searchProperty,getpropertyById,updatePropertyById,getAllProperties,deletePropertyById,getReadyToMoveProperties,sendNewPropertyEmails } from '../services/propertyService.js';
-import {getSubcategoriesByCategoryId} from '../services/propertySubcategory.js'
+import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities, insertPropertyDocuments, insertPropertyConfigurations, insertKeyfeature, updateImages } from '../services/propertyService.js';
+import { searchProperty, getpropertyById, updatePropertyById, getAllProperties, deletePropertyById, getReadyToMoveProperties, sendNewPropertyEmails } from '../services/propertyService.js';
+import { getSubcategoriesByCategoryId } from '../services/propertySubcategory.js'
 import { isAuthenticated } from '../middleware/auth.js';
 const router = express.Router();
 const propertyCache = new NodeCache({ stdTTL: 300 });
@@ -13,7 +13,7 @@ router.post('/property', upload.fields([
   { name: 'documents', maxCount: 10 },
   { name: 'configFiles', maxCount: 10 }  // Add this line
 ]), async (req, res) => {
-  try { 
+  try {
     if (!req.body.data) {
       return res.status(400).json({ error: 'Missing property data' });
     }
@@ -27,7 +27,7 @@ router.post('/property', upload.fields([
     }
 
     let { basic, details, location, nearest_to, amenities, configurations, keyfeature } = parsedData;
-    
+
     // Validate required fields
     if (!basic || !basic.title) {
       return res.status(400).json({ error: 'Missing required property title' });
@@ -45,13 +45,13 @@ router.post('/property', upload.fields([
     // Validate that property_type is a valid subcategory for the given category_id
     try {
       const validSubcategories = await getSubcategoriesByCategoryId(basic.category_id);
-      const isValidSubcategory = validSubcategories.some(subcategory => 
+      const isValidSubcategory = validSubcategories.some(subcategory =>
         subcategory.id === parseInt(basic.property_type)
       );
-      
+
       if (!isValidSubcategory) {
-        return res.status(400).json({ 
-          error: 'Invalid property type. The selected property type does not belong to the selected category.' 
+        return res.status(400).json({
+          error: 'Invalid property type. The selected property type does not belong to the selected category.'
         });
       }
     } catch (err) {
@@ -77,11 +77,11 @@ router.post('/property', upload.fields([
     if (amenities && amenities.length > 0) {
       await insertAmenities(property.id, amenities);
     }
-    
+
     if (keyfeature && keyfeature.length > 0) {
       await insertKeyfeature(property.id, keyfeature);
     }
-    
+
     // Handle configuration files
     if (configurations && configurations.length > 0) {
       // Parse configuration file metadata if available
@@ -95,20 +95,20 @@ router.post('/property', upload.fields([
 
       // Process uploaded configuration files
       const configFiles = req.files?.configFiles || [];
-      
+
       // Map each configuration with its corresponding file (if any)
       const processedConfigurations = configurations.map(config => {
         // Find metadata for this configuration by bhk_type
         const meta = configFileMeta.find(m => m.bhk_type === config.bhk_type);
-        
+
         if (meta && meta.file_name) {
           // Find the uploaded file matching this metadata
           const uploadedFile = configFiles.find(f => f.originalname === meta.file_name);
-          
+
           if (uploadedFile) {
             // Add the file URL to the configuration
-            return { 
-              ...config, 
+            return {
+              ...config,
               file_url: uploadedFile.path // This should be the Cloudinary URL
             };
           }
@@ -119,7 +119,7 @@ router.post('/property', upload.fields([
       // Save configurations to database
       await insertPropertyConfigurations(property.id, processedConfigurations);
     }
-    
+
     // Process images
     if (req.files?.images?.length > 0) {
       const imageLinks = req.files.images.map((file, index) => ({
@@ -131,7 +131,7 @@ router.post('/property', upload.fields([
     // process document
     if (req.files?.documents?.length > 0) {
       let documents_metadata = [];
-    
+
       try {
         documents_metadata = Array.isArray(req.body.documentMeta)
           ? req.body.documentMeta
@@ -140,7 +140,7 @@ router.post('/property', upload.fields([
         console.warn('Invalid documentMeta:', err);
         documents_metadata = [];
       }
-    
+
       const documents = req.files.documents.map(file => {
         const meta = documents_metadata.find(m => m.filename === file.originalname);
         return {
@@ -148,7 +148,7 @@ router.post('/property', upload.fields([
           type: meta?.type || null
         };
       });
-    
+
       await insertPropertyDocuments(property.id, documents);
     }
     await sendNewPropertyEmails(property.id);
@@ -169,10 +169,10 @@ router.get('/property', async (req, res) => {
 
     // If no cache, get from database
     const properties = await getAllProperties();
-    
+
     // Store in cache for future requests
     propertyCache.set('allProperties', properties);
-    
+
     // Send response
     res.status(200).json(properties);
   } catch (err) {
@@ -182,19 +182,44 @@ router.get('/property', async (req, res) => {
 });
 
 // Update property by ID
-router.put('/property/:id', async (req, res) => {
+router.patch('/property/:id', upload.fields([{ name: 'images', maxCount: 8 }]), async (req, res) => {
   try {
     const propertyId = req.params.id;
-    
+
     if (!propertyId) {
       return res.status(400).json({ error: 'Property ID is required' });
     }
-    
-    const updatedData = req.body;
-    console.log('Incoming update request for property ID:', propertyId);
-    console.log('Updated data:', updatedData);
-    
-    await updatePropertyById(propertyId, updatedData);
+
+    if (!req.body.data) {
+      return res.status(400).json({ error: 'Missing property data' });
+    }
+
+    let parsedData;
+    let extImages;
+    try {
+      parsedData = JSON.parse(req.body.data);
+      extImages = JSON.parse(req.body.imageUrls);
+    } catch (err) {
+      console.error('JSON parsing error:', err);
+      return res.status(400).json({ error: 'Invalid JSON format' });
+    }
+
+    let existingImages =  extImages || []
+    let newImages = [];
+    if (req.files?.images?.length > 0) {
+      console.dir(req.files.images, { depth: null });
+      const setPrimaryImage = existingImages.find(image => image.is_primary);
+      req.files.images.forEach((file, index) => {
+        newImages.push({
+          image_url: file.path, // Assuming this is the Cloudinary URL
+          is_primary: !setPrimaryImage ? index === 0 : false // Set first image as primary
+        });
+      });
+    }
+
+    await updateImages(propertyId, newImages, existingImages);
+    await updatePropertyById(propertyId, parsedData);
+    propertyCache.del('allProperties'); // Clear cache after update
     res.json({ success: true, message: 'Property updated successfully' });
   } catch (err) {
     console.error('Error updating property:', err);
@@ -236,11 +261,11 @@ router.get('/property/search', async (req, res) => {
       max_price: req.query.max_price ? parseInt(req.query.max_price) : null,
       city: req.query.city,
       locality: req.query.locality,
-      
+
       // Additional filters
       furnished_status: req.query.furnished_status,
       possession_status: req.query.possession_status,
-      
+
       // Sorting and pagination
       sort_by: req.query.sort_by,
       sort_order: req.query.sort_order,
@@ -265,16 +290,16 @@ router.get('/property/search', async (req, res) => {
     });
   }
 });
- 
+
 //get ready to move proerty routes
 
-router.get('/properties/ready-to-move', async (req,res)=>{
-  try{
-      const properties = await getReadyToMoveProperties();
-      res.status(200).json(properties)
-  }catch(err){
+router.get('/properties/ready-to-move', async (req, res) => {
+  try {
+    const properties = await getReadyToMoveProperties();
+    res.status(200).json(properties)
+  } catch (err) {
     console.error('Error fetching ready to move properties:', err);
-    res.status(500).json({error:'Failed to fetch ready to move properties'});
+    res.status(500).json({ error: 'Failed to fetch ready to move properties' });
   }
 })
 // get all the new property from the table
@@ -290,17 +315,17 @@ router.get('/properties/ready-to-move', async (req,res)=>{
 
 // get property by id routes
 
-router.get('/property/:id',async (req,res)=>{
-  try{
+router.get('/property/:id', async (req, res) => {
+  try {
     const propertyId = req.params.id;
     const propertyDetails = await getpropertyById(propertyId);
-    if(!propertyDetails){
-      return res.status(404).json({error:'property not found'})
+    if (!propertyDetails) {
+      return res.status(404).json({ error: 'property not found' })
     }
     res.json(propertyDetails)
-  }catch(error){
+  } catch (error) {
     console.error('Error fetching property by id:', error);
-    res.status(500).json({error:`failed to fetch property details by id`})
+    res.status(500).json({ error: `failed to fetch property details by id` })
   }
 })
 export default router;
