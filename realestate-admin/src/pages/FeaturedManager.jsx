@@ -81,7 +81,8 @@ const FeaturedManager = () => {
         property.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.locality?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.id.toString().includes(searchTerm)
+        property.id.toString().includes(searchTerm) ||
+        property.developer_name?.toLowerCase().includes(searchTerm.toLowerCase()) 
     );
 
     setFilteredProperties(filtered);
@@ -98,6 +99,7 @@ const FeaturedManager = () => {
   const fetchProperties = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/property`);
+      console.log("all properties", res.data);
       setProperties(res.data);
     } catch (err) {
       toast.error("Error fetching properties");
@@ -181,30 +183,28 @@ const FeaturedManager = () => {
   };
 
   const handleEditFeatured = async (propertyId) => {
-    const featuredInfo = featuredProperties[propertyId];
-    if (!featuredInfo) {
-      toast.error("Featured property details not found");
-      return;
-    }
+  const featuredInfo = featuredProperties[propertyId];
+  if (!featuredInfo) {
+    toast.error('Featured property details not found');
+    return;
+  }
 
-    try {
-      const featuredDetails = await fetchFeaturedDetails(
-        featuredInfo.featured_id
-      );
-      if (featuredDetails) {
-        setSelectedDateRange({
-          startDate: featuredDetails.start_date.split("T")[0],
-          endDate: featuredDetails.end_date.split("T")[0],
-        });
-        setSelectedCities(featuredDetails.cities || []);
-        setEditMode(true);
-        setEditingPropertyId(propertyId);
-        setShowDatePickerFor(propertyId);
-      }
-    } catch (error) {
-      toast.error("Failed to load featured details for editing");
+  try {
+    const featuredDetails = await fetchFeaturedDetails(featuredInfo.featured_id);
+    if (featuredDetails) {
+      setSelectedDateRange({
+        startDate: featuredDetails.start_date.split('T')[0],
+        endDate: featuredDetails.end_date.split('T')[0]
+      });
+      setSelectedCities(featuredDetails.cities || []);
+      setEditMode(true);
+      setEditingPropertyId(propertyId);
+      setShowDatePickerFor(propertyId);
     }
-  };
+  } catch (error) {
+    toast.error('Failed to load featured details for editing');
+  }
+};
 
   const handleAddFeatured = async (propertyId) => {
     if (selectedCities.length === 0) {
@@ -665,12 +665,12 @@ const FeaturedManager = () => {
                           >
                             Remove
                           </button>
-                          {/* <button
+                          <button
                             className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-1 px-3 rounded text-sm transition duration-300"
                             onClick={() => handleEditFeatured(property.id)}
                           >
                             Edit
-                          </button> */}
+                          </button>
                         </>
                       ) : (
                         <button
@@ -785,6 +785,9 @@ const FeaturedManager = () => {
                       <div>
                         <div className="text-sm font-medium text-gray-900">
                           {property.project_name}
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {property.developer_name}
                         </div>
                         <div className="text-xs text-gray-500">
                           {property.property_category_name}
