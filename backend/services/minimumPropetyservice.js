@@ -1,9 +1,7 @@
 import pool from "../config/db.js";
 
 // listing all property with minimum details
-export async function getMinimalProperties(page = 1, limit = 10) {
-  const offset = (page - 1) * limit;
-
+export async function getMinimalProperties() {
   try {
     const result = await pool.query(
       `
@@ -30,12 +28,13 @@ export async function getMinimalProperties(page = 1, limit = 10) {
         pc.name AS category_name,
         psc.name AS subcategory_name,
 
-       (
+        (
           SELECT pi.image_url
           FROM property_images pi
           WHERE pi.property_id = p.id AND pi.is_primary = true
           LIMIT 1
         ) AS primary_image,
+
         EXISTS (
           SELECT 1 FROM featured_properties fp 
           WHERE fp.property_id = p.id
@@ -67,9 +66,7 @@ export async function getMinimalProperties(page = 1, limit = 10) {
                d.id, d.name, pc.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
-      LIMIT $1 OFFSET $2
-    `,
-      [limit, offset]
+    `
     );
 
     return result.rows;
