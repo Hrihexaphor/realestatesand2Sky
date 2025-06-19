@@ -233,6 +233,8 @@ export async function updateImages(property_id, newImages, existingImageIds) {
       await pool.query(`DELETE FROM property_images WHERE property_id = $1`, [property_id]);
     }
 
+     if(newImages.length < 1) return;
+
     const values = [];
     const params = [];
 
@@ -262,6 +264,8 @@ export async function updateDocuments(property_id, newDocuments, existingDocumen
     } else {
       await pool.query(`DELETE FROM property_documents WHERE property_id = $1`, [property_id]);
     }
+
+    if(newDocuments.length < 1) return;
 
     const values = [];
     const params = [];
