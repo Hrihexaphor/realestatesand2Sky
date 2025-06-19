@@ -1,7 +1,7 @@
 import express from 'express';
 import NodeCache from 'node-cache';
 import upload from '../middleware/upload.js';
-import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities, insertPropertyDocuments, insertPropertyConfigurations, insertKeyfeature, updateImages } from '../services/propertyService.js';
+import { insertProperty, insertPropertyDetails, insertImages, insertLocation, insertNearestTo, insertAmenities, insertPropertyDocuments, insertPropertyConfigurations, insertKeyfeature, updateImages, updateDocuments } from '../services/propertyService.js';
 import { searchProperty, getpropertyById, updatePropertyById, getAllProperties, deletePropertyById, getReadyToMoveProperties, sendNewPropertyEmails } from '../services/propertyService.js';
 import { getSubcategoriesByCategoryId } from '../services/propertySubcategory.js'
 import { isAuthenticated } from '../middleware/auth.js';
@@ -182,9 +182,9 @@ router.get('/property', async (req, res) => {
 });
 
 // Update property by ID
-router.patch('/property/:id', upload.fields([{ name: 'images', maxCount: 8 }]), async (req, res) => {
+router.patch('/property/:id', upload.fields([{ name: 'images', maxCount: 8 }, { name: 'documents', maxCount: 10 }]), async (req, res) => {
   const propertyId = req.params.id;
-  const { data, existingImages } = req.body;
+  const { data, existingImages, existingDocumentIds, documentMetadata } = req.body;
 
   if (!propertyId) return res.status(400).json({ error: 'Property ID is required' });
   if (!data) return res.status(400).json({ error: 'Missing property data' });
@@ -192,6 +192,15 @@ router.patch('/property/:id', upload.fields([{ name: 'images', maxCount: 8 }]), 
   try {
     const parsedData = JSON.parse(data);
     const existingImagesParsed = JSON.parse(existingImages || '[]');
+    const existingDocumentIdsParsed = JSON.parse(existingDocumentIds || '[]');
+    const documentMetadataParsed = JSON.parse(documentMetadata || '[]');
+
+
+
+    // updDATE PROPERY FIRST
+    await updatePropertyById(propertyId, parsedData);
+
+    // UPDATE IMAGES
 
     const hasPrimaryImage = existingImagesParsed.some(img => img.is_primary);
 
@@ -201,9 +210,17 @@ router.patch('/property/:id', upload.fields([{ name: 'images', maxCount: 8 }]), 
     }));
 
     const existingImageIds = existingImagesParsed.map(img => img.id);
-
     await updateImages(propertyId, newImages, existingImageIds);
-    await updatePropertyById(propertyId, parsedData);
+
+    // UPDATe DOCUMENTS
+    const newDocuments = (req.files?.documents || []).map(file => {
+      const meta = documentMetadataParsed.find(m => m.filename === file.originalname);
+      return {
+        file_url: file.path,
+        type: meta?.type || null
+      };
+    });
+    await updateDocuments(propertyId, newDocuments, existingDocumentIdsParsed);
 
     propertyCache.del('allProperties');
 

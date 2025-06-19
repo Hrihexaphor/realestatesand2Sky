@@ -254,6 +254,34 @@ export async function updateImages(property_id, newImages, existingImageIds) {
   }
 }
 
+export async function updateDocuments(property_id, newDocuments, existingDocumentIds) {
+  try {
+    if (existingDocumentIds.length > 0) {
+      const dltQuery = `DELETE FROM property_documents WHERE property_id = $1 AND id NOT IN (${existingDocumentIds.map((_, i) => `$${i + 2}`).join(', ')})`
+      await pool.query(dltQuery,[property_id, ...existingDocumentIds]);
+    } else {
+      await pool.query(`DELETE FROM property_documents WHERE property_id = $1`, [property_id]);
+    }
+
+    const values = [];
+    const params = [];
+    newDocuments.forEach((doc, i) => {
+      const idx = i * 3;
+      values.push(`($${idx + 1}, $${idx + 2}, $${idx + 3})`);
+      params.push(property_id, doc.type || null, doc.file_url || null);
+    });
+
+    console.log("Values to insert:", values, params);
+
+    const query = `INSERT INTO property_documents (property_id, type, file_url) VALUES ${values.join(', ')}`;
+    await pool.query(query, params);
+  } catch (error) {
+    console.error("Error deleting existing documents:", error);
+    throw new Error(`Failed to delete existing documents: ${error.message}`);
+  }
+
+}
+
 // insert property documents
 export async function insertPropertyDocuments(property_id, documents) {
   try {
