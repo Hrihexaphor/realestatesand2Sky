@@ -789,22 +789,24 @@ const handleDocumentChange = (e) => {
         // For update (PUT) requests - send direct JSON data
         console.log("Sending update data:", propertyData);
 
-        // If we have new images, use FormData
-        if (images.some((img) => img instanceof File)) {
-          alert(
-            "Image updates not supported yet. Please update property details without adding new images."
-          );
-          return;
-        }
+        const imageFiles = images.filter((img) => img instanceof File);
+
+        const existingImages = images.filter((img) => typeof img === "object").map(img => ({ id: img.id, is_primary: img.is_primary }));
+
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(propertyData));
+        formData.append("existingImages", JSON.stringify(existingImages));
+        imageFiles.forEach((img) => formData.append("images", img));
+        
 
         // Send the update request with the fixed data structure
-        await axios.put(
-          `${BASE_URL}/api/property/${editData.id}`,
-          propertyData,
-          { headers: { "Content-Type": "application/json" } }
-        );
+         await axios.patch(`${BASE_URL}/api/property/${editData.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        });
 
-        alert("Property updated successfully!");
         if (onClose) onClose();
       } else {
         // For new property creation (POST) - use FormData

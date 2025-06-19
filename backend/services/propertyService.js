@@ -223,6 +223,37 @@ export async function insertImages(property_id, images) {
   }
 }
 
+export async function updateImages(property_id, newImages, existingImageIds) {
+  try {
+
+    if (existingImageIds.length > 0) {
+      const dltQuery = `DELETE FROM property_images WHERE property_id = $1 AND id NOT IN (${existingImageIds.map((_, i) => `$${i + 2}`).join(', ')})`
+      await pool.query(dltQuery,[property_id, ...existingImageIds]);
+    } else {
+      await pool.query(`DELETE FROM property_images WHERE property_id = $1`, [property_id]);
+    }
+
+    const values = [];
+    const params = [];
+
+    newImages.forEach((img, i) => {
+      const idx = i * 3;
+      values.push(`($${idx + 1}, $${idx + 2}, $${idx + 3})`);
+      params.push(property_id, img.image_url, img.is_primary || false);
+    });
+
+    console.log("Values to insert:", values, params);
+
+    const query = `INSERT INTO property_images (property_id, image_url, is_primary) VALUES ${values.join(', ')}`;
+
+    await pool.query(query, params);
+
+  } catch (error) {
+    console.error("Error updating images:", error);
+    throw new Error(`Failed to updating images: ${error.message}`);
+  }
+}
+
 // insert property documents
 export async function insertPropertyDocuments(property_id, documents) {
   try {
@@ -1000,11 +1031,10 @@ export async function sendNewPropertyEmails(property_id) {
               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 30px;">
                 <tr>
                   <td style="background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; min-height: 200px;">
-                    ${
-                      imageUrl
-                        ? `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">`
-                        : `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
-                    }
+                    ${imageUrl
+          ? `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">`
+          : `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
+        }
                   </td>
                 </tr>
               </table>
