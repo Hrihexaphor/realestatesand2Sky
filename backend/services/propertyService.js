@@ -223,16 +223,20 @@ export async function insertImages(property_id, images) {
   }
 }
 
-export async function updateImages(property_id, newImages, existingImages) {
+export async function updateImages(property_id, newImages, existingImageIds) {
   try {
-
-    const idsToKeep = existingImages.map(img => img.id);
-    if (idsToKeep.length > 0) {
-      const dltQuery = `DELETE FROM property_images WHERE property_id = $1 AND id NOT IN (${idsToKeep.map((_, i) => `$${i + 2}`).join(', ')})`
-      await pool.query(dltQuery,[property_id, ...idsToKeep]);
+    if (existingImageIds.length > 0) {
+      const dltQuery = `DELETE FROM property_images WHERE property_id = $1 AND id NOT IN (${existingImageIds
+        .map((_, i) => `$${i + 2}`)
+        .join(", ")})`;
+      await pool.query(dltQuery, [property_id, ...existingImageIds]);
     } else {
-      await pool.query(`DELETE FROM property_images WHERE property_id = $1`, [property_id]);
+      await pool.query(`DELETE FROM property_images WHERE property_id = $1`, [
+        property_id,
+      ]);
     }
+
+    if (newImages.length < 1) return;
 
     const values = [];
     const params = [];
@@ -245,13 +249,54 @@ export async function updateImages(property_id, newImages, existingImages) {
 
     console.log("Values to insert:", values, params);
 
-    const query = `INSERT INTO property_images (property_id, image_url, is_primary) VALUES ${values.join(', ')}`;
+    const query = `INSERT INTO property_images (property_id, image_url, is_primary) VALUES ${values.join(
+      ", "
+    )}`;
 
     await pool.query(query, params);
-
   } catch (error) {
     console.error("Error updating images:", error);
     throw new Error(`Failed to updating images: ${error.message}`);
+  }
+}
+
+export async function updateDocuments(
+  property_id,
+  newDocuments,
+  existingDocumentIds
+) {
+  try {
+    if (existingDocumentIds.length > 0) {
+      const dltQuery = `DELETE FROM property_documents WHERE property_id = $1 AND id NOT IN (${existingDocumentIds
+        .map((_, i) => `$${i + 2}`)
+        .join(", ")})`;
+      await pool.query(dltQuery, [property_id, ...existingDocumentIds]);
+    } else {
+      await pool.query(
+        `DELETE FROM property_documents WHERE property_id = $1`,
+        [property_id]
+      );
+    }
+
+    if (newDocuments.length < 1) return;
+
+    const values = [];
+    const params = [];
+    newDocuments.forEach((doc, i) => {
+      const idx = i * 3;
+      values.push(`($${idx + 1}, $${idx + 2}, $${idx + 3})`);
+      params.push(property_id, doc.type || null, doc.file_url || null);
+    });
+
+    console.log("Values to insert:", values, params);
+
+    const query = `INSERT INTO property_documents (property_id, type, file_url) VALUES ${values.join(
+      ", "
+    )}`;
+    await pool.query(query, params);
+  } catch (error) {
+    console.error("Error deleting existing documents:", error);
+    throw new Error(`Failed to delete existing documents: ${error.message}`);
   }
 }
 
@@ -977,11 +1022,12 @@ export async function sendNewPropertyEmails(property_id) {
     const title = property.rows[0]?.title;
     const imageUrl = primaryImage.rows[0]?.image_url || "";
     const subcategoryName = subcategory.rows[0]?.name || "Residential Houses";
-    const contactNumber = "+91-1234567890";
+    const contactNumber = "+91-7077571010";
     const instaLink = "https://instagram.com/example";
-    const fbLink = "https://facebook.com/example";
+    const fbLink =
+      "https://www.facebook.com/people/Sand2skycom/61574525036300/";
     const twitterLink = "https://twitter.com/example";
-    const landingPageUrl = `https://yourwebsite.com/property/${property_id}`; // Replace with your actual landing page URL
+    const landingPageUrl = `https://sand2skyfrontendfile.vercel.app/details/${property_id}`; // Replace with your actual landing page URL
 
     for (let inquiry of inquiries.rows) {
       const html = `
@@ -1032,10 +1078,11 @@ export async function sendNewPropertyEmails(property_id) {
               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 30px;">
                 <tr>
                   <td style="background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; min-height: 200px;">
-                    ${imageUrl
-          ? `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">`
-          : `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
-        }
+                    ${
+                      imageUrl
+                        ? `<img src="${imageUrl}" alt="${title}" style="max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;" border="0">`
+                        : `<div style="color: #6c757d; font-size: 48px; line-height: 1; font-family: Arial, sans-serif;">🏠</div>`
+                    }
                   </td>
                 </tr>
               </table>

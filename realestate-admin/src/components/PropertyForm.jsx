@@ -142,7 +142,7 @@ const PropertyForm = ({ editData, onClose }) => {
             "available_from",
             "other_rooms",
             "rental_return",
-            "property_status"
+            "property_status",
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -183,7 +183,7 @@ const PropertyForm = ({ editData, onClose }) => {
             "corner_plot",
             "other_rooms",
             "rental_return",
-            "property_status"
+            "property_status",
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -221,7 +221,7 @@ const PropertyForm = ({ editData, onClose }) => {
             "about_location",
             "available_from",
             "rental_return",
-            "property_status"
+            "property_status",
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -258,10 +258,11 @@ const PropertyForm = ({ editData, onClose }) => {
         }));
         setDocuments(existingDocs);
       }
-        // ADD THIS: Handle existing configurations
+      // ADD THIS: Handle existing configurations
       if (
         editData &&
-        (Array.isArray(editData.configurations) || Array.isArray(editData.bhk_configurations))
+        (Array.isArray(editData.configurations) ||
+          Array.isArray(editData.bhk_configurations))
       ) {
         const configs = editData.configurations || editData.bhk_configurations;
 
@@ -273,7 +274,7 @@ const PropertyForm = ({ editData, onClose }) => {
           carpet_area: config.carpet_area,
           balconies: config.balconies,
           file: null, // No file available for existing configs
-          file_name: config.file_name || '',
+          file_name: config.file_name || "",
         }));
 
         console.log("Setting existing configurations:", existingConfigs); // 🔍 Debug log
@@ -398,7 +399,9 @@ const PropertyForm = ({ editData, onClose }) => {
     if (!window.google) {
       // Google Maps script isn't loaded yet
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${
+        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+      }&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
@@ -654,38 +657,42 @@ const PropertyForm = ({ editData, onClose }) => {
   };
 
   const handleImageChange = (e) => {
-  const selectedFiles = Array.from(e.target.files);
-  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-  const validFiles = [];
-  const errors = [];
+    const selectedFiles = Array.from(e.target.files);
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    const validFiles = [];
+    const errors = [];
 
-  // First check file sizes
-  selectedFiles.forEach((file) => {
-    if (file.size > maxSize) {
-      errors.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 10MB limit`);
-    } else {
-      validFiles.push(file);
+    // First check file sizes
+    selectedFiles.forEach((file) => {
+      if (file.size > maxSize) {
+        errors.push(
+          `${file.name} (${(file.size / (1024 * 1024)).toFixed(
+            1
+          )}MB) exceeds 10MB limit`
+        );
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    // Then filter duplicates from valid files
+    const filtered = validFiles.filter(
+      (newFile) =>
+        !images.some(
+          (existing) =>
+            existing.name === newFile.name && existing.size === newFile.size
+        )
+    );
+
+    setImageErrors(errors);
+
+    if (filtered.length > 0) {
+      setImages((prev) => [...prev, ...filtered]);
     }
-  });
 
-  // Then filter duplicates from valid files
-  const filtered = validFiles.filter(
-    (newFile) =>
-      !images.some(
-        (existing) =>
-          existing.name === newFile.name && existing.size === newFile.size
-      )
-  );
-
-  setImageErrors(errors);
-  
-  if (filtered.length > 0) {
-    setImages((prev) => [...prev, ...filtered]);
-  }
-  
-  // Clear the input
-  e.target.value = '';
-};
+    // Clear the input
+    e.target.value = "";
+  };
 
   const removeImage = (idx) => {
     setImages((prev) => {
@@ -703,32 +710,36 @@ const PropertyForm = ({ editData, onClose }) => {
     });
   };
 
-const handleDocumentChange = (e) => {
-  const selectedFiles = Array.from(e.target.files);
-  const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-  const validFiles = [];
-  const errors = [];
+  const handleDocumentChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    const validFiles = [];
+    const errors = [];
 
-  selectedFiles.forEach((file) => {
-    if (file.size > maxSize) {
-      errors.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds 10MB limit`);
-    } else {
-      validFiles.push({
-        file: file,
-        type: "brochure" // default type
-      });
+    selectedFiles.forEach((file) => {
+      if (file.size > maxSize) {
+        errors.push(
+          `${file.name} (${(file.size / (1024 * 1024)).toFixed(
+            1
+          )}MB) exceeds 10MB limit`
+        );
+      } else {
+        validFiles.push({
+          file: file,
+          type: "brochure", // default type
+        });
+      }
+    });
+
+    setDocumentErrors(errors);
+
+    if (validFiles.length > 0) {
+      setDocuments((prev) => [...prev, ...validFiles]);
     }
-  });
 
-  setDocumentErrors(errors);
-  
-  if (validFiles.length > 0) {
-    setDocuments((prev) => [...prev, ...validFiles]);
-  }
-  
-  // Clear the input
-  e.target.value = '';
-};
+    // Clear the input
+    e.target.value = "";
+  };
   const updateDocumentType = (index, newType) => {
     setDocuments((prev) => {
       const updated = [...prev];
@@ -790,19 +801,35 @@ const handleDocumentChange = (e) => {
         console.log("Sending update data:", propertyData);
 
         const imageFiles = images.filter((img) => img instanceof File);
+        const existingImages = images
+          .filter((img) => typeof img === "object")
+          .map((img) => ({ id: img.id, is_primary: img.is_primary }));
 
-        const imageUrls = images.filter((img) => typeof img === "object");
-
-        console.log(imageUrls, "imageUrls");
+        const documentFiles = documents.filter(
+          (doc) => doc.file && doc.file instanceof File
+        );
+        const existingDocumentIds = documents
+          .filter((doc) => typeof doc === "object" && doc.url)
+          .map((doc) => doc.id);
+        const documentMetadata = documents.map((doc, idx) => ({
+          filename: doc.file.name,
+          type: doc.type,
+        }));
 
         const formData = new FormData();
         formData.append("data", JSON.stringify(propertyData));
-        formData.append("imageUrls", JSON.stringify(imageUrls));
+        formData.append("existingImages", JSON.stringify(existingImages));
+        formData.append(
+          "existingDocumentIds",
+          JSON.stringify(existingDocumentIds)
+        );
+        formData.append("documentMetadata", JSON.stringify(documentMetadata));
+
         imageFiles.forEach((img) => formData.append("images", img));
-        
+        documentFiles.forEach((doc) => formData.append("documents", doc.file));
 
         // Send the update request with the fixed data structure
-         await axios.patch(`${BASE_URL}/api/property/${editData.id}`, formData, {
+        await axios.patch(`${BASE_URL}/api/property/${editData.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -1088,7 +1115,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOtherroomsChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1124,7 +1150,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1174,7 +1199,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1352,7 +1376,7 @@ const handleDocumentChange = (e) => {
               </div>
             </div>
             <div className="form-row">
-               <div className="form-group">
+              <div className="form-group">
                 <label>Expected Rental Return</label>
                 <input
                   type="number"
@@ -1391,7 +1415,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1454,7 +1477,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1568,8 +1590,8 @@ const handleDocumentChange = (e) => {
                 />
               </div>
             </div>
-              <div className="form-row">
-               <div className="form-group">
+            <div className="form-row">
+              <div className="form-group">
                 <label>Expected Rental Return</label>
                 <input
                   type="number"
@@ -1632,7 +1654,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOtherroomsChange(option, e.target.checked)
                         }
-                      
                       />
                       {option}
                     </label>
@@ -1719,7 +1740,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1741,7 +1761,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1890,8 +1909,8 @@ const handleDocumentChange = (e) => {
                 />
               </div>
             </div>
-              <div className="form-row">
-               <div className="form-group">
+            <div className="form-row">
+              <div className="form-group">
                 <label>Expected Rental Return</label>
                 <input
                   type="number"
@@ -1951,7 +1970,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOtherroomsChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -1967,7 +1985,7 @@ const handleDocumentChange = (e) => {
                   name="balconies"
                   value={details.balconies || ""}
                   onChange={handleDetailsChange}
-                  required  
+                  required
                   min="1"
                 />
               </div>
@@ -1997,7 +2015,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleFacingChange(option, e.target.checked)
                         }
-                      
                       />
                       {option}
                     </label>
@@ -2047,7 +2064,6 @@ const handleDocumentChange = (e) => {
                         onChange={(e) =>
                           handleOverlookingChange(option, e.target.checked)
                         }
-                        
                       />
                       {option}
                     </label>
@@ -2248,8 +2264,8 @@ const handleDocumentChange = (e) => {
                 />
               </div>
             </div>
-              <div className="form-row">
-               <div className="form-group">
+            <div className="form-row">
+              <div className="form-group">
                 <label>Expected Rental Return</label>
                 <input
                   type="number"
@@ -2262,7 +2278,7 @@ const handleDocumentChange = (e) => {
                 />
               </div>
               <div className="form-group"></div>
-            </div> 
+            </div>
           </>
         );
       default:
@@ -2361,33 +2377,33 @@ const handleDocumentChange = (e) => {
               </div>
             </div>
             {/* propety status check */}
-          <div className="form-group mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              New Project
-            </label>
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600">No</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  name="property_status"
-                  checked={details.property_status === 'active'}
-                  onChange={(e) =>
-                    handleDetailsChange({
-                      target: {
-                        name: 'property_status',
-                        value: e.target.checked ? 'active' : 'inactive',
-                      },
-                    })
-                  }
-                />
-                <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
-                <span className="absolute left-1 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-full"></span>
+            <div className="form-group mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                New Project
               </label>
-              <span className="text-sm text-gray-600">Yes</span>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-600">No</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    name="property_status"
+                    checked={details.property_status === "active"}
+                    onChange={(e) =>
+                      handleDetailsChange({
+                        target: {
+                          name: "property_status",
+                          value: e.target.checked ? "active" : "inactive",
+                        },
+                      })
+                    }
+                  />
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
+                  <span className="absolute left-1 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-full"></span>
+                </label>
+                <span className="text-sm text-gray-600">Yes</span>
+              </div>
             </div>
-          </div>
           </div>
         </div>
         {/* Enter Society details */}
@@ -2624,172 +2640,172 @@ const handleDocumentChange = (e) => {
         </div>
         {/* Images */}
         <div className="form-section image-section">
-  <div className="section-header">
-    <h3>Images</h3>
-    <p>Upload high-quality images of the property</p>
-  </div>
-
-  <div className="form-row">
-    <div className="form-group full-width">
-      <input
-        id="property-images"
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleImageChange}
-        className="file-input"
-      />
-      <label
-        htmlFor="property-images"
-        className="file-upload-container"
-      >
-        <svg
-          className="file-upload-icon"
-          width="48"
-          height="48"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
-          <rect x="16" y="5" width="6" height="6" rx="1"></rect>
-          <circle cx="10" cy="14" r="2"></circle>
-          <line x1="20" y1="11" x2="20" y2="11"></line>
-        </svg>
-        <div className="file-upload-text">
-          Drop images here or click to upload
-        </div>
-        <p className="file-help">
-          Select multiple images (JPG, PNG). Max size: 10MB each.
-        </p>
-      </label>
-    </div>
-  </div>
-
-  {/* Error messages for images */}
-  {imageErrors.length > 0 && (
-    <div className="file-errors">
-      <h4>Images not accepted:</h4>
-      <ul>
-        {imageErrors.map((error, idx) => (
-          <li key={idx} className="error-item">
-            {error}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
-
-  {images.length > 0 && (
-    <div className="image-preview-container">
-      {images.map((img, idx) => (
-        <div key={idx} className="image-preview">
-          <img
-            src={
-              img instanceof File
-                ? URL.createObjectURL(img)
-                : img.url || img
-            }
-            alt={`Preview ${idx}`}
-          />
-          <div className="image-actions">
-            <button
-              type="button"
-              className="remove-image-btn"
-              onClick={() => removeImage(idx)}
-            >
-              ×
-            </button>
-
-            <button
-              type="button"
-              className={`main-image-btn ${
-                mainImageIndex === idx ? "active" : ""
-              }`}
-              onClick={() => setMainImageIndex(idx)}
-            >
-              {mainImageIndex === idx ? "Main Image ✓" : "Set as Main"}
-            </button>
+          <div className="section-header">
+            <h3>Images</h3>
+            <p>Upload high-quality images of the property</p>
           </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-       {/* Updated JSX for Document Section */}
-          <div className="form-section">
-            <div className="section-header">
-              <h3>Documents</h3>
-              {editData && (
-                <span className="helper-text">
-                  Optional - Upload only if you want to replace existing documents
-                </span>
-              )}
-            </div>
 
-            <div className="document-upload">
-              <label htmlFor="property-documents" className="upload-label">
-                <input
-                  id="property-documents"
-                  type="file"
-                  multiple
-                  onChange={handleDocumentChange}
-                />
-                <div className="upload-placeholder">
-                  <span>Drop documents here or click to upload</span>
-                  <small>
-                    Accepted: PDF, DOCX, JPG, PNG, MP4 (max 10 MB each)
-                  </small>
+          <div className="form-row">
+            <div className="form-group full-width">
+              <input
+                id="property-images"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="file-input"
+              />
+              <label
+                htmlFor="property-images"
+                className="file-upload-container"
+              >
+                <svg
+                  className="file-upload-icon"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path>
+                  <rect x="16" y="5" width="6" height="6" rx="1"></rect>
+                  <circle cx="10" cy="14" r="2"></circle>
+                  <line x1="20" y1="11" x2="20" y2="11"></line>
+                </svg>
+                <div className="file-upload-text">
+                  Drop images here or click to upload
                 </div>
+                <p className="file-help">
+                  Select multiple images (JPG, PNG). Max size: 10MB each.
+                </p>
               </label>
-
-              {/* Error messages for documents */}
-              {documentErrors.length > 0 && (
-                <div className="file-errors">
-                  <h4>Files not accepted:</h4>
-                  <ul>
-                    {documentErrors.map((error, idx) => (
-                      <li key={idx} className="error-item">
-                        {error}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {documents.map((docObj, idx) => (
-                <li key={idx} className="file-item">
-                  {docObj.file.name}
-                  <select
-                    value={docObj.type}
-                    onChange={(e) => updateDocumentType(idx, e.target.value)}
-                  >
-                    <option value="brochure">Brochure</option>
-                    <option value="floorplan">Floor Plan</option>
-                    <option value="Masterplan">Master Plan</option>
-                    <option value="Approval">Approval</option>
-                    <option value="rerecirtificate">RERA Certificate</option>
-                  </select>
-                  <button
-                    type="button"
-                    className="remove-btn"
-                    onClick={() => removeDocument(idx)}
-                  >
-                    ❌
-                  </button>
-                </li>
-              ))}
-              
-              {editData && documents.length === 0 && (
-                <div className="current-images-notice">
-                  <p>Using existing documents - new files not selected</p>
-                </div>
-              )}
             </div>
           </div>
+
+          {/* Error messages for images */}
+          {imageErrors.length > 0 && (
+            <div className="file-errors">
+              <h4>Images not accepted:</h4>
+              <ul>
+                {imageErrors.map((error, idx) => (
+                  <li key={idx} className="error-item">
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {images.length > 0 && (
+            <div className="image-preview-container">
+              {images.map((img, idx) => (
+                <div key={idx} className="image-preview">
+                  <img
+                    src={
+                      img instanceof File
+                        ? URL.createObjectURL(img)
+                        : img.url || img
+                    }
+                    alt={`Preview ${idx}`}
+                  />
+                  <div className="image-actions">
+                    <button
+                      type="button"
+                      className="remove-image-btn"
+                      onClick={() => removeImage(idx)}
+                    >
+                      ×
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`main-image-btn ${
+                        mainImageIndex === idx ? "active" : ""
+                      }`}
+                      onClick={() => setMainImageIndex(idx)}
+                    >
+                      {mainImageIndex === idx ? "Main Image ✓" : "Set as Main"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Updated JSX for Document Section */}
+        <div className="form-section">
+          <div className="section-header">
+            <h3>Documents</h3>
+            {editData && (
+              <span className="helper-text">
+                Optional - Upload only if you want to replace existing documents
+              </span>
+            )}
+          </div>
+
+          <div className="document-upload">
+            <label htmlFor="property-documents" className="upload-label">
+              <input
+                id="property-documents"
+                type="file"
+                multiple
+                onChange={handleDocumentChange}
+              />
+              <div className="upload-placeholder">
+                <span>Drop documents here or click to upload</span>
+                <small>
+                  Accepted: PDF, DOCX, JPG, PNG, MP4 (max 10 MB each)
+                </small>
+              </div>
+            </label>
+
+            {/* Error messages for documents */}
+            {documentErrors.length > 0 && (
+              <div className="file-errors">
+                <h4>Files not accepted:</h4>
+                <ul>
+                  {documentErrors.map((error, idx) => (
+                    <li key={idx} className="error-item">
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {documents.map((docObj, idx) => (
+              <li key={idx} className="file-item">
+                {docObj.file.name}
+                <select
+                  value={docObj.type}
+                  onChange={(e) => updateDocumentType(idx, e.target.value)}
+                >
+                  <option value="brochure">Brochure</option>
+                  <option value="floorplan">Floor Plan</option>
+                  <option value="Masterplan">Master Plan</option>
+                  <option value="Approval">Approval</option>
+                  <option value="rerecirtificate">RERA Certificate</option>
+                </select>
+                <button
+                  type="button"
+                  className="remove-btn"
+                  onClick={() => removeDocument(idx)}
+                >
+                  ❌
+                </button>
+              </li>
+            ))}
+
+            {editData && documents.length === 0 && (
+              <div className="current-images-notice">
+                <p>Using existing documents - new files not selected</p>
+              </div>
+            )}
+          </div>
+        </div>
         <div className="form-section">
           <div className="section-header">
             <h3>Youtube Link</h3>
