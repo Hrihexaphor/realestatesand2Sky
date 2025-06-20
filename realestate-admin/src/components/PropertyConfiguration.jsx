@@ -414,12 +414,12 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Balconies
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Floorplan
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  </th> */}
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -443,10 +443,10 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {config.balconies}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {config.file_name || 'No file'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    </td> */}
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <div className="flex space-x-2">
                         <button 
                           onClick={(e) => {
@@ -471,7 +471,7 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
                           <Trash size={18} />
                         </button>
                       </div>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
