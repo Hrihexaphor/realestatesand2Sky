@@ -15,7 +15,7 @@ const PropertyImageManager = () => {
   useEffect(() => {
     axios.get(`${BASE_URL}/api/with-images`)
       .then(res =>{
-        //  console.log("Fetched image data:", res.data);
+         console.log("Fetched image data:", res.data);
         setData(res.data);
       } )
       .catch(err => toast.error("Failed to load images"));
@@ -45,7 +45,8 @@ const PropertyImageManager = () => {
   const grouped = data.reduce((acc, item) => {
     if (!acc[item.property_id]) {
       acc[item.property_id] = { 
-        title: item.title, 
+        title: item.title,
+        project_name: item.project_name, 
         images: [],
         property_id: item.property_id,
         primaryImage: null
@@ -164,8 +165,8 @@ const PropertyImageManager = () => {
                             </svg>
                           </button>
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{property.title}</div>
-                            <div className="text-sm text-gray-500">ID: {property.property_id}</div>
+                            <div className="text-sm font-medium text-gray-900">{property.project_name}</div>
+                            <div className="text-sm text-gray-500">{property.title}</div>
                           </div>
                         </div>
                       </td>
