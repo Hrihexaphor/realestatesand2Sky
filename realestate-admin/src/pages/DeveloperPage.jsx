@@ -142,7 +142,7 @@ const DeveloperPage = () => {
   }
 });
   if (editingId) {
-  await axios.patch(`http://localhost:3001/api/developer/${editingId}`, formData, {
+  await axios.patch(`${BASE_URL}/api/developer/${editingId}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     withCredentials: true
   });
