@@ -1008,11 +1008,11 @@ export async function sendNewPropertyEmails(property_id) {
     const title = property.rows[0]?.title;
     const imageUrl = primaryImage.rows[0]?.image_url || "";
     const subcategoryName = subcategory.rows[0]?.name || "Residential Houses";
-    const contactNumber = "+91-1234567890";
+    const contactNumber = "+91-7077571010";
     const instaLink = "https://instagram.com/example";
-    const fbLink = "https://facebook.com/example";
+    const fbLink = "https://www.facebook.com/people/Sand2skycom/61574525036300/";
     const twitterLink = "https://twitter.com/example";
-    const landingPageUrl = `https://yourwebsite.com/property/${property_id}`; // Replace with your actual landing page URL
+    const landingPageUrl = `https://sand2skyfrontendfile.vercel.app/details/${property_id}`; // Replace with your actual landing page URL
 
     for (let inquiry of inquiries.rows) {
       const html = `
