@@ -141,13 +141,12 @@ const DeveloperPage = () => {
     formData.append(key, form[key]);
   }
 });
-      
-      if (editingId) {
-        await axios.put(`${BASE_URL}/api/developer/${editingId}`, formData, {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true
-        });
-        toast.success('Developer updated successfully');
+  if (editingId) {
+  await axios.patch(`http://localhost:3001/api/developer/${editingId}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    withCredentials: true
+  });
+  toast.success('Developer updated successfully');
       } else {
         await axios.post(`${BASE_URL}/api/developer`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },

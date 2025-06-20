@@ -28,6 +28,7 @@ export async function getAllDeveloper(){
 }
 // Update a developer by ID
 export const updateDeveloper = async (id, developerData = {}) => {
+  // Extract all fields, including developer_logo
   const {
     name,
     company_name,
@@ -36,36 +37,47 @@ export const updateDeveloper = async (id, developerData = {}) => {
     address,
     city,
     state,
-    partial_amount, // ✅ include this
+    partial_amount,
+    developer_logo
   } = developerData;
+
   const sanitizedPartialAmount = partial_amount === '' || partial_amount === undefined 
     ? null 
     : partial_amount;
-  const result = await pool.query(
-    `UPDATE developer
-     SET name = $1,
-         company_name = $2,
-         contact_email = $3,
-         phone_number = $4,
-         address = $5,
-         city = $6,
-         state = $7,
-         partial_amount = $8
-     WHERE id = $9
-     RETURNING *`,
-    [
-      name,
-      company_name,
-      contact_email,
-      phone_number,
-      address,
-      city,
-      state,
-      sanitizedPartialAmount, // ✅ included here
-      id // ✅ now in 9th position
-    ]
-  );
 
+  // Build the update query dynamically
+  let setClause = `
+    name = $1,
+    company_name = $2,
+    contact_email = $3,
+    phone_number = $4,
+    address = $5,
+    city = $6,
+    state = $7,
+    partial_amount = $8
+  `;
+  const values = [
+    name,
+    company_name,
+    contact_email,
+    phone_number,
+    address,
+    city,
+    state,
+    sanitizedPartialAmount
+  ];
+  let paramIndex = 9;
+  if (developer_logo) {
+    setClause += `, developer_logo = $${paramIndex}`;
+    values.push(developer_logo);
+    paramIndex++;
+  }
+  values.push(id);
+
+  const result = await pool.query(
+    `UPDATE developer SET ${setClause} WHERE id = $${paramIndex} RETURNING *`,
+    values
+  );
   return result.rows[0];
 };
   
