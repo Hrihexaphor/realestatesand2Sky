@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import PropertyConfiguration from "./PropertyConfiguration";
 import axios from "axios";
 import { Map, Building, Home, MapPin } from "lucide-react";
@@ -25,8 +25,7 @@ const PropertyForm = ({ editData, onClose }) => {
       facing: [],
     }
   );
-  const [configurations, setConfigurations] = useState([]);
-  const [configFileMeta, setConfigFileMeta] = useState([]);
+
   const [location, setLocation] = useState({
     latitude: "",
     longitude: "",
@@ -78,6 +77,9 @@ const PropertyForm = ({ editData, onClose }) => {
   const addressInputRef = useRef(null);
   const [documentErrors, setDocumentErrors] = useState([]);
   const [imageErrors, setImageErrors] = useState([]);
+  const [configurations, setConfigurations] = useState([]);
+  const [configFileMeta, setConfigFileMeta] = useState([]);
+  const [deletedConfigIds, setDeletedConfigIds] = useState([]);
   const [existingConfigurations, setExistingConfigurations] = useState([]);
   // edit property
   useEffect(() => {
@@ -222,6 +224,9 @@ const PropertyForm = ({ editData, onClose }) => {
             "available_from",
             "rental_return",
             "property_status",
+            "no_of_house",
+            "other_rooms",
+            "plot_area",
           ].forEach((field) => {
             if (editData[field] !== undefined)
               detailsFields[field] = editData[field];
@@ -317,6 +322,32 @@ const PropertyForm = ({ editData, onClose }) => {
           }))
         );
       }
+    }
+
+    // edit for configuration
+    if (
+      editData &&
+      (Array.isArray(editData.configurations) ||
+        Array.isArray(editData.bhk_configurations))
+    ) {
+      const configs = editData.configurations || editData.bhk_configurations;
+
+      const existingConfigs = configs.map((config) => ({
+        id: config.id, // Include the database ID
+        bhk_type: config.bhk_type,
+        bedrooms: config.bedrooms,
+        bathrooms: config.bathrooms,
+        super_built_up_area: config.super_built_up_area,
+        carpet_area: config.carpet_area,
+        balconies: config.balconies,
+        file: null, // No file available for existing configs
+        file_name: config.file_name || "",
+        isExisting: true, // Flag to identify as existing
+      }));
+
+      console.log("Setting existing configurations:", existingConfigs);
+      setExistingConfigurations(existingConfigs);
+      setConfigurations(existingConfigs); // Also set in main configurations state
     }
   }, [editData, map, marker]);
   useEffect(() => {
@@ -556,18 +587,29 @@ const PropertyForm = ({ editData, onClose }) => {
       setDetails({});
     }
   };
-  const handleAddConfigurations = (configList) => {
-    // Extract file metadata for API call
-    const fileMeta = configList
-      .filter((config) => config.file && config.file_name)
-      .map((config) => ({
-        bhk_type: config.bhk_type,
-        file_name: config.file_name,
-      }));
+  const handleAddConfigurations = useCallback((configData) => {
+    console.log("Received configuration data:", configData);
 
-    setConfigurations(configList);
-    setConfigFileMeta(fileMeta);
-  };
+    if (configData.configurations) {
+      setConfigurations(configData.configurations);
+
+      // Prepare file metadata for new configurations
+      const newConfigFiles = configData.configurations
+        .filter((config) => config.file && !config.isExisting)
+        .map((config) => ({
+          filename: config.file.name,
+          bhk_type: config.bhk_type,
+          originalName: config.file.name,
+        }));
+
+      setConfigFileMeta(newConfigFiles);
+    }
+
+    // Handle deleted configuration IDs
+    if (configData.deletedConfigIds && configData.deletedConfigIds.length > 0) {
+      setDeletedConfigIds((prev) => [...prev, ...configData.deletedConfigIds]);
+    }
+  }, []);
   const handleDetailsChange = (e) => {
     const { name, value } = e.target;
     setDetails((prev) => ({ ...prev, [name]: value }));
@@ -816,6 +858,10 @@ const PropertyForm = ({ editData, onClose }) => {
           type: doc.type,
         }));
 
+        const newConfigFiles = configurations
+          .filter((config) => config.file && !config.isExisting)
+          .map((config) => config.file);
+
         const formData = new FormData();
         formData.append("data", JSON.stringify(propertyData));
         formData.append("existingImages", JSON.stringify(existingImages));
@@ -824,10 +870,11 @@ const PropertyForm = ({ editData, onClose }) => {
           JSON.stringify(existingDocumentIds)
         );
         formData.append("documentMetadata", JSON.stringify(documentMetadata));
-
+        formData.append("configFileMeta", JSON.stringify(configFileMeta));
+        formData.append("deletedConfigIds", JSON.stringify(deletedConfigIds));
         imageFiles.forEach((img) => formData.append("images", img));
         documentFiles.forEach((doc) => formData.append("documents", doc.file));
-
+        newConfigFiles.forEach((file) => formData.append("configFiles", file));
         // Send the update request with the fixed data structure
         await axios.patch(`${BASE_URL}/api/property/${editData.id}`, formData, {
           headers: {
@@ -1219,6 +1266,23 @@ const PropertyForm = ({ editData, onClose }) => {
                 />
               </div>
               <div className="form-group">
+                <label
+                  htmlFor="available-from"
+                  className="block mb-2 font-medium"
+                >
+                  Available From
+                </label>
+                <input
+                  type="date"
+                  id="available-from"
+                  name="available_from"
+                  value={details.available_from || ""}
+                  onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
+                  required
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {/* <div className="form-group">
                 <label>is this a corner Plot</label>
                 <div
                   className="radio-group"
@@ -1247,32 +1311,9 @@ const PropertyForm = ({ editData, onClose }) => {
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Plot Width (ft)</label>
-                <input
-                  type="number"
-                  name="plot_breadth"
-                  value={details.plot_breadth || ""}
-                  onChange={handleDetailsChange}
-                  required
-                  min="0"
-                />
-              </div>
-              <div className="form-group">
-                <label>Plot Length (ft)</label>
-                <input
-                  type="number"
-                  name="plot_length"
-                  value={details.plot_length || ""}
-                  onChange={handleDetailsChange}
-                  required
-                  min="0"
-                />
-              </div>
-            </div>
+
             <div className="form-row">
               <div className="form-group">
                 <label>Transaction Type</label>
@@ -1299,23 +1340,6 @@ const PropertyForm = ({ editData, onClose }) => {
                   <option value="Ready to Move">Ready to Move</option>
                   <option value="Under Construction">Under Construction</option>
                 </select>
-              </div>
-              <div className="form-group">
-                <label
-                  htmlFor="available-from"
-                  className="block mb-2 font-medium"
-                >
-                  Available From
-                </label>
-                <input
-                  type="date"
-                  id="available-from"
-                  name="available_from"
-                  value={details.available_from || ""}
-                  onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
-                  required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
             </div>
             <div className="form-row">

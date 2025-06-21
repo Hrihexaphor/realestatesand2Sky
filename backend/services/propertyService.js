@@ -492,6 +492,99 @@ export async function getAllProperties() {
  * @param {Object} data - The updated property data
  * @returns {Object} - The updated property
  */
+// Add this new function to handle configuration updates
+export async function updateConfigurations(
+  propertyId,
+  configurations,
+  configFileMeta,
+  configFiles,
+  deletedConfigIds
+) {
+  try {
+    // 1. Delete specified configurations
+    if (deletedConfigIds && deletedConfigIds.length > 0) {
+      for (const configId of deletedConfigIds) {
+        await pool.query(
+          `DELETE FROM property_configurations WHERE id = $1 AND property_id = $2`,
+          [configId, propertyId]
+        );
+      }
+    }
+
+    // 2. Process each configuration
+    for (const config of configurations) {
+      if (config.isExisting && config.id) {
+        // Update existing configuration
+        await pool.query(
+          `UPDATE property_configurations 
+           SET bhk_type = $3, bedrooms = $4, bathrooms = $5, 
+               super_built_up_area = $6, carpet_area = $7, balconies = $8
+           WHERE id = $1 AND property_id = $2`,
+          [
+            config.id,
+            propertyId,
+            config.bhk_type,
+            config.bedrooms,
+            config.bathrooms,
+            config.super_built_up_area,
+            config.carpet_area,
+            config.balconies,
+          ]
+        );
+
+        // If there's a new file for existing configuration, update it
+        if (config.file) {
+          const fileMeta = configFileMeta.find(
+            (meta) => meta.bhk_type === config.bhk_type
+          );
+          const configFile = configFiles.find(
+            (file) => file.originalname === fileMeta?.originalName
+          );
+
+          if (configFile) {
+            await pool.query(
+              `UPDATE property_configurations SET file_url = $3, file_name = $4 
+               WHERE id = $1 AND property_id = $2`,
+              [config.id, propertyId, configFile.path, configFile.originalname]
+            );
+          }
+        }
+      } else {
+        // Insert new configuration
+        const fileMeta = configFileMeta.find(
+          (meta) => meta.bhk_type === config.bhk_type
+        );
+        const configFile = configFiles.find(
+          (file) => file.originalname === fileMeta?.originalName
+        );
+
+        await pool.query(
+          `INSERT INTO property_configurations 
+           (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, file_url, file_name) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [
+            propertyId,
+            config.bhk_type,
+            config.bedrooms,
+            config.bathrooms,
+            config.super_built_up_area,
+            config.carpet_area,
+            config.balconies,
+            configFile?.path || null,
+            configFile?.originalname || null,
+          ]
+        );
+      }
+    }
+
+    return { success: true, message: "Configurations updated successfully" };
+  } catch (err) {
+    console.error("Error updating configurations:", err);
+    throw err;
+  }
+}
+
+// Update the main updatePropertyById function
 export async function updatePropertyById(id, data) {
   try {
     const {
@@ -501,7 +594,7 @@ export async function updatePropertyById(id, data) {
       nearest_to,
       amenities,
       keyfeature,
-      bhk_configurations,
+      // Remove bhk_configurations from here since we handle it separately
     } = data;
 
     // 1. Update basic property info
@@ -594,29 +687,9 @@ export async function updatePropertyById(id, data) {
         );
       }
     }
-    // 7. Update configurations
-    if (Array.isArray(bhk_configurations)) {
-      await pool.query(
-        `DELETE FROM property_configurations WHERE property_id = $1`,
-        [id]
-      );
-      for (const config of bhk_configurations) {
-        await pool.query(
-          `INSERT INTO property_configurations (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, file_name) 
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [
-            id,
-            config.bhk_type,
-            config.bedrooms,
-            config.bathrooms,
-            config.super_built_up_area,
-            config.carpet_area,
-            config.balconies,
-            config.file_name,
-          ]
-        );
-      }
-    }
+
+    // Note: Configurations are now handled separately in updateConfigurations function
+
     return { success: true, message: "Property updated successfully" };
   } catch (err) {
     console.error("Error updating property:", err);

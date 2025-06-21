@@ -1,191 +1,331 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { X, Upload, Edit, Trash } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from "react";
+import { X, Upload, Edit, Trash } from "lucide-react";
 
-const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] }) => {
+const PropertyConfiguration = ({
+  onAddConfiguration,
+  initialConfigurations = [],
+}) => {
   const [showForm, setShowForm] = useState(false);
-  const [selectedBHK, setSelectedBHK] = useState('');
+  const [selectedBHK, setSelectedBHK] = useState("");
   const [configurations, setConfigurations] = useState([]);
   const [currentConfiguration, setCurrentConfiguration] = useState({
-    bhk_type: '',
-    bedrooms: '',
-    bathrooms: '',
-    super_built_up_area: '',
-    carpet_area: '',
-    balconies: '',
+    bhk_type: "",
+    bedrooms: "",
+    bathrooms: "",
+    super_built_up_area: "",
+    carpet_area: "",
+    balconies: "",
     file: null,
-    file_name: '',
+    file_name: "",
+    id: null, // Add ID for existing configurations
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-  const bhkOptions = ['1BHK', '2BHK', '3BHK', '4BHK', '5BHK', '6BHK', '7BHK', '8BHK', '9BHK', '10BHK'];
+  const bhkOptions = [
+    "1BHK",
+    "2BHK",
+    "3BHK",
+    "4BHK",
+    "5BHK",
+    "6BHK",
+    "7BHK",
+    "8BHK",
+    "9BHK",
+    "10BHK",
+  ];
 
   // Initialize configurations from props when component mounts or initialConfigurations change
   useEffect(() => {
-    console.log('hritesh')
+    console.log("Initializing configurations:", initialConfigurations);
     if (initialConfigurations && initialConfigurations.length > 0) {
-       console.log("Received BHK configurations from parent:", initialConfigurations);
-      setConfigurations(initialConfigurations);
+      // Map existing configurations to include proper structure
+      const mappedConfigurations = initialConfigurations.map(
+        (config, index) => ({
+          ...config,
+          id: config.id || `existing_${index}`, // Ensure each config has an ID
+          isExisting: true, // Flag to identify existing configurations
+        })
+      );
+      setConfigurations(mappedConfigurations);
     }
   }, [initialConfigurations]);
 
   // Use useCallback to memoize event handlers
   const handleBHKSelect = useCallback((bhk) => {
     setSelectedBHK(bhk);
-    setCurrentConfiguration(prev => ({
+    setCurrentConfiguration((prev) => ({
       ...prev,
       bhk_type: bhk,
-      bedrooms: bhk.charAt(0)
+      bedrooms: bhk.charAt(0),
+      id: null,
+      isExisting: false,
     }));
     setShowForm(true);
   }, []);
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setCurrentConfiguration(prev => ({ ...prev, [name]: value }));
+    setCurrentConfiguration((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleFileChange = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
-      setCurrentConfiguration(prev => ({ 
-        ...prev, 
+      setCurrentConfiguration((prev) => ({
+        ...prev,
         file,
-        file_name: file.name 
+        file_name: file.name,
       }));
     }
   }, []);
 
   const handleRemoveFile = useCallback(() => {
-    setCurrentConfiguration(prev => ({ 
-      ...prev, 
+    setCurrentConfiguration((prev) => ({
+      ...prev,
       file: null,
-      file_name: '' 
+      file_name: "",
     }));
   }, []);
 
-  const handleEditConfiguration = useCallback((index) => {
-    const configToEdit = configurations[index];
-    setCurrentConfiguration(configToEdit);
-    setSelectedBHK(configToEdit.bhk_type);
-    setShowForm(true);
-    setIsEditing(true);
-    setEditIndex(index);
-  }, [configurations]);
+  const handleEditConfiguration = useCallback(
+    (index) => {
+      const configToEdit = configurations[index];
+      setCurrentConfiguration({
+        ...configToEdit,
+        // Don't include the file for existing configurations
+        file: configToEdit.isExisting ? null : configToEdit.file,
+      });
+      setSelectedBHK(configToEdit.bhk_type);
+      setShowForm(true);
+      setIsEditing(true);
+      setEditIndex(index);
+    },
+    [configurations]
+  );
 
-  const handleDeleteConfiguration = useCallback((index) => {
-    const updatedConfigurations = [...configurations];
-    updatedConfigurations.splice(index, 1);
-    setConfigurations(updatedConfigurations);
-    
-    if (onAddConfiguration && typeof onAddConfiguration === 'function') {
-      try {
-        // Call onAddConfiguration but prevent any navigation side effects
-        onAddConfiguration(updatedConfigurations);
-      } catch (error) {
-        console.error("Error in onAddConfiguration:", error);
-      }
-    }
-  }, [configurations, onAddConfiguration]);
+  const handleDeleteConfiguration = useCallback(
+    (index) => {
+      const configToDelete = configurations[index];
+      const updatedConfigurations = configurations.filter(
+        (_, i) => i !== index
+      );
+      setConfigurations(updatedConfigurations);
 
-  const handleFormSubmit = useCallback((e) => {
-    // Prevent ALL default form behaviors
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Stop further event handling
-      if (e.nativeEvent) {
-        e.nativeEvent.stopImmediatePropagation();
-        e.nativeEvent.preventDefault();
-      }
-    }
+      // Prepare data for parent component with deletion info
+      const configData = {
+        configurations: updatedConfigurations,
+        deletedConfigIds: configToDelete.isExisting ? [configToDelete.id] : [],
+      };
 
-    let updatedConfigurations;
-
-    if (isEditing && editIndex !== null) {
-      updatedConfigurations = [...configurations];
-      updatedConfigurations[editIndex] = currentConfiguration;
-    } else {
-      updatedConfigurations = [...configurations, currentConfiguration];
-    }
-
-    // Update local state first
-    setConfigurations(updatedConfigurations);
-
-    // Reset form state
-    setCurrentConfiguration({
-      bhk_type: '',
-      bedrooms: '',
-      bathrooms: '',
-      super_built_up_area: '',
-      carpet_area: '',
-      balconies: '',
-      file: null,
-      file_name: ''
-    });
-    setSelectedBHK('');
-    setShowForm(false);
-    setIsEditing(false);
-    setEditIndex(null);
-
-    // Call the callback AFTER state updates and with a small delay
-    // This helps prevent the parent from redirecting before local state is updated
-    if (onAddConfiguration && typeof onAddConfiguration === 'function') {
-      setTimeout(() => {
+      if (onAddConfiguration && typeof onAddConfiguration === "function") {
         try {
-          onAddConfiguration(updatedConfigurations);
+          onAddConfiguration(configData);
         } catch (error) {
           console.error("Error in onAddConfiguration:", error);
         }
-      }, 10);
-    }
+      }
+    },
+    [configurations, onAddConfiguration]
+  );
 
-    return false;
-  }, [configurations, currentConfiguration, editIndex, isEditing, onAddConfiguration]);
+  const handleFormSubmit = useCallback(
+    (e) => {
+      // Prevent ALL default form behaviors
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (e.nativeEvent) {
+          e.nativeEvent.stopImmediatePropagation();
+          e.nativeEvent.preventDefault();
+        }
+      }
+
+      // Validate required fields
+      if (
+        !currentConfiguration.bhk_type ||
+        !currentConfiguration.bedrooms ||
+        !currentConfiguration.bathrooms ||
+        !currentConfiguration.super_built_up_area ||
+        !currentConfiguration.carpet_area ||
+        currentConfiguration.balconies === ""
+      ) {
+        alert("Please fill in all required fields");
+        return false;
+      }
+
+      // For new configurations, file is required
+      if (!isEditing && !currentConfiguration.file) {
+        alert("Please upload a floorplan file for new configurations");
+        return false;
+      }
+
+      let updatedConfigurations;
+      let configToSave = { ...currentConfiguration };
+
+      if (isEditing && editIndex !== null) {
+        // For editing existing configurations
+        updatedConfigurations = [...configurations];
+        updatedConfigurations[editIndex] = configToSave;
+      } else {
+        // For new configurations
+        configToSave.id = `new_${Date.now()}`;
+        configToSave.isExisting = false;
+        updatedConfigurations = [...configurations, configToSave];
+      }
+
+      // Update local state first
+      setConfigurations(updatedConfigurations);
+
+      // Reset form state
+      setCurrentConfiguration({
+        bhk_type: "",
+        bedrooms: "",
+        bathrooms: "",
+        super_built_up_area: "",
+        carpet_area: "",
+        balconies: "",
+        file: null,
+        file_name: "",
+        id: null,
+      });
+      setSelectedBHK("");
+      setShowForm(false);
+      setIsEditing(false);
+      setEditIndex(null);
+
+      // Call the callback with updated configurations
+      if (onAddConfiguration && typeof onAddConfiguration === "function") {
+        setTimeout(() => {
+          try {
+            const configData = {
+              configurations: updatedConfigurations,
+              deletedConfigIds: [],
+            };
+            onAddConfiguration(configData);
+          } catch (error) {
+            console.error("Error in onAddConfiguration:", error);
+          }
+        }, 10);
+      }
+
+      return false;
+    },
+    [
+      configurations,
+      currentConfiguration,
+      editIndex,
+      isEditing,
+      onAddConfiguration,
+    ]
+  );
 
   const handleFormCancel = useCallback((e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     setShowForm(false);
-    setSelectedBHK('');
+    setSelectedBHK("");
     setCurrentConfiguration({
-      bhk_type: '',
-      bedrooms: '',
-      bathrooms: '',
-      super_built_up_area: '',
-      carpet_area: '',
-      balconies: '',
+      bhk_type: "",
+      bedrooms: "",
+      bathrooms: "",
+      super_built_up_area: "",
+      carpet_area: "",
+      balconies: "",
       file: null,
-      file_name: ''
+      file_name: "",
+      id: null,
     });
     setIsEditing(false);
     setEditIndex(null);
   }, []);
 
   const handleModalClick = useCallback((e) => {
-    // Prevent clicks within the modal from propagating to elements below
     e.stopPropagation();
   }, []);
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-white rounded-lg shadow-md p-6">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Property Configurations</h3>
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">
+          Property Configurations
+        </h3>
+
+        {/* Display existing configurations */}
+        {configurations.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-lg font-medium text-gray-700 mb-3">
+              Current Configurations
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {configurations.map((config, index) => (
+                <div
+                  key={config.id || index}
+                  className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h5 className="font-semibold text-gray-800">
+                      {config.bhk_type}
+                    </h5>
+                    <div className="flex space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => handleEditConfiguration(index)}
+                        className="text-blue-600 hover:text-blue-800"
+                        title="Edit configuration"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteConfiguration(index)}
+                        className="text-red-600 hover:text-red-800"
+                        title="Delete configuration"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>Bedrooms: {config.bedrooms}</p>
+                    <p>Bathrooms: {config.bathrooms}</p>
+                    <p>Super Built-up: {config.super_built_up_area} sq ft</p>
+                    <p>Carpet Area: {config.carpet_area} sq ft</p>
+                    <p>Balconies: {config.balconies}</p>
+                    {config.file_name && (
+                      <p className="text-blue-600">📎 {config.file_name}</p>
+                    )}
+                    {config.isExisting && (
+                      <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                        Existing
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Select BHK</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Add New Configuration
+          </label>
           <div className="flex flex-wrap gap-2">
             {bhkOptions.map((bhk) => (
               <button
                 key={bhk}
                 type="button"
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors 
-                  ${selectedBHK === bhk 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  ${
+                    selectedBHK === bhk
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleBHKSelect(bhk);
@@ -199,29 +339,34 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
       </div>
 
       {showForm && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={handleFormCancel} // Close when clicking the overlay
+          onClick={handleFormCancel}
         >
-          <div 
+          <div
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-            onClick={handleModalClick} // Prevent overlay click from closing when clicking on modal
+            onClick={handleModalClick}
           >
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-lg font-semibold text-gray-800">{selectedBHK} Configuration</h4>
-              <button 
+              <h4 className="text-lg font-semibold text-gray-800">
+                {isEditing
+                  ? `Edit ${selectedBHK} Configuration`
+                  : `Add ${selectedBHK} Configuration`}
+              </h4>
+              <button
                 type="button"
-                onClick={handleFormCancel} 
+                onClick={handleFormCancel}
                 className="text-gray-500 hover:text-gray-700"
               >
                 <X size={20} />
               </button>
             </div>
-            
-            {/* Use div with onSubmit instead of form element to avoid native form behavior */}
-            <div onSubmit={handleFormSubmit} className="space-y-4">
+
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bedrooms *
+                </label>
                 <div className="flex flex-wrap gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                     <label key={`bedroom-${num}`} className="flex items-center">
@@ -229,7 +374,9 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
                         type="radio"
                         name="bedrooms"
                         value={num}
-                        checked={parseInt(currentConfiguration.bedrooms) === num}
+                        checked={
+                          parseInt(currentConfiguration.bedrooms) === num
+                        }
                         onChange={handleInputChange}
                         required
                         className="mr-1"
@@ -241,15 +388,22 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bathrooms *
+                </label>
                 <div className="flex flex-wrap gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                    <label key={`bathroom-${num}`} className="flex items-center">
+                    <label
+                      key={`bathroom-${num}`}
+                      className="flex items-center"
+                    >
                       <input
                         type="radio"
                         name="bathrooms"
                         value={num}
-                        checked={parseInt(currentConfiguration.bathrooms) === num}
+                        checked={
+                          parseInt(currentConfiguration.bathrooms) === num
+                        }
                         onChange={handleInputChange}
                         required
                         className="mr-1"
@@ -262,8 +416,11 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="super_built_up_area" className="block text-sm font-medium text-gray-700 mb-1">
-                    Super Built-up Area (sq ft)
+                  <label
+                    htmlFor="super_built_up_area"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Super Built-up Area (sq ft) *
                   </label>
                   <input
                     type="number"
@@ -277,8 +434,11 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
                 </div>
 
                 <div>
-                  <label htmlFor="carpet_area" className="block text-sm font-medium text-gray-700 mb-1">
-                    Carpet Area (sq ft)
+                  <label
+                    htmlFor="carpet_area"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Carpet Area (sq ft) *
                   </label>
                   <input
                     type="number"
@@ -293,15 +453,22 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Balconies</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Balconies *
+                </label>
                 <div className="flex flex-wrap gap-3">
                   {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                    <label key={`balconies-${num}`} className="flex items-center">
+                    <label
+                      key={`balconies-${num}`}
+                      className="flex items-center"
+                    >
                       <input
                         type="radio"
                         name="balconies"
                         value={num}
-                        checked={parseInt(currentConfiguration.balconies) === num}
+                        checked={
+                          parseInt(currentConfiguration.balconies) === num
+                        }
                         onChange={handleInputChange}
                         required
                         className="mr-1"
@@ -314,10 +481,25 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Floorplan Upload (PDF/JPG/PNG)
+                  Floorplan Upload (PDF/JPG/PNG) {!isEditing && "*"}
                 </label>
-                
-                {!currentConfiguration.file && !currentConfiguration.file_name ? (
+
+                {isEditing &&
+                  currentConfiguration.isExisting &&
+                  !currentConfiguration.file && (
+                    <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm text-blue-700">
+                        Current file:{" "}
+                        {currentConfiguration.file_name || "Existing floorplan"}
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        Upload a new file to replace the existing one (optional)
+                      </p>
+                    </div>
+                  )}
+
+                {!currentConfiguration.file &&
+                !currentConfiguration.file_name ? (
                   <div className="relative">
                     <input
                       type="file"
@@ -374,108 +556,17 @@ const PropertyConfiguration = ({ onAddConfiguration, initialConfigurations = [] 
                   Cancel
                 </button>
                 <button
-                  type="button" // Changed from 'submit' to 'button'
+                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
                     handleFormSubmit(e);
                   }}
                   className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700"
                 >
-                  {isEditing ? 'Update Configuration' : 'Add Configuration'}
+                  {isEditing ? "Update Configuration" : "Add Configuration"}
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {configurations.length > 0 && (
-        <div className="mt-8">
-          <h4 className="text-lg font-semibold text-gray-800 mb-3">Added Configurations</h4>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    BHK Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Bedrooms
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Bathrooms
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Super Built-up Area
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Carpet Area
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Balconies
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Floorplan
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {configurations.map((config, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.bhk_type}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.bedrooms}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.bathrooms}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.super_built_up_area} sq ft
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.carpet_area} sq ft
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.balconies}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {config.file_name || 'No file'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleEditConfiguration(index);
-                          }} 
-                          className="text-blue-600 hover:text-blue-800"
-                          type="button"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleDeleteConfiguration(index);
-                          }} 
-                          className="text-red-600 hover:text-red-800"
-                          type="button"
-                        >
-                          <Trash size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       )}

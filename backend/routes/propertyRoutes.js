@@ -13,6 +13,7 @@ import {
   insertKeyfeature,
   updateImages,
   updateDocuments,
+  updateConfigurations,
 } from "../services/propertyService.js";
 import {
   searchProperty,
@@ -246,11 +247,18 @@ router.patch(
   upload.fields([
     { name: "images", maxCount: 8 },
     { name: "documents", maxCount: 10 },
+    { name: "configFiles", maxCount: 20 }, // Add this for configuration files
   ]),
   async (req, res) => {
     const propertyId = req.params.id;
-    const { data, existingImages, existingDocumentIds, documentMetadata } =
-      req.body;
+    const {
+      data,
+      existingImages,
+      existingDocumentIds,
+      documentMetadata,
+      configFileMeta,
+      deletedConfigIds,
+    } = req.body;
 
     if (!propertyId)
       return res.status(400).json({ error: "Property ID is required" });
@@ -261,12 +269,13 @@ router.patch(
       const existingImagesParsed = JSON.parse(existingImages || "[]");
       const existingDocumentIdsParsed = JSON.parse(existingDocumentIds || "[]");
       const documentMetadataParsed = JSON.parse(documentMetadata || "[]");
+      const configFileMetaParsed = JSON.parse(configFileMeta || "[]");
+      const deletedConfigIdsParsed = JSON.parse(deletedConfigIds || "[]");
 
-      // updDATE PROPERY FIRST
+      // UPDATE PROPERTY FIRST
       await updatePropertyById(propertyId, parsedData);
 
       // UPDATE IMAGES
-
       const hasPrimaryImage = existingImagesParsed.some(
         (img) => img.is_primary
       );
@@ -279,7 +288,7 @@ router.patch(
       const existingImageIds = existingImagesParsed.map((img) => img.id);
       await updateImages(propertyId, newImages, existingImageIds);
 
-      // UPDATe DOCUMENTS
+      // UPDATE DOCUMENTS
       const newDocuments = (req.files?.documents || []).map((file) => {
         const meta = documentMetadataParsed.find(
           (m) => m.filename === file.originalname
@@ -295,6 +304,16 @@ router.patch(
         existingDocumentIdsParsed
       );
 
+      // UPDATE CONFIGURATIONS
+      const configFiles = req.files?.configFiles || [];
+      await updateConfigurations(
+        propertyId,
+        parsedData.configurations || [],
+        configFileMetaParsed,
+        configFiles,
+        deletedConfigIdsParsed
+      );
+
       propertyCache.del("allProperties");
 
       res.json({ success: true, message: "Property updated successfully" });
@@ -308,7 +327,6 @@ router.patch(
     }
   }
 );
-
 // Delete property by ID
 router.delete("/property/:id", async (req, res) => {
   try {
