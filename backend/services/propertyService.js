@@ -1096,7 +1096,7 @@ export async function sendNewPropertyEmails(property_id) {
     const imageUrl = primaryImage.rows[0]?.image_url || "";
     const subcategoryName = subcategory.rows[0]?.name || "Residential Houses";
     const contactNumber = "+91-7077571010";
-    const instaLink = "https://instagram.com/example";
+    const instaLink = "https://www.instagram.com/sand2sky/";
     const fbLink =
       "https://www.facebook.com/people/Sand2skycom/61574525036300/";
     const twitterLink = "https://twitter.com/example";
