@@ -1100,7 +1100,7 @@ export async function sendNewPropertyEmails(property_id) {
     const fbLink =
       "https://www.facebook.com/people/Sand2skycom/61574525036300/";
     const twitterLink = "https://twitter.com/example";
-    const landingPageUrl = `https://sand2skyfrontendfile.vercel.app/details/${property_id}`; // Replace with your actual landing page URL
+    const landingPageUrl = `${process.env.WEB_URL}/details/${property_id}`; // Replace with your actual landing page URL
 
     for (let inquiry of inquiries.rows) {
       const html = `

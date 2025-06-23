@@ -16,6 +16,7 @@ const allowedOrigins = [
   "https://sand2skyfrontendfile.vercel.app",
   "https://realestate-demo-eta.vercel.app",
   "https://realestate-admindemo.vercel.app",
+  "http://",
 ];
 
 app.use(
