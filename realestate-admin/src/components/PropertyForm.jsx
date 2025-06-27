@@ -598,6 +598,7 @@ const PropertyForm = ({ editData, onClose }) => {
         .filter((config) => config.file && !config.isExisting)
         .map((config) => ({
           filename: config.file.name,
+          file_name: config.file.name,
           bhk_type: config.bhk_type,
           originalName: config.file.name,
         }));
@@ -1173,7 +1174,7 @@ const PropertyForm = ({ editData, onClose }) => {
               <div className="form-group">
                 <label>Total Floors</label>
                 <input
-                  type="number"
+                  type="text"
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
@@ -1427,6 +1428,29 @@ const PropertyForm = ({ editData, onClose }) => {
             </section>
             <div className="form-row">
               <div className="form-group">
+                <label>Other rooms</label>
+                <div className="flex flex-row flex-wrap gap-4">
+                  {" "}
+                  {/* Changed to flex-row with flex-wrap and increased gap */}
+                  {otherroomsOptions.map((option) => (
+                    <label key={option} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        value={option}
+                        className="mr-1"
+                        checked={details.other_rooms?.includes(option)}
+                        onChange={(e) =>
+                          handleOtherroomsChange(option, e.target.checked)
+                        }
+                      />
+                      {option}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
                 <label>Facing</label>
                 <div className="grid grid-cols-2 gap-2">
                   {facingOptions.map((option) => (
@@ -1450,7 +1474,7 @@ const PropertyForm = ({ editData, onClose }) => {
               <div className="form-group">
                 <label>Total Floors</label>
                 <input
-                  type="number"
+                  type="text"
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
@@ -1702,7 +1726,7 @@ const PropertyForm = ({ editData, onClose }) => {
               <div className="form-group">
                 <label>Total Floors</label>
                 <input
-                  type="number"
+                  type="text"
                   name="total_floors"
                   value={details.total_floors || ""}
                   onChange={handleDetailsChange}
@@ -2780,9 +2804,7 @@ const PropertyForm = ({ editData, onClose }) => {
               />
               <div className="upload-placeholder">
                 <span>Drop documents here or click to upload</span>
-                <small>
-                  Accepted: PDF, DOCX, JPG, PNG, MP4 (max 10 MB each)
-                </small>
+                <small>Accepted: PDF, JPG, PNG (max 10 MB each)</small>
               </div>
             </label>
 
@@ -2808,10 +2830,10 @@ const PropertyForm = ({ editData, onClose }) => {
                   onChange={(e) => updateDocumentType(idx, e.target.value)}
                 >
                   <option value="brochure">Brochure</option>
-                  <option value="floorplan">Floor Plan</option>
+                  <option value="Floorplan">Floor Plan</option>
                   <option value="Masterplan">Master Plan</option>
                   <option value="Approval">Approval</option>
-                  <option value="rerecirtificate">RERA Certificate</option>
+                  <option value="Reracertificate">RERA Certificate</option>
                 </select>
                 <button
                   type="button"

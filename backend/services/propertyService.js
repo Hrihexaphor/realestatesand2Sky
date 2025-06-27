@@ -1,16 +1,8 @@
 import pool from "../config/db.js";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import transporter from "../utils/emailTransporter.js";
 dotenv.config();
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT, 10),
-  secure: false, // STARTTLS (Brevo) - don't use SSL here
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 /**
  * Insert a new property into the database
  * @param {Object} property - The property basic information
@@ -144,9 +136,9 @@ export async function insertPropertyConfigurations(
         `
         INSERT INTO property_configurations (
           property_id, bhk_type, bedrooms, bathrooms, 
-          super_built_up_area, carpet_area, balconies, file_url
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          super_built_up_area, carpet_area, balconies, 
+          file_name, file_url
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       `,
         [
           property_id,
@@ -156,6 +148,7 @@ export async function insertPropertyConfigurations(
           config.super_built_up_area,
           config.carpet_area,
           config.balconies,
+          config.file_name || null,
           config.file_url || null, // Optional: pass null if not provided
         ]
       );
@@ -1075,22 +1068,27 @@ export const getReadyToMoveProperties = async () => {
 
 export async function sendNewPropertyEmails(property_id) {
   try {
-    const [property, primaryImage, subcategory, inquiries] = await Promise.all([
-      pool.query(`SELECT title, subcategory_id FROM property WHERE id = $1`, [
-        property_id,
-      ]),
-      pool.query(
-        `SELECT image_url FROM property_images WHERE property_id = $1 AND is_primary = true LIMIT 1`,
-        [property_id]
-      ),
-      pool.query(
-        `SELECT name FROM property_subcategory WHERE id = (
+    const [property, primaryImage, subcategory, inquiries, project] =
+      await Promise.all([
+        pool.query(`SELECT title, subcategory_id FROM property WHERE id = $1`, [
+          property_id,
+        ]),
+        pool.query(
+          `SELECT image_url FROM property_images WHERE property_id = $1 AND is_primary = true LIMIT 1`,
+          [property_id]
+        ),
+        pool.query(
+          `SELECT name FROM property_subcategory WHERE id = (
         SELECT subcategory_id FROM property WHERE id = $1
       )`,
-        [property_id]
-      ),
-      pool.query(`SELECT DISTINCT name, email FROM property_inquiries`),
-    ]);
+          [property_id]
+        ),
+        pool.query(`SELECT DISTINCT name, email FROM property_inquiries`),
+        pool.query(
+          `SELECT project_name FROM property_details WHERE property_id = $1`,
+          [property_id]
+        ),
+      ]);
 
     const title = property.rows[0]?.title;
     const imageUrl = primaryImage.rows[0]?.image_url || "";
@@ -1100,7 +1098,11 @@ export async function sendNewPropertyEmails(property_id) {
     const fbLink =
       "https://www.facebook.com/people/Sand2skycom/61574525036300/";
     const twitterLink = "https://twitter.com/example";
-    const landingPageUrl = `${process.env.WEB_URL}/details/${property_id}`; // Replace with your actual landing page URL
+    const projectName = project.rows[0]?.project_name || "";
+    const formattedProjectName = encodeURIComponent(
+      projectName.toLowerCase().replace(/\s+/g, "-")
+    );
+    const landingPageUrl = `${process.env.WEB_URL}/details/${property_id}/${formattedProjectName}`; // Replace with your actual landing page URL
 
     for (let inquiry of inquiries.rows) {
       const html = `
@@ -1173,31 +1175,78 @@ export async function sendNewPropertyEmails(property_id) {
               </table>
               
               <!-- Social Links -->
-              <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto 0 auto;">
-                <tr>
-                  <td style="padding: 0 7px;">
-                    <a href="${fbLink}" style="display: block; width: 45px; height: 45px; border-radius: 50%; background-color: #3b5998; text-align: center; text-decoration: none;" target="_blank">
-                      <span style="color: #ffffff; font-weight: bold; font-size: 18px; line-height: 45px; font-family: Arial, sans-serif;">
-                        <i class="fa-brands fa-facebook-f"></i>
-                      </span>
-                    </a>
-                  </td>
-                  <td style="padding: 0 7px;">
-                    <a href="${instaLink}" style="display: block; width: 45px; height: 45px; border-radius: 50%; background-color: #e6683c; text-align: center; text-decoration: none;" target="_blank">
-                      <span style="color: #ffffff; font-weight: bold; font-size: 18px; line-height: 45px; font-family: Arial, sans-serif;">
-                        <i class="fa-brands fa-instagram"></i>
-                      </span>
-                    </a>
-                  </td>
-                  <td style="padding: 0 7px;">
-                    <a href="${twitterLink}" style="display: block; width: 45px; height: 45px; border-radius: 50%; background-color: #1da1f2; text-align: center; text-decoration: none;" target="_blank">
-                      <span style="color: #ffffff; font-weight: bold; font-size: 18px; line-height: 45px; font-family: Arial, sans-serif;">
-                        <i class="fa-brands fa-twitter"></i>
-                      </span>
-                    </a>
-                  </td>
-                </tr>
-              </table>
+              <table
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="margin: 20px auto 0 auto"
+                >
+                  <tr>
+                    <td style="padding: 0 7px">
+                      <a
+                        href="${fbLink}"
+                        style="
+                          display: block;
+                          width: 45px;
+                          height: 45px;
+                          border-radius: 50%;
+                          background-color: #3b5998;
+                          text-align: center;
+                          text-decoration: none;
+                        "
+                        target="_blank"
+                      >
+                        <img
+                          src="https://res.cloudinary.com/djqpz99jb/image/upload/v1750833356/Facebook_pklvqa.png"
+                          alt="Facebook"
+                          style="width: 22px; height: 22px; margin-top: 11px"
+                        />
+                      </a>
+                    </td>
+                    <td style="padding: 0 7px">
+                      <a
+                        href="${instaLink}"
+                        style="
+                          display: block;
+                          width: 45px;
+                          height: 45px;
+                          border-radius: 50%;
+                          background-color: #e6683c;
+                          text-align: center;
+                          text-decoration: none;
+                        "
+                        target="_blank"
+                      >
+                        <img
+                          src="https://res.cloudinary.com/djqpz99jb/image/upload/v1750833442/Instagram_Circle_p25d3v.png"
+                          alt="Instawgram"
+                          style="width: 22px; height: 22px; margin-top: 11px"
+                        />
+                      </a>
+                    </td>
+                    <td style="padding: 0 7px">
+                      <a
+                        href="${twitterLink}"
+                        style="
+                          display: block;
+                          width: 45px;
+                          height: 45px;
+                          border-radius: 50%;
+                          background-color: #1da1f2;
+                          text-align: center;
+                          text-decoration: none;
+                        "
+                        target="_blank"
+                      >
+                        <img
+                          src="https://res.cloudinary.com/djqpz99jb/image/upload/v1750833499/X_tcc86h.png"
+                          alt="Twitter"
+                          style="width: 22px; height: 22px; margin-top: 11px"
+                        />
+                      </a>
+                    </td>
+                  </tr>
+                </table>
               
             </td>
           </tr>

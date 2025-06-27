@@ -148,17 +148,23 @@ router.post(
           const meta = configFileMeta.find(
             (m) => m.bhk_type === config.bhk_type
           );
-
+          if (!meta && configFileMeta[index]) {
+            meta = configFileMeta[index]; // Fallback to index-based matching
+          }
           if (meta && meta.file_name) {
             // Find the uploaded file matching this metadata
-            const uploadedFile = configFiles.find(
-              (f) => f.originalname === meta.file_name
-            );
+            const uploadedFile =
+              configFiles.find(
+                (f) =>
+                  f.originalname === meta.filename ||
+                  f.originalname === meta.file_name
+              ) || configFiles[index];
 
             if (uploadedFile) {
               // Add the file URL to the configuration
               return {
                 ...config,
+                file_name: uploadedFile.originalname,
                 file_url: uploadedFile.path, // This should be the Cloudinary URL
               };
             }

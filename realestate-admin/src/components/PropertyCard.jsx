@@ -22,7 +22,7 @@ export default function PropertyCard({
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
-
+  const webUrl = import.meta.env.VITE_WEB_URL;
   // Filter properties based on search
   const filteredProperties = properties.filter(
     (property) =>
@@ -233,14 +233,17 @@ export default function PropertyCard({
                             <FaEye size={12} />
                           </button> */}
                           <button
-                            onClick={() =>
-                              window.open(
-                                `https://sand2skyfrontendfile.vercel.app/details/${
-                                  property.property_id || property.id
-                                }`,
-                                "_blank"
-                              )
-                            }
+                            onClick={() => {
+                              const projectName = property.project_name || "";
+                              const formattedName = encodeURIComponent(
+                                projectName.toLowerCase().replace(/\s+/g, "-")
+                              );
+                              const propertyId =
+                                property.property_id || property.id;
+                              const detailsUrl = `${webUrl}/details/${propertyId}/${formattedName}`;
+
+                              window.open(detailsUrl, "_blank");
+                            }}
                             className="p-2 text-green-600 bg-green-100 rounded-full hover:bg-green-200 transition-all"
                             title="View details"
                           >
