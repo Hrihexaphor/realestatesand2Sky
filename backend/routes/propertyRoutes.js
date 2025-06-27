@@ -146,7 +146,7 @@ router.post(
         const processedConfigurations = configurations.map((config) => {
           // Find metadata for this configuration by bhk_type
           const meta = configFileMeta.find(
-            (m) => m.bhk_type === config.bhk_type
+            (m) => m.file_name === config.file_name
           );
           if (!meta && configFileMeta[index]) {
             meta = configFileMeta[index]; // Fallback to index-based matching
@@ -312,6 +312,7 @@ router.patch(
 
       // UPDATE CONFIGURATIONS
       const configFiles = req.files?.configFiles || [];
+      console.log("Property updated successfully", configFiles);
       await updateConfigurations(
         propertyId,
         parsedData.configurations || [],
@@ -319,6 +320,8 @@ router.patch(
         configFiles,
         deletedConfigIdsParsed
       );
+
+
 
       propertyCache.del("allProperties");
 
@@ -345,6 +348,7 @@ router.delete("/property/:id", async (req, res) => {
     const success = await deletePropertyById(propertyId);
 
     if (success) {
+      propertyCache.del("allProperties");
       res.status(200).json({ message: "Property deleted successfully" });
     } else {
       res.status(404).json({ error: "Property not found" });
