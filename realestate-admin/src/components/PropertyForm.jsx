@@ -1255,7 +1255,7 @@ const PropertyForm = ({ editData, onClose }) => {
               </div>
             </div>
             <div className="form-row">
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label>Plot Area</label>
                 <input
                   type="number"
@@ -1265,7 +1265,7 @@ const PropertyForm = ({ editData, onClose }) => {
                   required
                   min="0"
                 />
-              </div>
+              </div> */}
               <div className="form-group">
                 <label
                   htmlFor="available-from"
@@ -1277,12 +1277,17 @@ const PropertyForm = ({ editData, onClose }) => {
                   type="date"
                   id="available-from"
                   name="available_from"
-                  value={details.available_from || ""}
+                  value={
+                    details.available_from
+                      ? details.available_from.slice(0, 10)
+                      : ""
+                  }
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
                   required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              <div className="form-group"></div>
               {/* <div className="form-group">
                 <label>is this a corner Plot</label>
                 <div
@@ -2248,7 +2253,11 @@ const PropertyForm = ({ editData, onClose }) => {
                   type="date"
                   id="available-from"
                   name="available_from"
-                  value={details.available_from || ""}
+                  value={
+                    details.available_from
+                      ? details.available_from.slice(0, 10)
+                      : ""
+                  }
                   onChange={handleDetailsChange} // Changed to handleBasicChange if that's what other basic fields use
                   required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -2430,18 +2439,18 @@ const PropertyForm = ({ editData, onClose }) => {
                 New Project
               </label>
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-600">No</span>
+                <span className="text-sm text-gray-600">Yes</span>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     className="sr-only peer"
                     name="property_status"
-                    checked={details.property_status === "active"}
+                    checked={details.property_status === "inactive"}
                     onChange={(e) =>
                       handleDetailsChange({
                         target: {
                           name: "property_status",
-                          value: e.target.checked ? "active" : "inactive",
+                          value: e.target.checked ? "inactive" : "active",
                         },
                       })
                     }
@@ -2449,7 +2458,7 @@ const PropertyForm = ({ editData, onClose }) => {
                   <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 transition-all duration-300"></div>
                   <span className="absolute left-1 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-full"></span>
                 </label>
-                <span className="text-sm text-gray-600">Yes</span>
+                <span className="text-sm text-gray-600">No</span>
               </div>
             </div>
           </div>
@@ -2502,13 +2511,20 @@ const PropertyForm = ({ editData, onClose }) => {
                 value={basic.developer_id}
                 onChange={handleBasicChange}
                 required
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                }}
+                className="scrollable-select"
               >
                 <option value="">Select Developer</option>
-                {developers.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.company_name}
-                  </option>
-                ))}
+                {developers
+                  .sort((a, b) => a.company_name.localeCompare(b.company_name))
+                  .map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.company_name}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -2804,7 +2820,8 @@ const PropertyForm = ({ editData, onClose }) => {
               />
               <div className="upload-placeholder">
                 <span>Drop documents here or click to upload</span>
-                <small>Accepted: PDF, JPG, PNG (max 10 MB each)</small>
+                <small>Accepted: JPG, PNG (max 10 MB each)</small>
+                <small>only Brocher Accepted: PDf (max 10 MB each)</small>
               </div>
             </label>
 
@@ -2870,7 +2887,7 @@ const PropertyForm = ({ editData, onClose }) => {
         </div>
         <div className="form-section">
           <div className="section-header">
-            <h3>Peoperty Description</h3>
+            <h3>Property Description</h3>
           </div>
           <div className="form-row">
             <div className="form-group full-width">

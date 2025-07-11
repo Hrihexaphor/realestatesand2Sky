@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, Download, Search, Filter, Users, Phone, Mail, Building } from "lucide-react";
-
+import {
+  Calendar,
+  Download,
+  Search,
+  Filter,
+  Users,
+  Phone,
+  Mail,
+  Building,
+} from "lucide-react";
+import { toast } from "react-toastify";
 const LeadInquiriesPage = () => {
   const [inquiries, setInquiries] = useState([]);
   const [filteredInquiries, setFilteredInquiries] = useState([]);
@@ -20,28 +29,27 @@ const LeadInquiriesPage = () => {
   const fetchInquiries = async () => {
     setLoading(true);
     setError("");
-    
+
     try {
-      // Since we can't make actual API calls in this environment, 
+      // Since we can't make actual API calls in this environment,
       // I'll simulate the API response with your data structure
-      
+
       // Uncomment and modify this section for your actual implementation:
-    
-      
+
       const res = await fetch(`${BASE_URL}/api/propinquiry`);
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
-      console.log('API Response:', data);
+      console.log("API Response:", data);
       setInquiries(data);
       setFilteredInquiries(data);
       calculateStats(data);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching inquiries:', err);
+      console.error("Error fetching inquiries:", err);
       setError(`Failed to fetch inquiries: ${err.message}`);
       setLoading(false);
     }
@@ -53,7 +61,7 @@ const LeadInquiriesPage = () => {
 
   const calculateStats = (data) => {
     const total = data.length;
-    const contacted = data.filter(inq => inq.contacted).length;
+    const contacted = data.filter((inq) => inq.contacted).length;
     const pending = total - contacted;
     setStats({ total, contacted, pending });
   };
@@ -66,8 +74,8 @@ const LeadInquiriesPage = () => {
       const start = new Date(startDate);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
-      
-      filtered = filtered.filter(inq => {
+
+      filtered = filtered.filter((inq) => {
         const inquiryDate = new Date(inq.inquiry_time);
         return inquiryDate >= start && inquiryDate <= end;
       });
@@ -76,18 +84,19 @@ const LeadInquiriesPage = () => {
     // Search filtering
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(inq => 
-        inq.name.toLowerCase().includes(term) ||
-        inq.email.toLowerCase().includes(term) ||
-        inq.title.toLowerCase().includes(term) ||
-        inq.project_name.toLowerCase().includes(term) ||
-        inq.phone.includes(term)
+      filtered = filtered.filter(
+        (inq) =>
+          inq.name.toLowerCase().includes(term) ||
+          inq.email.toLowerCase().includes(term) ||
+          inq.title.toLowerCase().includes(term) ||
+          inq.project_name.toLowerCase().includes(term) ||
+          inq.phone.includes(term)
       );
     }
 
     // Status filtering
     if (statusFilter !== "all") {
-      filtered = filtered.filter(inq => 
+      filtered = filtered.filter((inq) =>
         statusFilter === "contacted" ? inq.contacted : !inq.contacted
       );
     }
@@ -96,26 +105,49 @@ const LeadInquiriesPage = () => {
     calculateStats(filtered);
   };
 
-const handleToggleContacted = async (id) => {
-  // Update local state first for immediate UI feedback
-  const updatedInquiries = inquiries.map(inq =>
-    inq.id === id ? { ...inq, contacted: !inq.contacted } : inq
-  );
-  setInquiries(updatedInquiries);
+  const handleToggleContacted = async (id) => {
+    // Update local state first for immediate UI feedback
+    const updatedInquiries = inquiries.map((inq) =>
+      inq.id === id ? { ...inq, contacted: !inq.contacted } : inq
+    );
+    setInquiries(updatedInquiries);
 
-  // Also update the backend
-  try {
-    await fetch(`${BASE_URL}/api/propinquiry/${id}/contacted`, {
-     method: 'PATCH',  // Use PATCH instead of PUT
-       headers: { 'Content-Type': 'application/json' },
-      // body: JSON.stringify({ contacted: !inquiries.find(inq => inq.id === id).contacted })
-    });
-  } catch (error) {
-    console.error('Failed to update:', error);
-    // Revert local state if API call fails
-    setInquiries(inquiries);
-  }
-};
+    // Also update the backend
+    try {
+      await fetch(`${BASE_URL}/api/propinquiry/${id}/contacted`, {
+        method: "PATCH", // Use PATCH instead of PUT
+        headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify({ contacted: !inquiries.find(inq => inq.id === id).contacted })
+      });
+    } catch (error) {
+      console.error("Failed to update:", error);
+      // Revert local state if API call fails
+      setInquiries(inquiries);
+    }
+  };
+
+  const handleDeleteInquiry = async (id) => {
+    const confirm = window.confirm(
+      "Are you sure you want to delete this inquiry?"
+    );
+    if (!confirm) return;
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/propinquiry/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        toast.success("Inquiry deleted successfully");
+        fetchInquiries(); // Refresh list
+      } else {
+        toast.error("Failed to delete inquiry");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("An error occurred while deleting");
+    }
+  };
 
   const handleDownloadExcel = () => {
     if (!startDate || !endDate) {
@@ -123,26 +155,40 @@ const handleToggleContacted = async (id) => {
       return;
     }
 
-    const headers = ["#", "Title", "Project", "Name", "Email", "Phone", "Date", "Contacted"];
+    const headers = [
+      "#",
+      "Title",
+      "Project",
+      "Name",
+      "Email",
+      "Phone",
+      "Date",
+      "Contacted",
+    ];
     const csvContent = [
       headers.join(","),
-      ...filteredInquiries.map((inq, index) => [
-        index + 1,
-        `"${inq.title}"`,
-        `"${inq.project_name}"`,
-        `"${inq.name}"`,
-        inq.email,
-        inq.phone,
-        new Date(inq.inquiry_time).toLocaleString(),
-        inq.contacted ? "Yes" : "No"
-      ].join(","))
+      ...filteredInquiries.map((inq, index) =>
+        [
+          index + 1,
+          `"${inq.title}"`,
+          `"${inq.project_name}"`,
+          `"${inq.name}"`,
+          inq.email,
+          inq.phone,
+          new Date(inq.inquiry_time).toLocaleString(),
+          inq.contacted ? "Yes" : "No",
+        ].join(",")
+      ),
     ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `leads_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      "download",
+      `leads_${new Date().toISOString().split("T")[0]}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -163,12 +209,18 @@ const handleToggleContacted = async (id) => {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Property Inquiries</h1>
-              <p className="text-gray-600">Manage and track your property leads</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Property Inquiries
+              </h1>
+              <p className="text-gray-600">
+                Manage and track your property leads
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Users className="text-blue-600" size={24} />
-              <span className="text-2xl font-bold text-blue-600">{stats.total}</span>
+              <span className="text-2xl font-bold text-blue-600">
+                {stats.total}
+              </span>
             </div>
           </div>
         </div>
@@ -177,7 +229,7 @@ const handleToggleContacted = async (id) => {
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
             <strong>Error:</strong> {error}
-            <button 
+            <button
               onClick={fetchInquiries}
               className="ml-4 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
             >
@@ -191,8 +243,12 @@ const handleToggleContacted = async (id) => {
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Inquiries</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Inquiries
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.total}
+                </p>
               </div>
               <Building className="text-blue-500" size={32} />
             </div>
@@ -201,7 +257,9 @@ const handleToggleContacted = async (id) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Contacted</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.contacted}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.contacted}
+                </p>
               </div>
               <Phone className="text-green-500" size={32} />
             </div>
@@ -210,7 +268,9 @@ const handleToggleContacted = async (id) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.pending}
+                </p>
               </div>
               <Mail className="text-orange-500" size={32} />
             </div>
@@ -223,10 +283,13 @@ const handleToggleContacted = async (id) => {
             <Filter className="text-gray-600" size={20} />
             <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={16}
+              />
               <input
                 type="text"
                 placeholder="Search inquiries..."
@@ -237,7 +300,10 @@ const handleToggleContacted = async (id) => {
             </div>
 
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <Calendar
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={16}
+              />
               <input
                 type="date"
                 value={startDate}
@@ -248,7 +314,10 @@ const handleToggleContacted = async (id) => {
             </div>
 
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <Calendar
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={16}
+              />
               <input
                 type="date"
                 value={endDate}
@@ -299,28 +368,49 @@ const handleToggleContacted = async (id) => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead_source</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Info</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Lead_source
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Project
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contact Info
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredInquiries.map((inq, index) => (
-                    <tr key={inq.id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={inq.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {index + 1}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{inq.lead_source}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {inq.lead_source}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{inq.project_name}</div>
+                        <div className="text-sm text-gray-900">
+                          {inq.project_name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 font-medium">{inq.name}</div>
+                        <div className="text-sm text-gray-900 font-medium">
+                          {inq.name}
+                        </div>
                         <div className="text-sm text-gray-500">{inq.email}</div>
                         <div className="text-sm text-gray-500">{inq.phone}</div>
                       </td>
@@ -341,20 +431,28 @@ const handleToggleContacted = async (id) => {
                         >
                           {inq.contacted ? "✓ Contacted" : "⏳ Pending"}
                         </button>
+                        <button
+                          onClick={() => handleDeleteInquiry(inq.id)}
+                          className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-medium hover:bg-red-200 transition-colors"
+                        >
+                          🗑 Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             )}
-            
+
             {!loading && filteredInquiries.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-2">
                   <Users size={48} className="mx-auto" />
                 </div>
                 <p className="text-gray-500 text-lg">No inquiries found</p>
-                <p className="text-gray-400 text-sm">Try adjusting your filters</p>
+                <p className="text-gray-400 text-sm">
+                  Try adjusting your filters
+                </p>
               </div>
             )}
           </div>

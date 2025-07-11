@@ -229,15 +229,17 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
       ORDER BY p.id DESC
       LIMIT $2 OFFSET $3
     `,
-    ["Resale", limit, offset]);
+      ["Resale", limit, offset]
+    );
 
     return rows;
   } catch (error) {
     console.error("Failed to fetch resale property summaries:", error);
-    throw new Error(`Failed to fetch resale property summaries: ${error.message}`);
+    throw new Error(
+      `Failed to fetch resale property summaries: ${error.message}`
+    );
   }
 };
-
 
 // ready to move property with minimum details
 export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
@@ -381,6 +383,7 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
         SELECT d.id AS developer_id, COUNT(p.id) AS property_count
         FROM developer d
         JOIN property p ON p.developer_id = d.id
+        WHERE d.name != 'Admin'
         GROUP BY d.id
         ORDER BY property_count DESC
         LIMIT $1
@@ -447,7 +450,7 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
         WHERE p2.developer_id IN (SELECT developer_id FROM top_builders)
         ORDER BY p2.developer_id, p2.id DESC
       )
-
+       AND d.name != 'Admin'
       GROUP BY 
         p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
@@ -464,7 +467,6 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
     throw new Error(`Failed to fetch top projects: ${error.message}`);
   }
 };
-
 
 // services for project gallary
 

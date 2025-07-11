@@ -25,8 +25,11 @@ const PropertyConfiguration = ({
   const bhkOptions = [
     "1BHK",
     "2BHK",
+    "2.5BHK",
     "3BHK",
+    "3.5BHK",
     "4BHK",
+    "4.5BHK",
     "5BHK",
     "6BHK",
     "7BHK",
@@ -438,7 +441,7 @@ const PropertyConfiguration = ({
                     htmlFor="carpet_area"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Carpet Area (sq ft) *
+                    Carpet Area/Plot Area (sq ft) *
                   </label>
                   <input
                     type="number"

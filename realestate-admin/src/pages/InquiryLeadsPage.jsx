@@ -1,14 +1,14 @@
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { toast } from "react-toastify";
 
 const InquiryLeadsPage = () => {
   const [leads, setLeads] = useState([]);
   const [filteredLeads, setFilteredLeads] = useState([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [showDateFilter, setShowDateFilter] = useState(false);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -27,39 +27,56 @@ const InquiryLeadsPage = () => {
       setLeads(res.data);
       setFilteredLeads(res.data);
     } catch (err) {
-      console.error('Failed to fetch leads', err);
+      console.error("Failed to fetch leads", err);
     }
   };
 
+  const deleteLead = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this lead?")) return;
+
+    try {
+      await axios.delete(`${BASE_URL}/api/inquiryleads/${id}`);
+      toast.success("Lead deleted successfully");
+      fetchLeads(); // Refresh list after delete
+    } catch (err) {
+      console.error("Failed to delete lead", err);
+      alert("Failed to delete lead");
+      toast.error("Failed to delete lead");
+    }
+  };
   const filterLeadsByDate = () => {
     if (!startDate && !endDate) {
       setFilteredLeads(leads);
       return;
     }
 
-    const filtered = leads.filter(lead => {
+    const filtered = leads.filter((lead) => {
       const createdDate = new Date(lead.created_at);
-      
+
       if (startDate && endDate) {
-        return createdDate >= new Date(startDate) && createdDate <= new Date(endDate);
+        return (
+          createdDate >= new Date(startDate) && createdDate <= new Date(endDate)
+        );
       } else if (startDate) {
         return createdDate >= new Date(startDate);
       } else if (endDate) {
         return createdDate <= new Date(endDate);
       }
-      
+
       return true;
     });
-    
+
     setFilteredLeads(filtered);
   };
 
   const toggleContacted = async (id, currentStatus) => {
     try {
-      await axios.put(`${BASE_URL}/api/inquiryleads/${id}/contacted`, { contacted: !currentStatus });
+      await axios.put(`${BASE_URL}/api/inquiryleads/${id}/contacted`, {
+        contacted: !currentStatus,
+      });
       fetchLeads();
     } catch (err) {
-      console.error('Failed to update status', err);
+      console.error("Failed to update status", err);
     }
   };
 
@@ -67,23 +84,26 @@ const InquiryLeadsPage = () => {
     // Using filtered leads for the Excel download
     const worksheet = XLSX.utils.json_to_sheet(filteredLeads);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Leads');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
     // Include date range in filename if filtered
-    let filename = 'inquiry-leads';
+    let filename = "inquiry-leads";
     if (startDate || endDate) {
-      filename += startDate ? `_from-${startDate}` : '';
-      filename += endDate ? `_to-${endDate}` : '';
+      filename += startDate ? `_from-${startDate}` : "";
+      filename += endDate ? `_to-${endDate}` : "";
     }
-    
+
     saveAs(blob, `${filename}.xlsx`);
   };
 
   const resetFilters = () => {
-    setStartDate('');
-    setEndDate('');
+    setStartDate("");
+    setEndDate("");
     setFilteredLeads(leads);
   };
 
@@ -96,7 +116,7 @@ const InquiryLeadsPage = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow"
             onClick={() => setShowDateFilter(!showDateFilter)}
           >
-            {showDateFilter ? 'Hide Filters' : 'Filter by Date'}
+            {showDateFilter ? "Hide Filters" : "Filter by Date"}
           </button>
           <button
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
@@ -111,7 +131,9 @@ const InquiryLeadsPage = () => {
         <div className="bg-gray-50 p-4 mb-4 rounded shadow">
           <div className="flex flex-wrap items-center gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Start Date
+              </label>
               <input
                 type="date"
                 className="border rounded p-2"
@@ -120,7 +142,9 @@ const InquiryLeadsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                End Date
+              </label>
               <input
                 type="date"
                 className="border rounded p-2"
@@ -175,18 +199,30 @@ const InquiryLeadsPage = () => {
                   {new Date(lead.created_at).toLocaleDateString()}
                 </td>
                 <td className="p-2 border">
-                  <span className={lead.contacted ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-                    {lead.contacted ? 'Yes' : 'No'}
+                  <span
+                    className={
+                      lead.contacted
+                        ? "text-green-600 font-semibold"
+                        : "text-red-600 font-semibold"
+                    }
+                  >
+                    {lead.contacted ? "Yes" : "No"}
                   </span>
                 </td>
                 <td className="p-2 border">
                   <button
                     className={`px-3 py-1 rounded text-white ${
-                      lead.contacted ? 'bg-yellow-500' : 'bg-blue-600'
+                      lead.contacted ? "bg-yellow-500" : "bg-blue-600"
                     }`}
                     onClick={() => toggleContacted(lead.id, lead.contacted)}
                   >
-                    Mark as {lead.contacted ? 'Not Contacted' : 'Contacted'}
+                    Mark as {lead.contacted ? "Not Contacted" : "Contacted"}
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    onClick={() => deleteLead(lead.id)}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -195,7 +231,9 @@ const InquiryLeadsPage = () => {
         </table>
 
         {filteredLeads.length === 0 && (
-          <p className="mt-4 text-gray-500 text-center">No leads found for the selected criteria.</p>
+          <p className="mt-4 text-gray-500 text-center">
+            No leads found for the selected criteria.
+          </p>
         )}
       </div>
     </div>

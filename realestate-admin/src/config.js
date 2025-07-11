@@ -28,7 +28,7 @@ export const ROUTES = [
   },
   {
     path: "cancelpolicy",
-    label: "Cancel Policy",
+    label: "Cancellation Policy",
     element: "CancellationPolicy",
   },
   {
@@ -58,22 +58,22 @@ export const ROUTES = [
   },
   {
     path: "getinfolead",
-    label: "GetInfo",
+    label: "Get Info",
     element: "GetInfoLeads",
   },
   {
     path: "contactuslead",
-    label: "Contactus",
+    label: "Contact Us",
     element: "ContactLeads",
   },
   {
     path: "primaryimage",
-    label: "primaryimage",
+    label: "Primary Image",
     element: "PropertyImageManager",
   },
   {
     path: "heroimage",
-    label: "heroimage",
+    label: "Hero Image",
     element: "HeroSectionManager",
   },
   {

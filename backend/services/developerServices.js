@@ -33,7 +33,9 @@ export async function createDevloper(data) {
   return result.rows[0];
 }
 export async function getAllDeveloper() {
-  const result = await pool.query(`select * from developer order by id asc`);
+  const result = await pool.query(
+    `select * from developer order by company_name asc`
+  );
   return result.rows;
 }
 // Update a developer by ID

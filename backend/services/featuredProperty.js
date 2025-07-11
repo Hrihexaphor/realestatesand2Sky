@@ -295,9 +295,6 @@ export async function getActiveFeaturedPropertiesLite() {
       WHERE fp.featured_from IS NOT NULL
         AND fp.featured_to IS NOT NULL
         AND CURRENT_DATE BETWEEN fp.featured_from AND fp.featured_to
-        AND pd.property_status = 'active'
-        AND pd.transaction_types = 'New property'
-
       GROUP BY 
         p.id, pd.project_name, pd.location, pd.city, pd.locality, pd.super_built_up_area, pd.transaction_types,
         pd.carpet_area, pd.bedrooms, pd.bathrooms, pd.balconies, pd.furnished_status, pd.available_from,
