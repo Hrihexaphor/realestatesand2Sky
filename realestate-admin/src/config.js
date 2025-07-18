@@ -77,6 +77,16 @@ export const ROUTES = [
     element: "HeroSectionManager",
   },
   {
+    path: "legalleads",
+    label: "Legal Leads",
+    element: "PropertyLegalLeads",
+  },
+  {
+    path: "interiorleads",
+    label: "Interior Leads",
+    element: "InteriorLeads",
+  },
+  {
     path: "usermanager",
     label: "User Manager",
     element: "UserManager",

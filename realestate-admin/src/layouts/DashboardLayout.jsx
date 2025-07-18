@@ -62,6 +62,8 @@ const NAV_ITEMS = [
       { path: "/dashboard/generatelead", label: "Property Inquiry" },
       // { path: "/dashboard/getinfolead", label: "GetInfo" },
       { path: "/dashboard/contactuslead", label: "Contactus" },
+      { path: "/dashboard/legalleads", label: "Legal Leads" },
+      { path: "/dashboard/interiorleads", label: "Interior Leads" },
     ],
   },
   {

@@ -28,3 +28,5 @@ export { default as GetInfoLeads } from "./GetInfoLeads";
 export { default as ContactLeads } from "./ContactLeads";
 export { default as PropertyImageManager } from "./PropertyImageManager";
 export { default as HeroSectionManager } from "./HeroSectionManager";
+export { default as PropertyLegalLeads } from "./PropertyLegalLeads";
+export { default as InteriorLeads } from "./InteriorLeads";

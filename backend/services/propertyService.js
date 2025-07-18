@@ -133,12 +133,12 @@ export async function insertPropertyConfigurations(
 
     for (let config of configurations) {
       await pool.query(
-        `
-        INSERT INTO property_configurations (
+        `INSERT INTO property_configurations (
           property_id, bhk_type, bedrooms, bathrooms, 
-          super_built_up_area, carpet_area, balconies, 
+          super_built_up_area, carpet_area, balconies,
+          pooja_room, servant_room, store_room, 
           file_name, file_url
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       `,
         [
           property_id,
@@ -148,6 +148,9 @@ export async function insertPropertyConfigurations(
           config.super_built_up_area,
           config.carpet_area,
           config.balconies,
+          config.pooja_room,
+          config.servant_room,
+          config.store_room,
           config.file_name || null,
           config.file_url || null, // Optional: pass null if not provided
         ]
@@ -448,7 +451,10 @@ export async function getAllProperties() {
             'bathrooms', pc.bathrooms, 
             'super_built_up_area', pc.super_built_up_area, 
             'carpet_area', pc.carpet_area, 
-            'balconies', pc.balconies, 
+            'balconies', pc.balconies,
+            'pooja_room', pc.pooja_room,
+            'servant_room', pc.servant_room,
+            'store_room', pc.store_room, 
             'file_url', pc.file_url
           ))
           FROM property_configurations pc
@@ -511,7 +517,7 @@ export async function updateConfigurations(
         await pool.query(
           `UPDATE property_configurations 
            SET bhk_type = $3, bedrooms = $4, bathrooms = $5, 
-               super_built_up_area = $6, carpet_area = $7, balconies = $8
+               super_built_up_area = $6, carpet_area = $7, balconies = $8,pooja_room = $9,servant_room = $10,store_room = $11
            WHERE id = $1 AND property_id = $2`,
           [
             config.id,
@@ -522,6 +528,9 @@ export async function updateConfigurations(
             config.super_built_up_area,
             config.carpet_area,
             config.balconies,
+            config.pooja_room,
+            config.servant_room,
+            config.store_room,
           ]
         );
 
@@ -553,8 +562,8 @@ export async function updateConfigurations(
 
         await pool.query(
           `INSERT INTO property_configurations 
-           (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, file_url, file_name) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+           (property_id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies, pooja_room, servant_room, store_room, file_url, file_name) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
           [
             propertyId,
             config.bhk_type,
@@ -563,6 +572,9 @@ export async function updateConfigurations(
             config.super_built_up_area,
             config.carpet_area,
             config.balconies,
+            config.pooja_room,
+            config.servant_room,
+            config.store_room,
             configFile?.path || null,
             configFile?.originalname || null,
           ]
@@ -913,7 +925,7 @@ export const getpropertyById = async (propertyId) => {
 
     // property configurtion
     const { rows: bhkRows } = await pool.query(
-      `SELECT id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies,file_url
+      `SELECT id, bhk_type, bedrooms, bathrooms, super_built_up_area, carpet_area, balconies,pooja_room, servant_room, store_room, file_name, file_url
         FROM property_configurations
         WHERE property_id = $1`,
       [propertyId]

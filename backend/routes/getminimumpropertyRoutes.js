@@ -11,7 +11,7 @@ import {
   getPropertiesByLocality,
   getPropertiesByDeveloperId,
   getPopularSearchOptions,
-  getOldProjects
+  getOldProjects,
 } from "../services/minimumPropetyservice.js";
 
 const router = express.Router();

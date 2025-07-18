@@ -49,7 +49,7 @@ const PropertyForm = ({ editData, onClose }) => {
     "Pooja Room",
     "Study Room",
     "Guest Room",
-    "Servent Room",
+    "Servant Room",
     "Store Room",
   ];
   const facingOptions = [
@@ -278,6 +278,9 @@ const PropertyForm = ({ editData, onClose }) => {
           super_built_up_area: config.super_built_up_area,
           carpet_area: config.carpet_area,
           balconies: config.balconies,
+          pooja_room: config.pooja_room,
+          servant_room: config.servant_room,
+          store_room: config.store_room,
           file: null, // No file available for existing configs
           file_name: config.file_name || "",
         }));
@@ -340,6 +343,9 @@ const PropertyForm = ({ editData, onClose }) => {
         super_built_up_area: config.super_built_up_area,
         carpet_area: config.carpet_area,
         balconies: config.balconies,
+        pooja_room: config.pooja_room,
+        servant_room: config.servant_room,
+        store_room: config.store_room,
         file: null, // No file available for existing configs
         file_name: config.file_name || "",
         isExisting: true, // Flag to identify as existing
@@ -1147,29 +1153,7 @@ const PropertyForm = ({ editData, onClose }) => {
                 initialConfigurations={existingConfigurations}
               />
             </section>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Other rooms</label>
-                <div className="flex flex-row flex-wrap gap-4">
-                  {" "}
-                  {/* Changed to flex-row with flex-wrap and increased gap */}
-                  {otherroomsOptions.map((option) => (
-                    <label key={option} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        value={option}
-                        className="mr-1"
-                        checked={details.other_rooms?.includes(option)}
-                        onChange={(e) =>
-                          handleOtherroomsChange(option, e.target.checked)
-                        }
-                      />
-                      {option}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
+
             <div className="form-row">
               <div className="form-group">
                 <label>Total Floors</label>
@@ -1431,29 +1415,6 @@ const PropertyForm = ({ editData, onClose }) => {
                 initialConfigurations={existingConfigurations}
               />
             </section>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Other rooms</label>
-                <div className="flex flex-row flex-wrap gap-4">
-                  {" "}
-                  {/* Changed to flex-row with flex-wrap and increased gap */}
-                  {otherroomsOptions.map((option) => (
-                    <label key={option} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        value={option}
-                        className="mr-1"
-                        checked={details.other_rooms?.includes(option)}
-                        onChange={(e) =>
-                          handleOtherroomsChange(option, e.target.checked)
-                        }
-                      />
-                      {option}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
             <div className="form-row">
               <div className="form-group">
                 <label>Facing</label>

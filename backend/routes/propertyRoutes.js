@@ -34,7 +34,7 @@ router.post(
   upload.fields([
     { name: "images", maxCount: 8 },
     { name: "documents", maxCount: 10 },
-    { name: "configFiles", maxCount: 10 }, // Add this line
+    { name: "configFiles", maxCount: 50 }, // Add this line
   ]),
   async (req, res) => {
     try {
@@ -320,8 +320,6 @@ router.patch(
         configFiles,
         deletedConfigIdsParsed
       );
-
-
 
       propertyCache.del("allProperties");
 

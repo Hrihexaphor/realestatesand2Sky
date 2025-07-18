@@ -15,6 +15,9 @@ const PropertyConfiguration = ({
     super_built_up_area: "",
     carpet_area: "",
     balconies: "",
+    pooja_room: "",
+    servant_room: "",
+    store_room: "",
     file: null,
     file_name: "",
     id: null, // Add ID for existing configurations
@@ -152,7 +155,10 @@ const PropertyConfiguration = ({
         !currentConfiguration.bathrooms ||
         !currentConfiguration.super_built_up_area ||
         !currentConfiguration.carpet_area ||
-        currentConfiguration.balconies === ""
+        !currentConfiguration.balconies ||
+        !currentConfiguration.pooja_room ||
+        !currentConfiguration.servant_room ||
+        !currentConfiguration.store_room === ""
       ) {
         alert("Please fill in all required fields");
         return false;
@@ -189,6 +195,9 @@ const PropertyConfiguration = ({
         super_built_up_area: "",
         carpet_area: "",
         balconies: "",
+        pooja_room: "",
+        servant_room: "",
+        store_room: "",
         file: null,
         file_name: "",
         id: null,
@@ -239,6 +248,9 @@ const PropertyConfiguration = ({
       super_built_up_area: "",
       carpet_area: "",
       balconies: "",
+      pooja_room: "",
+      servant_room: "",
+      store_room: "",
       file: null,
       file_name: "",
       id: null,
@@ -299,6 +311,9 @@ const PropertyConfiguration = ({
                     <p>Super Built-up: {config.super_built_up_area} sq ft</p>
                     <p>Carpet Area: {config.carpet_area} sq ft</p>
                     <p>Balconies: {config.balconies}</p>
+                    <p>Pooja Rooms: {config.pooja_room}</p>
+                    <p>Servant Rooms: {config.servant_room}</p>
+                    <p>Store Rooms: {config.store_room}</p>
                     {config.file_name && (
                       <p className="text-blue-600">📎 {config.file_name}</p>
                     )}
@@ -481,7 +496,84 @@ const PropertyConfiguration = ({
                   ))}
                 </div>
               </div>
-
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pooja Rooms *
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                    <label
+                      key={`pooja_room-${num}`}
+                      className="flex items-center"
+                    >
+                      <input
+                        type="radio"
+                        name="pooja_room"
+                        value={num}
+                        checked={
+                          parseInt(currentConfiguration.pooja_room) === num
+                        }
+                        onChange={handleInputChange}
+                        required
+                        className="mr-1"
+                      />
+                      <span className="text-sm text-gray-700">{num}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Servant Rooms *
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                    <label
+                      key={`servant_room-${num}`}
+                      className="flex items-center"
+                    >
+                      <input
+                        type="radio"
+                        name="servant_room"
+                        value={num}
+                        checked={
+                          parseInt(currentConfiguration.servant_room) === num
+                        }
+                        onChange={handleInputChange}
+                        required
+                        className="mr-1"
+                      />
+                      <span className="text-sm text-gray-700">{num}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Rooms *
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                    <label
+                      key={`store_room-${num}`}
+                      className="flex items-center"
+                    >
+                      <input
+                        type="radio"
+                        name="store_room"
+                        value={num}
+                        checked={
+                          parseInt(currentConfiguration.store_room) === num
+                        }
+                        onChange={handleInputChange}
+                        required
+                        className="mr-1"
+                      />
+                      <span className="text-sm text-gray-700">{num}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Floorplan Upload (PDF/JPG/PNG) {!isEditing && "*"}

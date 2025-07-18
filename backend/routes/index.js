@@ -23,6 +23,7 @@ import contactRoutes from "./contactusRoutes.js";
 import popularsearchRoutes from "./popularseachRoutes.js";
 import propertyImageRoute from "./propertyImagesroutes.js";
 import heroRoutes from "./heroRoutes.js";
+import toolsRoutes from "./toolLeadesRoutes.js";
 import { isAuthenticated } from "../middleware/auth.js";
 
 import { ROLES } from "../constants/roles.js";
@@ -54,4 +55,5 @@ apiRouter.use("/", contactRoutes);
 apiRouter.use("/", heroRoutes);
 apiRouter.use("/", propertyImageRoute);
 apiRouter.use("/", popularsearchRoutes);
+apiRouter.use("/", toolsRoutes);
 export default apiRouter;
