@@ -64,6 +64,7 @@ const NAV_ITEMS = [
       { path: "/dashboard/contactuslead", label: "Contactus" },
       { path: "/dashboard/legalleads", label: "Legal Leads" },
       { path: "/dashboard/interiorleads", label: "Interior Leads" },
+      { path: "/dashboard/investmentleads", label: "Investment Leads" },
     ],
   },
   {

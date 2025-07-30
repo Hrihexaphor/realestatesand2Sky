@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const BASE_URL = "http://localhost:3001/api";
-
 const PropertyLegalLeads = () => {
   const [legalContacts, setLegalContacts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchLegalLeads();
@@ -14,7 +13,7 @@ const PropertyLegalLeads = () => {
 
   const fetchLegalLeads = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/property-legal-leads`);
+      const response = await axios.get(`${BASE_URL}/api/property-legal-leads`);
       console.log(response.data);
       setLegalContacts(response.data);
     } catch (err) {
@@ -27,7 +26,7 @@ const PropertyLegalLeads = () => {
 
   const handleDeleteContact = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/property-legal-leads/${id}`);
+      await axios.delete(`${BASE_URL}/api//property-legal-leads/${id}`);
       toast.success("Lead deleted successfully");
       fetchLegalLeads();
     } catch (err) {
@@ -38,7 +37,7 @@ const PropertyLegalLeads = () => {
 
   const handleMarkContacted = async (id) => {
     try {
-      await axios.patch(`${BASE_URL}/property-legal-leads/${id}/status`, {
+      await axios.patch(`${BASE_URL}/api/property-legal-leads/${id}/status`, {
         status: "contacted",
       });
       toast.success("Marked as contacted");

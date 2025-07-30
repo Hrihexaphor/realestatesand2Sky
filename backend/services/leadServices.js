@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { parse } from "path";
 dotenv.config();
 /**
  * Insert a new lead into the database and send confirmation email
@@ -112,7 +113,18 @@ export async function createInquiry(data) {
   // await sendAdminEmail({ title, project_name, name, phone, email });
   return result.rows[0];
 }
+// services to get the count of inquiries for perticular property
 
+export async function getpropertyInquiryCount(propertyId) {
+  const result = await pool.query(
+    `SELECT COUNT(*) AS total_contact FROM property_inquiries WHERE property_id = $1`,
+    [propertyId]
+  );
+  return {
+    property_id: propertyId,
+    total_contact: parseInt(result.rows[0].total_contact, 10),
+  };
+}
 export async function getAllInquiries() {
   const result = await pool.query(
     `SELECT * FROM property_inquiries ORDER BY inquiry_time DESC`

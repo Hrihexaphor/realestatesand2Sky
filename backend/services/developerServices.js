@@ -120,3 +120,16 @@ export const deleteDeveloper = async (id) => {
   );
   return result.rows[0];
 };
+// get developer by property title
+export async function getDeveloperDetailsByPropertyTitle(title) {
+  const query = `
+    SELECT d.name, d.contact_email, d.partial_amount
+    FROM property p
+    JOIN developer d ON p.developer_id = d.id
+    WHERE p.title = $1
+    LIMIT 1;
+  `;
+
+  const { rows } = await pool.query(query, [title]);
+  return rows[0];
+}

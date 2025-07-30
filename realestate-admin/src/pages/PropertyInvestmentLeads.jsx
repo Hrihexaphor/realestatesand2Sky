@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-const InteriorLeads = () => {
+const PropertyInvestmentLeads = () => {
   const [interiorContact, setInteriorContact] = useState([]);
   const [loading, setLodding] = useState(true);
   const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -13,7 +13,7 @@ const InteriorLeads = () => {
   }, []);
   const fetchInteriorContact = async () => {
     try {
-      const data = await axios.get(`${BASE_URL}/api/interior-leads`);
+      const data = await axios.get(`${BASE_URL}/api/property-investment-leads`);
       console.log(data.data);
       setInteriorContact(data.data);
     } catch (err) {
@@ -25,7 +25,7 @@ const InteriorLeads = () => {
 
   const handleDelteContact = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/api/interior-leads/${id}`);
+      await axios.delete(`${BASE_URL}/api/property-investment-leads/${id}`);
       fetchInteriorContact();
     } catch (err) {
       toast.error("Failed to delete lead");
@@ -34,9 +34,12 @@ const InteriorLeads = () => {
 
   const markAsContacted = async (id) => {
     try {
-      await axios.patch(`${BASE_URL}/api/interior-leads/${id}/status`, {
-        status: "contaced",
-      });
+      await axios.patch(
+        `${BASE_URL}/api/property-investment-leads/${id}/status`,
+        {
+          status: "contaced",
+        }
+      );
       fetchInteriorContact();
     } catch (err) {
       toast.error("Failed to mark as contacted");
@@ -98,4 +101,4 @@ const InteriorLeads = () => {
   );
 };
 
-export default InteriorLeads;
+export default PropertyInvestmentLeads;

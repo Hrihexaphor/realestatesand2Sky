@@ -52,6 +52,47 @@ export const sendAdminEmail = async ({
     throw error;
   }
 };
+// developer sending email
+export const sendDeveloperEmail = async ({
+  title,
+  project_name,
+  name,
+  phone,
+  email,
+  developerEmail,
+  developerName,
+}) => {
+  try {
+    const mailOptions = {
+      from: `"Property Inquiry" <${process.env.EMAIL_USER}>`,
+      to: developerEmail,
+      subject: "New Inquiry for Your Property",
+      html: `
+        <div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px; max-width: 600px;">
+          <img src="https://res.cloudinary.com/...logo_url..." alt="Logo" style="height: 50px; margin-bottom: 20px;" />
+          <p>Dear ${developerName || "Developer"},</p>
+          <p>A user is interested in your property: <strong>${title} (${project_name})</strong></p>
+          <p><strong>Sender Name:</strong> ${name}</p>
+          <p><strong>Visitor Phone:</strong> ${phone}</p>
+          <p><strong>Visitor Email:</strong> ${email}</p>
+          <p><strong>Message:</strong> I am interested in your property. Please get in touch with me.</p>
+        </div>
+      `,
+      text: `
+        Dear,
+        A user is interested in your property: ${title} (${project_name})
+        Message: I am interested in your property. Please get in touch with me.
+      `,
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    transporter.close();
+    return result;
+  } catch (error) {
+    console.error("Error sending developer email:", error);
+    return { success: false, error };
+  }
+};
 
 export const sendAdminNotificationEmail = async (lead) => {
   try {

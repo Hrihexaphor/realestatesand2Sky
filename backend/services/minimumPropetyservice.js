@@ -78,7 +78,7 @@ export async function getMinimalProperties() {
 
 // new project minimum details services
 
-export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
+export const getNewProjectsSummary = async () => {
   try {
     const { rows } = await pool.query(
       `
@@ -145,9 +145,7 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
         d.id, d.name, pc.name, psc.name, p.price_per_sqft,  p.possession_status
 
       ORDER BY p.id DESC
-      LIMIT $1 OFFSET $2
-    `,
-      [limit, offset]
+    `
     );
 
     return rows;
@@ -159,7 +157,7 @@ export const getNewProjectsSummary = async (limit = 10, offset = 0) => {
 
 // get minimun details for Resale property
 
-export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
+export const getResaleProjectsSummary = async () => {
   try {
     const { rows } = await pool.query(
       `
@@ -227,9 +225,8 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
         d.id, d.name, pc.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
-      LIMIT $2 OFFSET $3
     `,
-      ["Resale", limit, offset]
+      ["Resale"]
     );
 
     return rows;
@@ -242,7 +239,7 @@ export const getResaleProjectsSummary = async (limit = 10, offset = 0) => {
 };
 
 // ready to move property with minimum details
-export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
+export const getReadyToMoveProjectsSummary = async () => {
   try {
     const { rows } = await pool.query(
       `
@@ -310,9 +307,8 @@ export const getReadyToMoveProjectsSummary = async (limit = 10, offset = 0) => {
         d.id, d.name, pc.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
-      LIMIT $2 OFFSET $3
     `,
-      ["Ready to Move", limit, offset]
+      ["Ready to Move"]
     );
 
     return rows;
@@ -375,7 +371,7 @@ export const getPropertiesInPriceRangeSummaryOnetotwo = async (
 };
 
 // services to get property from top project from top builder
-export const getTopProjectsFromTopBuilders = async (limit = 5) => {
+export const getTopProjectsFromTopBuilders = async () => {
   try {
     const { rows } = await pool.query(
       `
@@ -386,7 +382,6 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
         WHERE d.name != 'Admin'
         GROUP BY d.id
         ORDER BY property_count DESC
-        LIMIT $1
       )
       SELECT 
         p.id,
@@ -457,8 +452,7 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
         d.id, d.name, d.company_name, pc.name, psc.name, p.price_per_sqft
 
       ORDER BY p.id DESC
-    `,
-      [limit]
+    `
     );
 
     return rows;
@@ -470,7 +464,7 @@ export const getTopProjectsFromTopBuilders = async (limit = 5) => {
 
 // services for project gallary
 
-export const getLatestPropertiesWithImages = async (limit = 5) => {
+export const getLatestPropertiesWithImages = async () => {
   try {
     const { rows: properties } = await pool.query(
       `
@@ -488,9 +482,7 @@ export const getLatestPropertiesWithImages = async (limit = 5) => {
         FROM property p
         LEFT JOIN property_details pd ON pd.property_id = p.id
         ORDER BY p.id DESC
-        LIMIT $1
-      `,
-      [limit]
+      `
     );
 
     // Collect all property IDs
@@ -599,7 +591,7 @@ export const getPropertiesByLocality = async (
 // get property by developer id
 export const getPropertiesByDeveloperId = async (
   developerId,
-  limit = 10,
+  limit = 20,
   offset = 0
 ) => {
   const query = `
@@ -701,9 +693,7 @@ export async function getPopularSearchOptions() {
   }
 }
 // services for get only old project
-export async function getOldProjects(page = 1, limit = 10) {
-  const offset = (page - 1) * limit;
-
+export async function getOldProjects() {
   try {
     const result = await pool.query(
       `
@@ -768,9 +758,8 @@ export async function getOldProjects(page = 1, limit = 10) {
                pd.available_from, d.id, d.name, psc.name, p.price_per_sqft, p.possession_status
 
       ORDER BY p.id DESC
-      LIMIT $1 OFFSET $2
-    `,
-      [limit, offset]
+    
+    `
     );
 
     return result.rows;

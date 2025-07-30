@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 import { Edit, Trash2, X } from "lucide-react";
 
 const BlogPage = () => {
@@ -157,6 +158,188 @@ const BlogPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
+      {/* Add custom CSS for CKEditor content */}
+      <style jsx>{`
+        .ck-content ul {
+          list-style-type: disc !important;
+          padding-left: 2rem !important;
+          margin: 1rem 0 !important;
+        }
+
+        .ck-content ol {
+          list-style-type: decimal !important;
+          padding-left: 2rem !important;
+          margin: 1rem 0 !important;
+        }
+
+        .ck-content li {
+          margin: 0.5rem 0 !important;
+          display: list-item !important;
+        }
+
+        .ck-content ul ul {
+          list-style-type: circle !important;
+          padding-left: 1.5rem !important;
+        }
+
+        .ck-content ol ol {
+          list-style-type: lower-alpha !important;
+          padding-left: 1.5rem !important;
+        }
+
+        .ck-content blockquote {
+          border-left: 4px solid #ccc !important;
+          padding-left: 1rem !important;
+          margin: 1rem 0 !important;
+          font-style: italic !important;
+          color: #666 !important;
+        }
+
+        .ck-content h1,
+        .ck-content h2,
+        .ck-content h3,
+        .ck-content h4,
+        .ck-content h5,
+        .ck-content h6 {
+          font-weight: bold !important;
+          margin: 1rem 0 0.5rem 0 !important;
+        }
+
+        .ck-content h1 {
+          font-size: 2rem !important;
+        }
+        .ck-content h2 {
+          font-size: 1.5rem !important;
+        }
+        .ck-content h3 {
+          font-size: 1.25rem !important;
+        }
+
+        .ck-content p {
+          margin: 0.5rem 0 !important;
+        }
+
+        .ck-content strong {
+          font-weight: bold !important;
+        }
+
+        .ck-content em {
+          font-style: italic !important;
+        }
+
+        .ck-content a {
+          color: #3b82f6 !important;
+          text-decoration: underline !important;
+        }
+
+        .ck-content table {
+          border-collapse: collapse !important;
+          width: 100% !important;
+          margin: 1rem 0 !important;
+        }
+
+        .ck-content table td,
+        .ck-content table th {
+          border: 1px solid #ddd !important;
+          padding: 0.5rem !important;
+        }
+
+        .ck-content table th {
+          background-color: #f5f5f5 !important;
+          font-weight: bold !important;
+        }
+
+        /* Styles for blog preview in admin */
+        .blog-description-preview ul {
+          list-style-type: disc !important;
+          padding-left: 2rem !important;
+          margin: 1rem 0 !important;
+        }
+
+        .blog-description-preview ol {
+          list-style-type: decimal !important;
+          padding-left: 2rem !important;
+          margin: 1rem 0 !important;
+        }
+
+        .blog-description-preview li {
+          margin: 0.5rem 0 !important;
+          display: list-item !important;
+        }
+
+        .blog-description-preview ul ul {
+          list-style-type: circle !important;
+          padding-left: 1.5rem !important;
+        }
+
+        .blog-description-preview ol ol {
+          list-style-type: lower-alpha !important;
+          padding-left: 1.5rem !important;
+        }
+
+        .blog-description-preview blockquote {
+          border-left: 4px solid #ccc !important;
+          padding-left: 1rem !important;
+          margin: 1rem 0 !important;
+          font-style: italic !important;
+          color: #666 !important;
+        }
+
+        .blog-description-preview h1,
+        .blog-description-preview h2,
+        .blog-description-preview h3,
+        .blog-description-preview h4,
+        .blog-description-preview h5,
+        .blog-description-preview h6 {
+          font-weight: bold !important;
+          margin: 1rem 0 0.5rem 0 !important;
+        }
+
+        .blog-description-preview h1 {
+          font-size: 2rem !important;
+        }
+        .blog-description-preview h2 {
+          font-size: 1.5rem !important;
+        }
+        .blog-description-preview h3 {
+          font-size: 1.25rem !important;
+        }
+
+        .blog-description-preview p {
+          margin: 0.5rem 0 !important;
+        }
+
+        .blog-description-preview strong {
+          font-weight: bold !important;
+        }
+
+        .blog-description-preview em {
+          font-style: italic !important;
+        }
+
+        .blog-description-preview a {
+          color: #3b82f6 !important;
+          text-decoration: underline !important;
+        }
+
+        .blog-description-preview table {
+          border-collapse: collapse !important;
+          width: 100% !important;
+          margin: 1rem 0 !important;
+        }
+
+        .blog-description-preview table td,
+        .blog-description-preview table th {
+          border: 1px solid #ddd !important;
+          padding: 0.5rem !important;
+        }
+
+        .blog-description-preview table th {
+          background-color: #f5f5f5 !important;
+          font-weight: bold !important;
+        }
+      `}</style>
+
       <h1 className="text-3xl font-bold mb-8">Blog Management</h1>
 
       {/* Form Section */}
@@ -256,34 +439,43 @@ const BlogPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Blog Description
             </label>
-            <CKEditor
-              editor={ClassicEditor}
-              data={formData.description}
-              onChange={(event, editor) => {
-                const data = editor.getData();
-                setFormData((prev) => ({ ...prev, description: data }));
-              }}
-              config={{
-                toolbar: [
-                  "heading",
-                  "|",
-                  "bold",
-                  "italic",
-                  "link",
-                  "bulletedList",
-                  "numberedList",
-                  "|",
-                  "outdent",
-                  "indent",
-                  "|",
-                  "blockQuote",
-                  "insertTable",
-                  "|",
-                  "undo",
-                  "redo",
-                ],
-              }}
-            />
+            <div className="border border-gray-300 rounded-lg">
+              <CKEditor
+                editor={ClassicEditor}
+                data={formData.description}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setFormData((prev) => ({ ...prev, description: data }));
+                }}
+                config={{
+                  toolbar: [
+                    "heading",
+                    "|",
+                    "bold",
+                    "italic",
+                    "link",
+                    "bulletedList",
+                    "numberedList",
+                    "|",
+                    "outdent",
+                    "indent",
+                    "|",
+                    "blockQuote",
+                    "insertTable",
+                    "|",
+                    "undo",
+                    "redo",
+                  ],
+                  list: {
+                    properties: {
+                      styles: true,
+                      startIndex: true,
+                      reversed: true,
+                    },
+                  },
+                }}
+              />
+            </div>
           </div>
 
           <div className="flex gap-4">

@@ -30,3 +30,4 @@ export { default as PropertyImageManager } from "./PropertyImageManager";
 export { default as HeroSectionManager } from "./HeroSectionManager";
 export { default as PropertyLegalLeads } from "./PropertyLegalLeads";
 export { default as InteriorLeads } from "./InteriorLeads";
+export { default as PropertyInvestmentLeads } from "./PropertyInvestmentLeads";

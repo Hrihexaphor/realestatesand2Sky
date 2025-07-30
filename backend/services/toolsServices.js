@@ -91,12 +91,12 @@ export async function deletePropertyInvestmentLeads(id) {
   return result.rows[0];
 }
 
-export async function updatePropertyInvestmentLeads(id, satus) {
+export async function updatePropertyInvestmentLeads(id, status) {
   const result = await pool.query(
     `UPDATE property_investment_leads
-       SET satus = $1
+       SET status = $1
        WHERE id = $2 RETURNING *`,
-    [satus, id]
+    [status, id]
   );
   return result.rows[0];
 }

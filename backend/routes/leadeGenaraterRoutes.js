@@ -14,11 +14,14 @@ import {
   deleteLeadById,
   deleteInquiryById,
   deleteContactById,
+  getpropertyInquiryCount,
 } from "../services/leadServices.js";
+import { getDeveloperDetailsByPropertyTitle } from "../services/developerServices.js";
 import {
   sendAdminNotificationEmail,
   sendAdminEmail,
   handleEmailSending,
+  sendDeveloperEmail,
 } from "../utils/emailfunction.js";
 const router = express.Router();
 
@@ -90,10 +93,12 @@ router.post("/propinquiry", async (req, res) => {
   try {
     const result = await createInquiry(req.body);
 
-    // Send email notification for property inquiry
     const { title, project_name, name, phone, email } = req.body;
+
+    // Always send to admin
+    let emailResult = { success: false };
     if (title && project_name && name && phone && email) {
-      const emailResult = await handleEmailSending(sendAdminEmail, {
+      emailResult = await handleEmailSending(sendAdminEmail, {
         title,
         project_name,
         name,
@@ -107,14 +112,42 @@ router.post("/propinquiry", async (req, res) => {
           emailResult.error
         );
       }
-
-      res.status(201).json({
-        ...result,
-        emailSent: emailResult.success,
-      });
-    } else {
-      res.status(201).json(result);
     }
+
+    // 🔍 Fetch developer info based on property title/project
+    const developerInfo = await getDeveloperDetailsByPropertyTitle(title);
+
+    if (
+      developerInfo &&
+      developerInfo.contact_email &&
+      Number(developerInfo.partial_amount) > 0
+    ) {
+      // send email to developer
+      const developerEmailResult = await handleEmailSending(
+        sendDeveloperEmail,
+        {
+          title,
+          project_name,
+          name,
+          phone,
+          email,
+          developerEmail: developerInfo.contact_email,
+          developerName: developerInfo.name,
+        }
+      );
+
+      if (!developerEmailResult.success) {
+        console.warn(
+          "Failed to send email to developer:",
+          developerEmailResult.error
+        );
+      }
+    }
+
+    res.status(201).json({
+      ...result,
+      emailSent: emailResult.success,
+    });
   } catch (error) {
     console.error("Create Inquiry Error:", error);
     res.status(500).json({ error: "Failed to create inquiry" });
@@ -130,7 +163,17 @@ router.get("/propinquiry", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch inquiries" });
   }
 });
-
+// get the routes for the property inquiry count
+router.get("/propertycount/:propertyId", async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const count = await getpropertyInquiryCount(propertyId);
+    res.json(count);
+  } catch (error) {
+    console.error("Error fetching inquiry count:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 // PATCH: Mark as contacted
 router.patch("/propinquiry/:id/contacted", async (req, res) => {
   try {

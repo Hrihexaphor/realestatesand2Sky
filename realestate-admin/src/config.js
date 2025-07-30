@@ -87,6 +87,11 @@ export const ROUTES = [
     element: "InteriorLeads",
   },
   {
+    path: "investmentleads",
+    label: "Investment Leads",
+    element: "PropertyInvestmentLeads",
+  },
+  {
     path: "usermanager",
     label: "User Manager",
     element: "UserManager",

@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import pool from "../config/db.js";
 export async function getPropertiesWithImages() {
   const query = `
     SELECT 
@@ -10,7 +10,7 @@ export async function getPropertiesWithImages() {
       pi.is_primary
     FROM property p
     JOIN property_images pi ON pi.property_id = p.id
-    JOIN property_details pd ON pd.id = p.id
+    JOIN property_details pd ON pd.property_id = p.id
     ORDER BY p.id DESC, pi.id ASC
   `;
   const result = await pool.query(query);
@@ -34,7 +34,7 @@ export async function getPropertyImagesById(propertyId) {
 export async function setPrimaryImage(propertyId, imageId) {
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     // Step 1: Set all images of the property to is_primary = false
     await client.query(
@@ -48,10 +48,10 @@ export async function setPrimaryImage(propertyId, imageId) {
       [imageId, propertyId]
     );
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return { success: true };
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     console.error("Error setting primary image:", error);
     throw error;
   } finally {
