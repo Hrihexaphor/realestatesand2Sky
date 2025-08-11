@@ -41,7 +41,7 @@ const PropertyImageManager = () => {
     }
   };
 
-  // Group by property
+  // Group by property while maintaining order
   const grouped = data.reduce((acc, item) => {
     if (!acc[item.property_id]) {
       acc[item.property_id] = {
@@ -50,6 +50,8 @@ const PropertyImageManager = () => {
         property_name: item.project_name,
         property_id: item.property_id,
         primaryImage: null,
+        // Keep track of the first occurrence to maintain order
+        order: Object.keys(acc).length,
       };
     }
     acc[item.property_id].images.push(item);
@@ -59,7 +61,8 @@ const PropertyImageManager = () => {
     return acc;
   }, {});
 
-  const properties = Object.values(grouped);
+  // Convert to array and sort by order (which maintains the original DESC order from SQL)
+  const properties = Object.values(grouped).sort((a, b) => a.order - b.order);
 
   // Filter properties based on search
   const filteredProperties = properties.filter((property) => {

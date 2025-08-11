@@ -108,7 +108,14 @@ const PropertyForm = ({ editData, onClose }) => {
         const detailsFields = {};
 
         // Common fields that might be present in any property type
-        ["city", "locality", "description"].forEach((field) => {
+        [
+          "city",
+          "locality",
+          "description",
+          "meta_title",
+          "meta_description",
+          "meta_keyword",
+        ].forEach((field) => {
           if (editData[field]) detailsFields[field] = editData[field];
         });
         const categoryName = editData.property_category_name;
@@ -1335,6 +1342,11 @@ const PropertyForm = ({ editData, onClose }) => {
             <div className="form-row">
               <div className="form-group">
                 <label>Expected Price*</label>
+                <small className="text-sm text-blue-600 block mb-1">
+                  This is a project type — please enter the accurate expected
+                  price for the minimum SBA (Super Built-up Area) of any
+                  configuration.
+                </small>
                 <input
                   type="number"
                   name="expected_price"
@@ -1550,6 +1562,11 @@ const PropertyForm = ({ editData, onClose }) => {
             <div className="form-row">
               <div className="form-group">
                 <label>Expected Price*</label>
+                <small className="text-sm text-blue-600 block mb-1">
+                  This is a project type — please enter the accurate expected
+                  price for the minimum SBA (Super Built-up Area) of any
+                  configuration.
+                </small>
                 <input
                   type="number"
                   name="expected_price"
@@ -2856,6 +2873,58 @@ const PropertyForm = ({ editData, onClose }) => {
               <CKEditor
                 editor={ClassicEditor}
                 data={details.description || ""}
+                config={{
+                  toolbar: [
+                    "heading",
+                    "|",
+                    "bold",
+                    "italic",
+                    "link",
+                    "bulletedList",
+                    "numberedList",
+                    "|",
+                    "outdent",
+                    "indent",
+                    "|",
+                    "blockQuote",
+                    "insertTable",
+                    "undo",
+                    "redo",
+                  ],
+                  heading: {
+                    options: [
+                      {
+                        model: "paragraph",
+                        title: "Paragraph",
+                        class: "ck-heading_paragraph",
+                      },
+                      {
+                        model: "heading3",
+                        view: "h3",
+                        title: "Heading 3",
+                        class: "ck-heading_heading3",
+                      },
+                      {
+                        model: "heading4",
+                        view: "h4",
+                        title: "Heading 4",
+                        class: "ck-heading_heading4",
+                      },
+                      {
+                        model: "heading5",
+                        view: "h5",
+                        title: "Heading 5",
+                        class: "ck-heading_heading5",
+                      },
+                      {
+                        model: "heading6",
+                        view: "h6",
+                        title: "Heading 6",
+                        class: "ck-heading_heading6",
+                      },
+                    ],
+                  },
+                }}
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   handleDetailsChange({
@@ -2871,6 +2940,58 @@ const PropertyForm = ({ editData, onClose }) => {
               <CKEditor
                 editor={ClassicEditor}
                 data={details.about_location || ""}
+                config={{
+                  toolbar: [
+                    "heading",
+                    "|",
+                    "bold",
+                    "italic",
+                    "link",
+                    "bulletedList",
+                    "numberedList",
+                    "|",
+                    "outdent",
+                    "indent",
+                    "|",
+                    "blockQuote",
+                    "insertTable",
+                    "undo",
+                    "redo",
+                  ],
+                  heading: {
+                    options: [
+                      {
+                        model: "paragraph",
+                        title: "Paragraph",
+                        class: "ck-heading_paragraph",
+                      },
+                      {
+                        model: "heading3",
+                        view: "h3",
+                        title: "Heading 3",
+                        class: "ck-heading_heading3",
+                      },
+                      {
+                        model: "heading4",
+                        view: "h4",
+                        title: "Heading 4",
+                        class: "ck-heading_heading4",
+                      },
+                      {
+                        model: "heading5",
+                        view: "h5",
+                        title: "Heading 5",
+                        class: "ck-heading_heading5",
+                      },
+                      {
+                        model: "heading6",
+                        view: "h6",
+                        title: "Heading 6",
+                        class: "ck-heading_heading6",
+                      },
+                    ],
+                  },
+                }}
                 onChange={(event, editor) => {
                   const data = editor.getData();
                   handleDetailsChange({
@@ -2881,7 +3002,59 @@ const PropertyForm = ({ editData, onClose }) => {
             </div>
           </div>
         </div>
-
+        {/* sections for seo details */}
+        {/* meta title */}
+        <div className="form-row">
+          <div className="form-group full-width">
+            <label>Meta Title</label>
+            <textarea
+              name="meta_title"
+              className="form-control"
+              value={details.meta_title || ""}
+              onChange={handleDetailsChange}
+              rows={5}
+            />
+          </div>
+        </div>
+        {/* meta description */}
+        <div className="form-row">
+          <div className="form-group full-width">
+            <label>Meta Description</label>
+            <textarea
+              name="meta_description"
+              className="form-control"
+              value={details.meta_description || ""}
+              onChange={handleDetailsChange}
+              rows={5}
+            />
+          </div>
+        </div>
+        {/* meta kewords */}
+        <div className="form-row">
+          <div className="form-group full-width">
+            <label>Meta Keyword</label>
+            <textarea
+              name="meta_keyword"
+              className="form-control"
+              value={details.meta_keyword || ""}
+              onChange={handleDetailsChange}
+              rows={5}
+            />
+          </div>
+        </div>
+        {/* meta canonical */}
+        {/* <div className="form-row">
+          <div className="form-group full-width">
+            <label>Meta canonical</label>
+            <textarea
+              name="meta_canonical"
+              className="form-control"
+              value={details.meta_canonical || ""}
+              onChange={handleDetailsChange}
+              rows={1}
+            />
+          </div>
+        </div> */}
         <div className="form-actions">
           <button
             type="button"

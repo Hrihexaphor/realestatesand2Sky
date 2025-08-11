@@ -112,6 +112,20 @@ const heroImageStorage = new CloudinaryStorage({
     };
   },
 });
+
+// interior image storage
+const interiorImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: (req, file) => {
+    const filename = file.originalname.split(".")[0];
+    return {
+      folder: "realestate/interior",
+      allowed_formats: ["jpg", "jpeg", "png"],
+      public_id: `${filename}-${uuidv4()}`,
+      transformation: [{ width: 500, height: 500, crop: "limit" }],
+    };
+  },
+});
 export default {
   cloudinary,
   blogStorage,
@@ -120,4 +134,5 @@ export default {
   developerLogoStorage,
   propertyStorage,
   heroImageStorage,
+  interiorImageStorage,
 };
