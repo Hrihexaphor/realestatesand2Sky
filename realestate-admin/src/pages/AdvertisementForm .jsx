@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { getMediaURL } from "../utils/imageUtils";
 export function AdvertisementForm() {
   const [form, setForm] = useState({
     link: "",
@@ -410,7 +411,7 @@ export function AdvertisementForm() {
                 <div className="relative inline-block">
                   <div className="group relative">
                     <img
-                      src={`${BASE_URL}/${form.image_url}`}
+                      src={getMediaURL(form.image_url)}
                       alt="Uploaded"
                       className="w-48 h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
                     />
@@ -637,7 +638,7 @@ export function AdvertisementForm() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <img
-                        src={`${ad.image_url}`}
+                        src={getMediaURL(ad.image_url)}
                         alt="Ad"
                         className="w-20 h-14 object-cover rounded-lg border border-gray-200 shadow-sm"
                       />

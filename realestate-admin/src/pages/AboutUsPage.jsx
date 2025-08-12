@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
+import { getMediaURL } from "../utils/imageUtils";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const AboutUsPage = () => {
@@ -204,7 +205,7 @@ const AboutUsPage = () => {
               {imagePreview && (
                 <div className="relative w-48 h-32 border rounded-md overflow-hidden">
                   <img
-                    src={imagePreview}
+                    src={getMediaURL(imagePreview)}
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
@@ -266,7 +267,7 @@ const AboutUsPage = () => {
                   {item.image_url ? (
                     <div className="relative group">
                       <img
-                        src={`${item.image_url}`}
+                        src={getMediaURL(item.image_url)}
                         alt="about"
                         className="h-14 w-20 object-cover mx-auto rounded shadow-sm group-hover:opacity-90 transition"
                       />

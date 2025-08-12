@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import SearchBox from "../components/SearchBox";
 import * as XLSX from "xlsx";
-
+import { getMediaURL } from "../utils/imageUtils.js";
 const DeveloperPage = () => {
   const [developers, setDevelopers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -379,7 +379,7 @@ const DeveloperPage = () => {
               {previewImage && (
                 <div className="w-1/2">
                   <img
-                    src={previewImage}
+                    src={getMediaURL(previewImage)}
                     alt="Preview"
                     className="h-20 w-20 object-contain border rounded"
                   />

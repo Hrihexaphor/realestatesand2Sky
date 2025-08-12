@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Upload, Trash2, Eye } from "lucide-react";
 import axios from "axios";
-
+import { getMediaURL } from "../utils/imageUtils";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const HeroSectionManager = () => {
@@ -148,7 +148,7 @@ const HeroSectionManager = () => {
               <div className="relative inline-block">
                 <div className="relative">
                   <img
-                    src={imagePreview}
+                    src={getMediaURL(imagePreview)}
                     alt="Preview"
                     className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
                   />
@@ -232,7 +232,7 @@ const HeroSectionManager = () => {
                       >
                         <td className="py-4 px-4">
                           <img
-                            src={img.image_url}
+                            src={getMediaURL(img.image_url)}
                             alt="Hero"
                             className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                           />

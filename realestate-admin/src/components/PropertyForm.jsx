@@ -5,6 +5,7 @@ import { Map, Building, Home, MapPin } from "lucide-react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { convertToIndianWords } from "../utils.js";
+import { getMediaURL } from "../utils/imageUtils";
 import "./propertyForm.css";
 
 const PropertyForm = ({ editData, onClose }) => {
@@ -2749,8 +2750,9 @@ const PropertyForm = ({ editData, onClose }) => {
                     src={
                       img instanceof File
                         ? URL.createObjectURL(img)
-                        : img.url || img
+                        : getMediaURL(img.url) || img
                     }
+                    // src={getMediaURL(img.url || img)}
                     alt={`Preview ${idx}`}
                   />
                   <div className="image-actions">

@@ -3,6 +3,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 import { Edit, Trash2, X } from "lucide-react";
+import { getMediaURL } from "../utils/imageUtils";
 
 const BlogPage = () => {
   const [blogs, setBlogs] = useState([]);
@@ -427,7 +428,7 @@ const BlogPage = () => {
               {imagePreview && (
                 <div className="relative inline-block">
                   <img
-                    src={imagePreview}
+                    src={getMediaURL(imagePreview)}
                     alt="Preview"
                     className="w-32 h-32 object-cover rounded-lg"
                   />
