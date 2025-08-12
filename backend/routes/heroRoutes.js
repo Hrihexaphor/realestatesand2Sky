@@ -12,7 +12,7 @@ const router = express.Router();
 // Upload hero image
 router.post("/hero", uploadHeroImage.single("image"), async (req, res) => {
   try {
-    const imageUrl = req.file?.path;
+    const imageUrl = req.file?.key;
     if (!imageUrl) {
       return res
         .status(400)

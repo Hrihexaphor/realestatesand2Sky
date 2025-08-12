@@ -165,7 +165,7 @@ router.post(
               return {
                 ...config,
                 file_name: uploadedFile.originalname,
-                file_url: uploadedFile.path, // This should be the Cloudinary URL
+                file_url: uploadedFile.key, // This should be the Cloudinary URL
               };
             }
           }
@@ -182,7 +182,7 @@ router.post(
       // Process images
       if (req.files?.images?.length > 0) {
         const imageLinks = req.files.images.map((file, index) => ({
-          image_url: file.path, // Cloudinary URL
+          image_url: file.key, // Cloudinary URL
           is_primary: index === 0,
         }));
         await insertImages(property.id, imageLinks);
@@ -205,7 +205,7 @@ router.post(
             (m) => m.filename === file.originalname
           );
           return {
-            file_url: file.path, // Cloudinary URL
+            file_url: file.key, // Cloudinary URL
             type: meta?.type || null,
           };
         });
@@ -287,7 +287,7 @@ router.patch(
       );
 
       const newImages = (req.files?.images || []).map((file, index) => ({
-        image_url: file.path,
+        image_url: file.key,
         is_primary: !hasPrimaryImage && index === 0,
       }));
 
@@ -300,7 +300,7 @@ router.patch(
           (m) => m.filename === file.originalname
         );
         return {
-          file_url: file.path,
+          file_url: file.key,
           type: meta?.type || null,
         };
       });

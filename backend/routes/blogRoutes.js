@@ -23,6 +23,7 @@ const router = express.Router();
 router.post("/addblog", (req, res) => {
   uploadBlogImage.single("blogImage")(req, res, async function (err) {
     if (err instanceof multer.MulterError || err) {
+      console.error(err);
       return res.status(400).json({ error: err.message });
     }
     try {
@@ -34,7 +35,11 @@ router.post("/addblog", (req, res) => {
         blog_category_id,
         youtube_link,
       } = req.body;
-      const image_url = req.file ? req.file.path : null;
+      // Only save the key , and later construct the full URL or , save the location to db.
+      // 2 options.
+      // 1st one is better, in the similar situation where you have to change the storage provider
+      // you can easily switc, you dont have to rewrite the full url.
+      const image_url = req.file ? req.file.key : null;
 
       if (!title || !description) {
         return res

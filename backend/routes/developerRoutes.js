@@ -17,7 +17,7 @@ router.post("/developer", (req, res) => {
       return res.status(400).json({ error: err.message });
     }
     try {
-      const image_url = req.file ? req.file.path : null;
+      const image_url = req.file ? req.file.key : null;
       const developerData = {
         ...req.body,
         developer_logo: image_url,

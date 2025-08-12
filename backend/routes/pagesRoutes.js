@@ -14,7 +14,7 @@ router.post("/addAbout", isAuthenticated(), async (req, res) => {
 
     try {
       const { title, description } = req.body;
-      const image_url = req.file ? req.file.path : null;
+      const image_url = req.file ? req.file.key : null;
 
       if (!title || !description) {
         return res
